@@ -1,0 +1,26 @@
+node_modules/
+*.tgz
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.DS_Store
+*.log
+.spec/
+research/
+docs/README.en.md
+docs/README.es.md
+docs/README.pt-BR.md
+docs/market-pr-draft.md
+docs/merge-2026-10-13-review.md
+docs/SPEC-triage-2026-09.md
+pi-antigravity-bridge-research-report.md
+scripts/diag-quota.mts
+scripts/repair-pool.mts
+scripts/smoke-translate.ts
+
+# agy credential dirs (never commit)
+.gemini/
+Microsoft/
