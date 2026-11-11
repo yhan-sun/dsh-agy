@@ -132,28 +132,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
   let lastParser = new StreamJsonParser()
   const getConfig = (): PluginConfig => resolveConfig(entryConfig)
   const directConfigListeners = new Set<() => void>()
-  // The direct backend is opt-in and fixed for this process lifetime. This
-  // avoids changing transports or credentials underneath an in-flight turn.
-  const directEnabledAtStartup = getConfig().enabled && getConfig().experimentalDirect
-  let directRuntime: 'disabled' | 'starting' | 'loaded' | 'error' = directEnabledAtStartup ? 'starting' : 'disabled'
-  ctx.effect(() => {
-    let active = true
-    if (directEnabledAtStartup) {
-      void import('../direct/legacy/src/integrated-host.ts').then(async ({ mountDirectBackend }) => {
-        if (!active) return
-        await mountDirectBackend(ctx, getConfig, (listener) => {
-          directConfigListeners.add(listener)
-          return () => { directConfigListeners.delete(listener) }
-        })
-        if (active) directRuntime = 'loaded'
-      }).catch((error: unknown) => {
-        if (!active) return
-        directRuntime = 'error'
-        log('experimental direct backend could not be loaded: ' + String(error))
-      })
-    }
-    return () => { active = false }
-  }, 'agy-link: experimental direct backend')
+  let directRuntime: 'disabled' | 'starting' | 'loaded' | 'error' = 'disabled'
   // The webview model picker caches its catalog snapshot and only re-reads
   // after the payload-free `llm/adapters-updated` event (consumers re-read
   // the registries instead of receiving state). Emit it whenever picker
@@ -165,6 +144,60 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
       // Host without the event — the picker simply stays on its snapshot.
     }
   }
+  // Serialize lifecycle changes so rapid toggles cannot leave duplicate providers.
+  let directFiber: ReturnType<Context['plugin']> | undefined
+  let directQueue: Promise<void> = Promise.resolve()
+  let directAlive = true
+  const syncDirectRuntime = (): Promise<void> => {
+    directQueue = directQueue.then(async () => {
+      const shouldRun = directAlive && getConfig().enabled && getConfig().experimentalDirect
+      if (!shouldRun) {
+        const old = directFiber
+        directFiber = undefined
+        if (old) await old.dispose()
+        directRuntime = 'disabled'
+        notifyPicker()
+        return
+      }
+      if (directFiber) return
+      directRuntime = 'starting'
+      try {
+        const { mountDirectBackend } = await import('../direct/legacy/src/integrated-host.ts')
+        if (!directAlive || !getConfig().enabled || !getConfig().experimentalDirect) {
+          directRuntime = 'disabled'
+          return
+        }
+        const fiber = ctx.plugin({
+          name: 'agy-link-experimental-direct',
+          apply: (child: Context) => mountDirectBackend(child, getConfig, listener => {
+            directConfigListeners.add(listener)
+            return () => { directConfigListeners.delete(listener) }
+          }),
+        })
+        directFiber = fiber
+        await fiber
+        if (directAlive && getConfig().enabled && getConfig().experimentalDirect) {
+          directRuntime = 'loaded'
+          notifyPicker()
+        }
+      } catch (error: unknown) {
+        const failed = directFiber
+        directFiber = undefined
+        if (failed) await failed.dispose().catch(() => {})
+        directRuntime = 'error'
+        log('experimental direct backend could not be loaded: ' + String(error))
+      }
+    }).catch((error: unknown) => {
+      directRuntime = 'error'
+      log('experimental direct backend lifecycle failed: ' + String(error))
+    })
+    return directQueue
+  }
+  ctx.effect(() => {
+    directAlive = true
+    void syncDirectRuntime()
+    return () => { directAlive = false; void syncDirectRuntime() }
+  }, 'agy-link: experimental direct backend')
   const bin = (): string | null => {
     if (binCache === undefined || binCache === null) binCache = resolveAgyBin(getConfig())
     return binCache
@@ -936,7 +969,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
           enabled: cfg.enabled,
           experimentalDirect: cfg.experimentalDirect,
           directRuntime,
-          directRestartRequired: cfg.experimentalDirect !== directEnabledAtStartup,
+          directRestartRequired: false,
           directSearch: cfg.directSearch,
           directImage: cfg.directImage,
           directVideo: cfg.directVideo,
@@ -1379,6 +1412,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
           sendJson(res as RawRes, 500, { error: 'settings could not be saved' })
           return
         }
+        if (key === 'experimentalDirect' || key === 'enabled') await syncDirectRuntime()
         if (['directSearch', 'directImage', 'directVideo'].includes(key)) {
           for (const listener of directConfigListeners) listener()
         }

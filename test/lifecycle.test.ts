@@ -101,3 +101,50 @@ test('hiding a model announces itself to the picker via llm/adapters-updated', a
     rmSync(dir, { recursive: true, force: true })
   }
 })
+
+test('direct backend can be enabled and disabled without restarting', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'agy-direct-toggle-'))
+  const previous = process.env.DSH_HOME
+  process.env.DSH_HOME = dir
+  const ctx = new Context()
+  const routes: Array<{ path: string; handler: (req: unknown, res: unknown) => void }> = []
+  try {
+    ctx.plugin({ name: 'direct-toggle-host', apply(c: Context) {
+      c.provide('llm', { listProviders() { return [] }, registerAdapter() { return () => undefined } })
+      c.provide('commands', { register() { return () => undefined } })
+      c.provide('attachments', {})
+      c.provide('connection', { fetch: { register() { return () => undefined } } })
+      c.provide('webServer', { register(route: { path: string; handler: (req: unknown, res: unknown) => void }) { routes.push(route) } })
+    } })
+    await new Promise(resolve => setTimeout(resolve, 20))
+    apply(ctx, { enabled: true, mcpBridge: false, agyBin: '/nonexistent/agy-test' })
+    await new Promise(resolve => setTimeout(resolve, 30))
+    const route = routes.find(r => r.path === '/plugins/agy-link/config')!
+    assert.ok(route)
+    const toggle = (value: boolean): Promise<number> => new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('toggle did not complete')), 4000)
+      let status = 0
+      route.handler({ method: 'POST', on(event: string, cb: (value: Buffer) => void) {
+        if (event === 'data') cb(Buffer.from(JSON.stringify({ key: 'experimentalDirect', value })))
+        if (event === 'end') cb(Buffer.alloc(0))
+      } }, { writeHead(code: number) { status = code }, end() { clearTimeout(timeout); resolve(status) } })
+    })
+    const readStatus = (): Promise<Record<string, unknown>> => new Promise(resolve => {
+      const statusRoute = routes.find(r => r.path === '/plugins/agy-link/status')!
+      statusRoute.handler({}, { writeHead() {}, end(body: string) { resolve(JSON.parse(body)) } })
+    })
+    assert.equal(await toggle(true), 200)
+    assert.equal((await readStatus()).directRuntime, 'loaded')
+    assert.ok(ctx.get('antigravityAuth'), 'direct auth service should be mounted immediately')
+    assert.equal(await toggle(false), 200)
+    assert.equal(ctx.get('antigravityAuth'), undefined, 'direct auth service should be disposed')
+    assert.equal((await readStatus()).directRuntime, 'disabled')
+    assert.equal(await toggle(true), 200)
+    assert.ok(ctx.get('antigravityAuth'), 'the service can be enabled again')
+  } finally {
+    await ctx.fiber.dispose()
+    if (previous === undefined) delete process.env.DSH_HOME
+    else process.env.DSH_HOME = previous
+    rmSync(dir, { recursive: true, force: true })
+  }
+})

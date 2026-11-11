@@ -230,12 +230,13 @@ function extractUsage(value: unknown): TokenUsage | undefined {
     if (!isRecord(item)) return undefined
     const raw = isRecord(item.usageMetadata) ? item.usageMetadata : isRecord(item.usage_metadata) ? item.usage_metadata : isRecord(item.usage) ? item.usage : undefined
     if (raw !== undefined) {
-      const input = safeCount(raw.promptTokenCount ?? raw.inputTokenCount)
+      const totalPrompt = safeCount(raw.promptTokenCount)
+      const input = totalPrompt ?? safeCount(raw.inputTokenCount)
       const output = safeCount(raw.candidatesTokenCount ?? raw.outputTokenCount)
       const cached = safeCount(raw.cachedContentTokenCount ?? raw.cacheReadTokens)
       const reasoning = safeCount(raw.thoughtsTokenCount ?? raw.reasoningTokenCount)
       if (input !== undefined || output !== undefined || cached !== undefined || reasoning !== undefined) {
-        return { inputTokens: input ?? 0, outputTokens: output ?? 0, ...(cached === undefined ? {} : { cacheReadTokens: cached }), ...(reasoning === undefined ? {} : { reasoningTokens: reasoning }) }
+        return { inputTokens: totalPrompt !== undefined && cached !== undefined ? Math.max(0, totalPrompt - cached) : input ?? 0, outputTokens: output ?? 0, ...(cached === undefined ? {} : { cacheReadTokens: cached }), ...(reasoning === undefined ? {} : { reasoningTokens: reasoning }) }
       }
     }
     for (const key of ['response', 'candidates', 'serverContent']) {

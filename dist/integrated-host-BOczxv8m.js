@@ -6819,13 +6819,14 @@ function contextWindowExceededError(status) {
 }
 function parseUsage(value) {
 	if (!isRecord$5(value)) return void 0;
-	const input = numberValue(value.promptTokenCount ?? value.inputTokenCount);
+	const totalPrompt = numberValue(value.promptTokenCount);
+	const input = totalPrompt ?? numberValue(value.inputTokenCount);
 	const output = numberValue(value.candidatesTokenCount ?? value.outputTokenCount);
 	const reasoning = numberValue(value.thoughtsTokenCount ?? value.reasoningTokenCount);
 	const cached = numberValue(value.cachedContentTokenCount ?? value.cacheReadTokens);
 	if (input === void 0 && output === void 0 && reasoning === void 0 && cached === void 0) return void 0;
 	return {
-		inputTokens: input ?? 0,
+		inputTokens: totalPrompt !== void 0 && cached !== void 0 ? Math.max(0, totalPrompt - cached) : input ?? 0,
 		outputTokens: output ?? 0,
 		...cached === void 0 ? {} : { cacheReadTokens: cached },
 		...reasoning === void 0 ? {} : { reasoningTokens: reasoning }
@@ -8696,12 +8697,13 @@ function extractUsage(value) {
 		if (!isRecord(item)) return void 0;
 		const raw = isRecord(item.usageMetadata) ? item.usageMetadata : isRecord(item.usage_metadata) ? item.usage_metadata : isRecord(item.usage) ? item.usage : void 0;
 		if (raw !== void 0) {
-			const input = safeCount(raw.promptTokenCount ?? raw.inputTokenCount);
+			const totalPrompt = safeCount(raw.promptTokenCount);
+			const input = totalPrompt ?? safeCount(raw.inputTokenCount);
 			const output = safeCount(raw.candidatesTokenCount ?? raw.outputTokenCount);
 			const cached = safeCount(raw.cachedContentTokenCount ?? raw.cacheReadTokens);
 			const reasoning = safeCount(raw.thoughtsTokenCount ?? raw.reasoningTokenCount);
 			if (input !== void 0 || output !== void 0 || cached !== void 0 || reasoning !== void 0) return {
-				inputTokens: input ?? 0,
+				inputTokens: totalPrompt !== void 0 && cached !== void 0 ? Math.max(0, totalPrompt - cached) : input ?? 0,
 				outputTokens: output ?? 0,
 				...cached === void 0 ? {} : { cacheReadTokens: cached },
 				...reasoning === void 0 ? {} : { reasoningTokens: reasoning }

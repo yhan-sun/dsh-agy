@@ -75,7 +75,6 @@ export interface ClientContext extends Context {
 interface StatusPayload {
 	experimentalDirect?: boolean;
 	directRuntime?: 'disabled' | 'starting' | 'loaded' | 'error';
-	directRestartRequired?: boolean;
 	directSearch?: boolean;
 	directImage?: boolean;
 	directVideo?: boolean;
@@ -1348,6 +1347,54 @@ html.agy-modal-open body {
 	margin-top: 2px;
 	line-height: 1.4;
 }
+/* Keep the transport setting aligned with the rest of the DSH settings. */
+.agy-direct-mode-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 14px 0;
+}
+.agy-direct-mode-copy {
+  display: flex;
+  flex: 1 1 240px;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+.agy-direct-mode-copy .agy-setting-help { display: block; margin: 0; }
+.agy-direct-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--agy-border-btn);
+  border-radius: 999px;
+  background: var(--agy-bg-btn);
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.agy-direct-switch[aria-checked="true"] {
+  background: var(--agy-seg-btn-active-bg);
+  border-color: var(--agy-seg-btn-active-bg);
+}
+.agy-direct-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--agy-text-secondary);
+  transition: transform .15s ease, background-color .15s ease;
+}
+.agy-direct-switch[aria-checked="true"] .agy-direct-switch-knob {
+  transform: translateX(16px);
+  background: var(--agy-seg-btn-active-text);
+}
+.agy-direct-switch:focus-visible { outline: 2px solid var(--dsw-alias-state-business-primary, #2563eb); outline-offset: 3px; }
+.agy-direct-switch:disabled { opacity: .55; cursor: wait; }
 .agy-permission-row {
 	display: grid !important;
 	grid-template-columns: minmax(0, 1fr) minmax(210px, 260px);
@@ -2757,18 +2804,18 @@ export function apply(ctx: ClientContext): void {
 				),
 			),
 			renderToastBanner(),
-			h('div', { className: 'agy-setting-row' },
-				h('div', { className: 'agy-setting-copy' },
-					h('span', { className: 'agy-setting-label' }, t('direct.title')),
+			h('div', { className: 'agy-setting-row agy-direct-mode-row' },
+				h('div', { className: 'agy-direct-mode-copy' },
+					h('span', { id: 'agy-direct-mode-label', className: 'agy-setting-label' }, t('direct.title')),
 					h('span', { className: 'agy-setting-help', style: S.muted }, t('direct.description')),
-					status.directRestartRequired ? h('span', { role: 'status' }, t('direct.restart')) : null,
 				),
 				h('button', {
-					type: 'button', className: 'agy-btn', style: S.btn,
-					'aria-pressed': status.experimentalDirect === true,
+					type: 'button', className: 'agy-direct-switch', role: 'switch',
+					'aria-labelledby': 'agy-direct-mode-label',
+					'aria-checked': status.experimentalDirect === true,
 					disabled: loadingAction === 'config:experimentalDirect',
 					onClick: () => { void setCfg('experimentalDirect', status.experimentalDirect !== true); },
-				}, status.experimentalDirect ? t('config.on') : t('config.off')),
+				}, h('span', { className: 'agy-direct-switch-knob', 'aria-hidden': true })),
 			),
 			status.directRuntime === 'starting' ? h('p', { style: S.muted, role: 'status' }, t('direct.loading')) : null,
 			status.directRuntime === 'error' ? h('p', { role: 'alert' }, t('direct.error')) : null,

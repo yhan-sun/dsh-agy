@@ -276,8 +276,7 @@ window.__ModuleLoader__.load({
 			"config.runtimeTitle": "运行方式",
 			"config.runtimeDesc": "选择账号切换方式和 AGY 工具权限。",
 			"direct.title": "实验性直连",
-			"direct.description": "开启后重启 DSH，在模型选择器中选择 Google Antigravity 直连。直连使用独立账号，不会自动切换或作为 AGY 的后备。",
-			"direct.restart": "设置已更改，请重启 DSH。",
+			"direct.description": "使用独立账号，可在模型列表中选择。",
 			"direct.loading": "正在加载直连模块…",
 			"direct.error": "直连模块加载失败，请查看 DSH 日志。",
 			"direct.unavailable": "直连账号管理需要本机 DSH 连接。",
@@ -480,8 +479,7 @@ window.__ModuleLoader__.load({
 			"config.runtimeTitle": "Runtime",
 			"config.runtimeDesc": "Choose account switching and AGY tool permissions.",
 			"direct.title": "Experimental direct transport",
-			"direct.description": "Restart DSH after enabling, then choose Google Antigravity direct in the model picker. Direct uses a separate account and is never an automatic AGY fallback.",
-			"direct.restart": "Setting changed. Restart DSH.",
+			"direct.description": "Uses a separate account. Select a direct model in the model picker.",
 			"direct.loading": "Loading direct transport…",
 			"direct.error": "Direct transport failed to load. Check DSH logs.",
 			"direct.unavailable": "Direct account management requires a local DSH connection.",
@@ -684,8 +682,7 @@ window.__ModuleLoader__.load({
 			"config.runtimeTitle": "Execução",
 			"config.runtimeDesc": "Escolha a troca de conta e as permissões das ferramentas do AGY.",
 			"direct.title": "Conexão direta experimental",
-			"direct.description": "Reinicie o DSH após ativar e selecione o provedor direto. A conta é separada e não há troca automática do AGY.",
-			"direct.restart": "Configuração alterada. Reinicie o DSH.",
+			"direct.description": "Usa uma conta separada. Selecione um modelo direto.",
 			"direct.loading": "Carregando conexão direta…",
 			"direct.error": "Falha ao carregar a conexão direta. Consulte os registros do DSH.",
 			"direct.unavailable": "O gerenciamento de conta direta requer uma conexão local do DSH.",
@@ -888,8 +885,7 @@ window.__ModuleLoader__.load({
 			"config.runtimeTitle": "Ejecución",
 			"config.runtimeDesc": "Elige el cambio de cuenta y los permisos de herramientas de AGY.",
 			"direct.title": "Conexión directa experimental",
-			"direct.description": "Reinicia DSH después de activarla y elige el proveedor directo. Usa otra cuenta y no cambia automáticamente desde AGY.",
-			"direct.restart": "Ajuste modificado. Reinicia DSH.",
+			"direct.description": "Usa una cuenta independiente. Elige un modelo directo.",
 			"direct.loading": "Cargando conexión directa…",
 			"direct.error": "No se pudo cargar la conexión directa. Consulta los registros de DSH.",
 			"direct.unavailable": "La gestión de cuentas directas requiere una conexión local de DSH.",
@@ -8604,6 +8600,54 @@ html.agy-modal-open body {
 	margin-top: 2px;
 	line-height: 1.4;
 }
+/* Keep the transport setting aligned with the rest of the DSH settings. */
+.agy-direct-mode-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 14px 0;
+}
+.agy-direct-mode-copy {
+  display: flex;
+  flex: 1 1 240px;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+.agy-direct-mode-copy .agy-setting-help { display: block; margin: 0; }
+.agy-direct-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--agy-border-btn);
+  border-radius: 999px;
+  background: var(--agy-bg-btn);
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.agy-direct-switch[aria-checked="true"] {
+  background: var(--agy-seg-btn-active-bg);
+  border-color: var(--agy-seg-btn-active-bg);
+}
+.agy-direct-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--agy-text-secondary);
+  transition: transform .15s ease, background-color .15s ease;
+}
+.agy-direct-switch[aria-checked="true"] .agy-direct-switch-knob {
+  transform: translateX(16px);
+  background: var(--agy-seg-btn-active-text);
+}
+.agy-direct-switch:focus-visible { outline: 2px solid var(--dsw-alias-state-business-primary, #2563eb); outline-offset: 3px; }
+.agy-direct-switch:disabled { opacity: .55; cursor: wait; }
 .agy-permission-row {
 	display: grid !important;
 	grid-template-columns: minmax(0, 1fr) minmax(210px, 260px);
@@ -10093,19 +10137,26 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					},
 					disabled: isBusy,
 					onClick: () => void refreshQuota()
-				}, loadingAction === "refresh:all" ? [renderSpinner(), t("header.refreshing")] : [uiIcon("refresh", 12, "var(--agy-text-btn)"), ` ${t("header.refreshQuota")}`]))), renderToastBanner(), h("div", { className: "agy-setting-row" }, h("div", { className: "agy-setting-copy" }, h("span", { className: "agy-setting-label" }, t("direct.title")), h("span", {
+				}, loadingAction === "refresh:all" ? [renderSpinner(), t("header.refreshing")] : [uiIcon("refresh", 12, "var(--agy-text-btn)"), ` ${t("header.refreshQuota")}`]))), renderToastBanner(), h("div", { className: "agy-setting-row agy-direct-mode-row" }, h("div", { className: "agy-direct-mode-copy" }, h("span", {
+					id: "agy-direct-mode-label",
+					className: "agy-setting-label"
+				}, t("direct.title")), h("span", {
 					className: "agy-setting-help",
 					style: S.muted
-				}, t("direct.description")), status.directRestartRequired ? h("span", { role: "status" }, t("direct.restart")) : null), h("button", {
+				}, t("direct.description"))), h("button", {
 					type: "button",
-					className: "agy-btn",
-					style: S.btn,
-					"aria-pressed": status.experimentalDirect === true,
+					className: "agy-direct-switch",
+					role: "switch",
+					"aria-labelledby": "agy-direct-mode-label",
+					"aria-checked": status.experimentalDirect === true,
 					disabled: loadingAction === "config:experimentalDirect",
 					onClick: () => {
 						setCfg("experimentalDirect", status.experimentalDirect !== true);
 					}
-				}, status.experimentalDirect ? t("config.on") : t("config.off"))), status.directRuntime === "starting" ? h("p", {
+				}, h("span", {
+					className: "agy-direct-switch-knob",
+					"aria-hidden": true
+				}))), status.directRuntime === "starting" ? h("p", {
 					style: S.muted,
 					role: "status"
 				}, t("direct.loading")) : null, status.directRuntime === "error" ? h("p", { role: "alert" }, t("direct.error")) : null, status.directRuntime === "loaded" ? h(DirectSettingsPane, {

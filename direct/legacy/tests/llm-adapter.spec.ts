@@ -69,6 +69,34 @@ describe('Antigravity LLM adapter', () => {
     if (finish?.type === 'finish') expect(finish.replayState).toMatchObject({ response: { provider: ANTIGRAVITY_PROVIDER }, blocks: [{ kind: 'text', signature: 'provider-sig' }] })
   })
 
+  it('reports cached prompt tokens separately from uncached input', async () => {
+    const adapter = new AntigravityAdapter({
+      auth: { credential: vi.fn(async () => credential('access')) },
+      transport: { request: vi.fn(async () => new Response(
+        'data: {"response":{"parts":[{"text":"ok"}],"usageMetadata":{"promptTokenCount":1000,"cachedContentTokenCount":800,"candidatesTokenCount":20},"finishReason":"STOP"}}\n\n',
+      )) },
+    })
+    const chunks = await collect(adapter.stream(options()))
+    expect(chunks).toContainEqual({ type: 'usage', usage: { inputTokens: 200, cacheReadTokens: 800, outputTokens: 20 } })
+  })
+
+  it('delivers text as soon as an SSE frame arrives, before the response ends', async () => {
+    const encoder = new TextEncoder()
+    let source!: ReadableStreamDefaultController<Uint8Array>
+    const response = new Response(new ReadableStream<Uint8Array>({ start(controller) { source = controller } }))
+    const adapter = new AntigravityAdapter({ auth: { credential: vi.fn(async () => credential('access')) }, transport: { request: vi.fn(async () => response) } })
+    const iterator = adapter.stream(options())[Symbol.asyncIterator]()
+    const first = iterator.next()
+    source.enqueue(encoder.encode('data: {"response":{"parts":[{"text":"first"}]}}\n\n'))
+    expect(await first).toMatchObject({ value: { type: 'block-start' } })
+    expect(await iterator.next()).toMatchObject({ value: { type: 'text-delta', text: 'first' } })
+    source.enqueue(encoder.encode('data: {"response":{"finishReason":"STOP"}}\n\n'))
+    source.close()
+    const rest: StreamChunk[] = []
+    for (;;) { const item = await iterator.next(); if (item.done) break; rest.push(item.value) }
+    expect(rest.at(-1)).toMatchObject({ type: 'finish' })
+  })
+
   it('drains the Gemini 3.8 stream after a terminal event instead of cancelling the live body early', async () => {
     const encoder = new TextEncoder()
     let cancelled = false

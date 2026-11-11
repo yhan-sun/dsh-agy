@@ -12884,33 +12884,69 @@ function apply(ctx, entryConfig = {}) {
 	let lastParser = new StreamJsonParser();
 	const getConfig = () => resolveConfig(entryConfig);
 	const directConfigListeners = /* @__PURE__ */ new Set();
-	const directEnabledAtStartup = getConfig().enabled && getConfig().experimentalDirect;
-	let directRuntime = directEnabledAtStartup ? "starting" : "disabled";
-	ctx.effect(() => {
-		let active = true;
-		if (directEnabledAtStartup) import("./integrated-host-DU4m0Fk0.js").then(async ({ mountDirectBackend }) => {
-			if (!active) return;
-			await mountDirectBackend(ctx, getConfig, (listener) => {
-				directConfigListeners.add(listener);
-				return () => {
-					directConfigListeners.delete(listener);
-				};
-			});
-			if (active) directRuntime = "loaded";
-		}).catch((error) => {
-			if (!active) return;
-			directRuntime = "error";
-			log("experimental direct backend could not be loaded: " + String(error));
-		});
-		return () => {
-			active = false;
-		};
-	}, "agy-link: experimental direct backend");
+	let directRuntime = "disabled";
 	const notifyPicker = () => {
 		try {
 			ctx.emit("llm/adapters-updated");
 		} catch {}
 	};
+	let directFiber;
+	let directQueue = Promise.resolve();
+	let directAlive = true;
+	const syncDirectRuntime = () => {
+		directQueue = directQueue.then(async () => {
+			if (!(directAlive && getConfig().enabled && getConfig().experimentalDirect)) {
+				const old = directFiber;
+				directFiber = void 0;
+				if (old) await old.dispose();
+				directRuntime = "disabled";
+				notifyPicker();
+				return;
+			}
+			if (directFiber) return;
+			directRuntime = "starting";
+			try {
+				const { mountDirectBackend } = await import("./integrated-host-BOczxv8m.js");
+				if (!directAlive || !getConfig().enabled || !getConfig().experimentalDirect) {
+					directRuntime = "disabled";
+					return;
+				}
+				const fiber = ctx.plugin({
+					name: "agy-link-experimental-direct",
+					apply: (child) => mountDirectBackend(child, getConfig, (listener) => {
+						directConfigListeners.add(listener);
+						return () => {
+							directConfigListeners.delete(listener);
+						};
+					})
+				});
+				directFiber = fiber;
+				await fiber;
+				if (directAlive && getConfig().enabled && getConfig().experimentalDirect) {
+					directRuntime = "loaded";
+					notifyPicker();
+				}
+			} catch (error) {
+				const failed = directFiber;
+				directFiber = void 0;
+				if (failed) await failed.dispose().catch(() => {});
+				directRuntime = "error";
+				log("experimental direct backend could not be loaded: " + String(error));
+			}
+		}).catch((error) => {
+			directRuntime = "error";
+			log("experimental direct backend lifecycle failed: " + String(error));
+		});
+		return directQueue;
+	};
+	ctx.effect(() => {
+		directAlive = true;
+		syncDirectRuntime();
+		return () => {
+			directAlive = false;
+			syncDirectRuntime();
+		};
+	}, "agy-link: experimental direct backend");
 	const bin = () => {
 		if (binCache === void 0 || binCache === null) binCache = resolveAgyBin(getConfig());
 		return binCache;
@@ -13465,7 +13501,7 @@ function apply(ctx, entryConfig = {}) {
 						enabled: cfg.enabled,
 						experimentalDirect: cfg.experimentalDirect,
 						directRuntime,
-						directRestartRequired: cfg.experimentalDirect !== directEnabledAtStartup,
+						directRestartRequired: false,
 						directSearch: cfg.directSearch,
 						directImage: cfg.directImage,
 						directVideo: cfg.directVideo,
@@ -14040,6 +14076,7 @@ function apply(ctx, entryConfig = {}) {
 						sendJson(res, 500, { error: "settings could not be saved" });
 						return;
 					}
+					if (key === "experimentalDirect" || key === "enabled") await syncDirectRuntime();
 					if ([
 						"directSearch",
 						"directImage",

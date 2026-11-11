@@ -1397,13 +1397,15 @@ function contextWindowExceededError(status?: number): LlmError {
 
 function parseUsage(value: unknown): TokenUsage | undefined {
   if (!isRecord(value)) return undefined
-  const input = numberValue(value.promptTokenCount ?? value.inputTokenCount)
+  const totalPrompt = numberValue(value.promptTokenCount)
+  const input = totalPrompt ?? numberValue(value.inputTokenCount)
   const output = numberValue(value.candidatesTokenCount ?? value.outputTokenCount)
   const reasoning = numberValue(value.thoughtsTokenCount ?? value.reasoningTokenCount)
   const cached = numberValue(value.cachedContentTokenCount ?? value.cacheReadTokens)
   if (input === undefined && output === undefined && reasoning === undefined && cached === undefined) return undefined
   return {
-    inputTokens: input ?? 0,
+    // Gemini promptTokenCount includes the cache, while DSH requires disjoint counts.
+    inputTokens: totalPrompt !== undefined && cached !== undefined ? Math.max(0, totalPrompt - cached) : input ?? 0,
     outputTokens: output ?? 0,
     ...(cached === undefined ? {} : { cacheReadTokens: cached }),
     ...(reasoning === undefined ? {} : { reasoningTokens: reasoning }),
