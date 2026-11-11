@@ -680,23 +680,23 @@ function renderFamilyQuotaBar(
 		}
 		if (pct <= 20) {
 			return {
-				bar: 'var(--agy-quota-low-text)',
-				text: 'var(--agy-quota-low-text)',
+				bar: 'var(--agy-quota-low-bar, #ef4444)',
+				text: 'var(--agy-quota-low-text, #ef4444)',
 				bg: 'var(--agy-quota-low-bg)',
 				border: 'var(--agy-quota-low-border)',
 			};
 		}
 		if (pct <= 50) {
 			return {
-				bar: 'var(--agy-quota-med-text)',
-				text: 'var(--agy-quota-med-text)',
+				bar: 'var(--agy-quota-med-bar, #f59e0b)',
+				text: 'var(--agy-quota-med-text, #f59e0b)',
 				bg: 'var(--agy-quota-med-bg)',
 				border: 'var(--agy-quota-med-border)',
 			};
 		}
 		return {
-			bar: 'var(--dsw-alias-state-business-primary, #2563eb)',
-			text: 'var(--agy-quota-high-text)',
+			bar: 'var(--agy-quota-high-bar, #10b981)',
+			text: 'var(--agy-quota-high-text, #10b981)',
 			bg: 'var(--agy-quota-high-bg)',
 			border: 'var(--agy-quota-high-border)',
 		};
@@ -722,7 +722,7 @@ function renderFamilyQuotaBar(
 						width: `${percent < 0 ? 100 : percent}%`,
 						height: '100%',
 						background: c.bar,
-						borderRadius: '3px',
+						borderRadius: '999px',
 					},
 				}),
 			),
@@ -735,13 +735,14 @@ function renderFamilyQuotaBar(
 						background: 'transparent',
 						color: c.text,
 						border: '0',
-						fontWeight: 600,
+						fontWeight: 700,
 						fontSize: '12px',
 						lineHeight: 1.2,
 						cursor: tooltipText ? 'help' : 'default',
+						fontVariantNumeric: 'tabular-nums',
 					},
 				}, percent < 0 ? '—' : `${percent}%`),
-				resetStr ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '11.5px', fontWeight: 400 } }, `↻ ${resetStr}`) : null,
+				resetStr ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '11px', fontWeight: 400 } }, `↻ ${resetStr}`) : null,
 			),
 		);
 	};
@@ -767,85 +768,83 @@ const GLOBAL_CSS = `
 :root, body {
 	--agy-font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif);
 	--agy-bg-panel: var(--dsw-alias-bg-layer-1, #ffffff);
-	--agy-bg-card: var(--dsw-alias-bg-layer-1, #ffffff);
-	--agy-bg-card-primary: var(--dsw-alias-bg-layer-1, #ffffff);
-	--agy-bg-header: var(--dsw-alias-bg-layer-1, #ffffff);
-	--agy-bg-box: transparent;
-	--agy-bg-subbox: var(--dsw-alias-bg-layer-2, #f8fafc);
-	--agy-bg-input: var(--dsw-alias-bg-layer-1, #ffffff);
-	--agy-bg-btn: var(--dsw-alias-bg-layer-2, #f1f5f9);
-	--agy-bg-btn-hover: var(--dsw-alias-interactive-bg-hover, #e2e8f0);
-	--agy-bg-btn-primary: var(--dsw-alias-state-business-primary, #2563eb);
-	--agy-bg-progress-track: var(--dsw-alias-bg-layer-2, #e2e8f0);
+	--agy-bg-card: #ffffff;
+	--agy-bg-card-hover: #f8fafc;
+	--agy-bg-card-active: #f0f7ff;
+	--agy-bg-header: transparent;
+	--agy-bg-box: rgba(0, 0, 0, 0.02);
+	--agy-bg-subbox: #f8fafc;
+	--agy-bg-input: #ffffff;
+	--agy-bg-btn: #f1f5f9;
+	--agy-bg-btn-hover: #e2e8f0;
+	--agy-bg-btn-primary: #2563eb;
+	--agy-bg-progress-track: rgba(0, 0, 0, 0.06);
+	--agy-bg-quota-box: rgba(0, 0, 0, 0.02);
 
-	--agy-border-card: var(--dsw-alias-border-l1, #e2e8f0);
-	--agy-border-card-primary: var(--dsw-alias-border-l1, #e2e8f0);
-	--agy-border-box: transparent;
-	--agy-border-subbox: var(--dsw-alias-border-l1, #e2e8f0);
-	--agy-border-input: var(--dsw-alias-border-l2, #cbd5e1);
-	--agy-border-input-focus: var(--dsw-alias-state-business-primary, #2563eb);
-	--agy-border-btn: var(--dsw-alias-border-l2, #cbd5e1);
-	--agy-border-btn-primary: var(--dsw-alias-state-business-primary, #2563eb);
-	--agy-border-divider: var(--dsw-alias-border-l1, #e2e8f0);
+	--agy-border-card: rgba(0, 0, 0, 0.08);
+	--agy-border-card-hover: rgba(0, 0, 0, 0.14);
+	--agy-border-card-active: #3b82f6;
+	--agy-border-box: rgba(0, 0, 0, 0.06);
+	--agy-border-subbox: rgba(0, 0, 0, 0.06);
+	--agy-border-input: #cbd5e1;
+	--agy-border-input-focus: #2563eb;
+	--agy-border-btn: rgba(0, 0, 0, 0.08);
+	--agy-border-btn-primary: #2563eb;
+	--agy-border-divider: rgba(0, 0, 0, 0.06);
+	--agy-border-quota-box: rgba(0, 0, 0, 0.05);
 
-	--agy-text-primary: var(--dsw-alias-label-primary, #0f172a);
-	--agy-text-secondary: var(--dsw-alias-label-secondary, #334155);
-	--agy-text-tertiary: var(--dsw-alias-label-tertiary, #64748b);
-	--agy-text-muted: var(--dsw-alias-label-caption, #94a3b8);
-	--agy-text-btn: var(--dsw-alias-label-primary, #0f172a);
+	--agy-text-primary: #0f172a;
+	--agy-text-secondary: #334155;
+	--agy-text-tertiary: #64748b;
+	--agy-text-muted: #94a3b8;
+	--agy-text-btn: #0f172a;
 	--agy-text-btn-primary: #ffffff;
-	--agy-text-window-label: var(--dsw-alias-label-secondary, #475569);
+	--agy-text-window-label: #475569;
 
-	--agy-shadow-card: none;
-	--agy-shadow-card-hover: none;
-	--agy-shadow-card-primary: none;
+	--agy-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+	--agy-shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.07);
+	--agy-shadow-card-active: 0 4px 16px rgba(59, 130, 246, 0.12);
 	--agy-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.16);
 	--agy-modal-backdrop: rgba(15, 23, 42, 0.5);
 
 	/* Badges */
-	--agy-badge-primary-bg: transparent;
-	--agy-badge-primary-text: var(--dsw-alias-state-business-primary, #2563eb);
-	--agy-badge-primary-border: transparent;
+	--agy-badge-email-bg: rgba(0, 0, 0, 0.04);
+	--agy-badge-email-text: #475569;
+	--agy-badge-email-border: rgba(0, 0, 0, 0.06);
 
-	--agy-badge-tag-bg: transparent;
-	--agy-badge-tag-text: var(--dsw-alias-label-secondary, #475569);
-	--agy-badge-tag-border: transparent;
+	--agy-badge-active-bg: rgba(16, 185, 129, 0.1);
+	--agy-badge-active-text: #059669;
+	--agy-badge-active-border: rgba(16, 185, 129, 0.25);
 
-	--agy-badge-email-bg: transparent;
-	--agy-badge-email-text: var(--dsw-alias-label-secondary, #475569);
-	--agy-badge-email-border: transparent;
+	--agy-badge-proxy-bg: rgba(0, 0, 0, 0.04);
+	--agy-badge-proxy-text: #64748b;
+	--agy-badge-proxy-border: rgba(0, 0, 0, 0.06);
 
-	--agy-badge-proxy-bg: transparent;
-	--agy-badge-proxy-text: var(--dsw-alias-label-secondary, #475569);
-	--agy-badge-proxy-border: transparent;
+	--agy-badge-ready-bg: rgba(16, 185, 129, 0.1);
+	--agy-badge-ready-text: #059669;
+	--agy-badge-ready-border: rgba(16, 185, 129, 0.25);
 
-	--agy-badge-ready-bg: transparent;
-	--agy-badge-ready-text: #17835c;
-	--agy-badge-ready-border: transparent;
+	--agy-badge-unready-bg: rgba(0, 0, 0, 0.04);
+	--agy-badge-unready-text: #64748b;
+	--agy-badge-unready-border: rgba(0, 0, 0, 0.06);
 
-	--agy-badge-unready-bg: transparent;
-	--agy-badge-unready-text: var(--dsw-alias-label-secondary, #475569);
-	--agy-badge-unready-border: transparent;
-
-	/* Quota status pills */
-	--agy-quota-high-bg: transparent;
-	--agy-quota-high-text: #047857;
-	--agy-quota-high-border: transparent;
-	--agy-quota-med-bg: transparent;
-	--agy-quota-med-text: #b45309;
-	--agy-quota-med-border: transparent;
-	--agy-quota-low-bg: transparent;
-	--agy-quota-low-text: #b91c1c;
-	--agy-quota-low-border: transparent;
-	--agy-quota-none-bg: transparent;
-	--agy-quota-none-text: #64748b;
-	--agy-quota-none-border: transparent;
+	/* Quota status */
+	--agy-quota-high-bar: #10b981;
+	--agy-quota-high-text: #059669;
+	--agy-quota-med-bar: #f59e0b;
+	--agy-quota-med-text: #d97706;
+	--agy-quota-low-bar: #ef4444;
+	--agy-quota-low-text: #dc2626;
+	--agy-quota-none-border: rgba(0, 0, 0, 0.1);
+	--agy-quota-none-text: #94a3b8;
 
 	/* Danger button */
-	--agy-danger-bg: #fef2f2;
-	--agy-danger-text: #b91c1c;
-	--agy-danger-border: #fecaca;
+	--agy-danger-bg: transparent;
+	--agy-danger-text: #94a3b8;
+	--agy-danger-border: transparent;
 	--agy-danger-hover-bg: #fee2e2;
+	--agy-danger-hover-text: #b91c1c;
+	--agy-danger-hover-border: #fca5a5;
 
 	/* Warning banner */
 	--agy-warn-bg: #fffbeb;
@@ -870,8 +869,8 @@ const GLOBAL_CSS = `
 	--agy-toast-error-border: #fca5a5;
 
 	/* Auth Modal / Box */
-	--agy-auth-box-bg: var(--dsw-alias-bg-layer-2, #f8fafc);
-	--agy-auth-box-border: transparent;
+	--agy-auth-box-bg: #f8fafc;
+	--agy-auth-box-border: #e2e8f0;
 
 	/* Segment control */
 	--agy-seg-group-bg: transparent;
@@ -888,85 +887,83 @@ body[data-ds-dark-theme],
 body.dark,
 [data-theme="dark"] {
 	--agy-bg-panel: var(--dsw-alias-bg-layer-1, #0f172a);
-	--agy-bg-card: var(--dsw-alias-bg-layer-1, #0f172a);
-	--agy-bg-card-primary: var(--dsw-alias-bg-layer-1, #0f172a);
-	--agy-bg-header: var(--dsw-alias-bg-layer-1, #1e293b);
-	--agy-bg-box: transparent;
-	--agy-bg-subbox: var(--dsw-alias-bg-layer-2, #1e293b);
-	--agy-bg-input: var(--dsw-alias-bg-layer-3, #090d16);
-	--agy-bg-btn: var(--dsw-alias-bg-layer-2, #1e293b);
-	--agy-bg-btn-hover: var(--dsw-alias-interactive-bg-hover, #475569);
-	--agy-bg-btn-primary: var(--dsw-alias-state-business-primary, #2563eb);
-	--agy-bg-progress-track: var(--dsw-alias-bg-layer-2, #1e293b);
+	--agy-bg-card: rgba(255, 255, 255, 0.035);
+	--agy-bg-card-hover: rgba(255, 255, 255, 0.055);
+	--agy-bg-card-active: rgba(59, 130, 246, 0.06);
+	--agy-bg-header: transparent;
+	--agy-bg-box: rgba(255, 255, 255, 0.02);
+	--agy-bg-subbox: rgba(255, 255, 255, 0.04);
+	--agy-bg-input: rgba(0, 0, 0, 0.35);
+	--agy-bg-btn: rgba(255, 255, 255, 0.04);
+	--agy-bg-btn-hover: rgba(255, 255, 255, 0.09);
+	--agy-bg-btn-primary: #2563eb;
+	--agy-bg-progress-track: rgba(255, 255, 255, 0.07);
+	--agy-bg-quota-box: rgba(255, 255, 255, 0.02);
 
-	--agy-border-card: var(--dsw-alias-border-l1, #334155);
-	--agy-border-card-primary: var(--dsw-alias-border-l1, #334155);
-	--agy-border-box: transparent;
-	--agy-border-subbox: var(--dsw-alias-border-l1, #334155);
-	--agy-border-input: var(--dsw-alias-border-l2, #334155);
+	--agy-border-card: rgba(255, 255, 255, 0.08);
+	--agy-border-card-hover: rgba(255, 255, 255, 0.15);
+	--agy-border-card-active: rgba(59, 130, 246, 0.45);
+	--agy-border-box: rgba(255, 255, 255, 0.06);
+	--agy-border-subbox: rgba(255, 255, 255, 0.06);
+	--agy-border-input: rgba(255, 255, 255, 0.12);
 	--agy-border-input-focus: #3b82f6;
-	--agy-border-btn: var(--dsw-alias-border-l2, #475569);
-	--agy-border-btn-primary: var(--dsw-alias-state-business-primary, #3b82f6);
-	--agy-border-divider: var(--dsw-alias-border-l1, #334155);
+	--agy-border-btn: rgba(255, 255, 255, 0.1);
+	--agy-border-btn-primary: #3b82f6;
+	--agy-border-divider: rgba(255, 255, 255, 0.08);
+	--agy-border-quota-box: rgba(255, 255, 255, 0.05);
 
-	--agy-text-primary: var(--dsw-alias-label-primary, #f8fafc);
-	--agy-text-secondary: var(--dsw-alias-label-secondary, #cbd5e1);
-	--agy-text-tertiary: var(--dsw-alias-label-tertiary, #94a3b8);
-	--agy-text-muted: var(--dsw-alias-label-caption, #64748b);
-	--agy-text-btn: var(--dsw-alias-label-primary, #ffffff);
-	--agy-text-btn-primary: #0b1220;
-	--agy-text-window-label: var(--dsw-alias-label-secondary, #cbd5e1);
+	--agy-text-primary: #f8fafc;
+	--agy-text-secondary: #cbd5e1;
+	--agy-text-tertiary: #94a3b8;
+	--agy-text-muted: #64748b;
+	--agy-text-btn: #f8fafc;
+	--agy-text-btn-primary: #ffffff;
+	--agy-text-window-label: #cbd5e1;
 
-	--agy-shadow-card: none;
-	--agy-shadow-card-hover: none;
-	--agy-shadow-card-primary: none;
+	--agy-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.2);
+	--agy-shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.35);
+	--agy-shadow-card-active: 0 4px 20px rgba(59, 130, 246, 0.15);
 	--agy-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.36);
 	--agy-modal-backdrop: rgba(0, 0, 0, 0.48);
 
 	/* Badges */
-	--agy-badge-primary-bg: transparent;
-	--agy-badge-primary-text: var(--dsw-alias-state-business-primary, #93c5fd);
-	--agy-badge-primary-border: transparent;
+	--agy-badge-email-bg: rgba(255, 255, 255, 0.05);
+	--agy-badge-email-text: #cbd5e1;
+	--agy-badge-email-border: rgba(255, 255, 255, 0.08);
 
-	--agy-badge-tag-bg: transparent;
-	--agy-badge-tag-text: #cbd5e1;
-	--agy-badge-tag-border: transparent;
+	--agy-badge-active-bg: rgba(16, 185, 129, 0.12);
+	--agy-badge-active-text: #34d399;
+	--agy-badge-active-border: rgba(16, 185, 129, 0.3);
 
-	--agy-badge-email-bg: transparent;
-	--agy-badge-email-text: var(--dsw-alias-label-secondary, #cbd5e1);
-	--agy-badge-email-border: transparent;
+	--agy-badge-proxy-bg: rgba(255, 255, 255, 0.05);
+	--agy-badge-proxy-text: #94a3b8;
+	--agy-badge-proxy-border: rgba(255, 255, 255, 0.08);
 
-	--agy-badge-proxy-bg: transparent;
-	--agy-badge-proxy-text: var(--dsw-alias-label-secondary, #cbd5e1);
-	--agy-badge-proxy-border: transparent;
-
-	--agy-badge-ready-bg: transparent;
+	--agy-badge-ready-bg: rgba(16, 185, 129, 0.12);
 	--agy-badge-ready-text: #34d399;
-	--agy-badge-ready-border: transparent;
+	--agy-badge-ready-border: rgba(16, 185, 129, 0.3);
 
-	--agy-badge-unready-bg: transparent;
-	--agy-badge-unready-text: var(--dsw-alias-label-secondary, #cbd5e1);
-	--agy-badge-unready-border: transparent;
+	--agy-badge-unready-bg: rgba(255, 255, 255, 0.04);
+	--agy-badge-unready-text: #94a3b8;
+	--agy-badge-unready-border: rgba(255, 255, 255, 0.08);
 
-	/* Quota status pills */
-	--agy-quota-high-bg: transparent;
-	--agy-quota-high-text: #6ee7b7;
-	--agy-quota-high-border: transparent;
-	--agy-quota-med-bg: transparent;
-	--agy-quota-med-text: #fde68a;
-	--agy-quota-med-border: transparent;
-	--agy-quota-low-bg: transparent;
-	--agy-quota-low-text: #fca5a5;
-	--agy-quota-low-border: transparent;
-	--agy-quota-none-bg: transparent;
-	--agy-quota-none-text: #94a3b8;
-	--agy-quota-none-border: transparent;
+	/* Quota status */
+	--agy-quota-high-bar: #10b981;
+	--agy-quota-high-text: #34d399;
+	--agy-quota-med-bar: #f59e0b;
+	--agy-quota-med-text: #fbbf24;
+	--agy-quota-low-bar: #ef4444;
+	--agy-quota-low-text: #f87171;
+	--agy-quota-none-border: rgba(255, 255, 255, 0.1);
+	--agy-quota-none-text: #64748b;
 
 	/* Danger button */
-	--agy-danger-bg: #450a0a;
-	--agy-danger-text: #fca5a5;
-	--agy-danger-border: #ef4444;
-	--agy-danger-hover-bg: #5f1313;
+	--agy-danger-bg: transparent;
+	--agy-danger-text: #94a3b8;
+	--agy-danger-border: transparent;
+	--agy-danger-hover-bg: rgba(239, 68, 68, 0.15);
+	--agy-danger-hover-text: #f87171;
+	--agy-danger-hover-border: rgba(239, 68, 68, 0.3);
 
 	/* Warning banner */
 	--agy-warn-bg: #451a03;
@@ -991,8 +988,8 @@ body.dark,
 	--agy-toast-error-border: #dc2626;
 
 	/* Auth Modal / Box */
-	--agy-auth-box-bg: var(--dsw-alias-bg-layer-2, #1e293b);
-	--agy-auth-box-border: transparent;
+	--agy-auth-box-bg: rgba(255, 255, 255, 0.035);
+	--agy-auth-box-border: rgba(255, 255, 255, 0.08);
 
 	/* Segment control */
 	--agy-seg-group-bg: transparent;
@@ -1023,17 +1020,24 @@ body.dark,
 	border-radius: 50%;
 }
 .agy-card-hover {
-	transition: background-color 0.15s ease, opacity 0.15s ease;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 .agy-card-hover:hover {
-	background: var(--dsw-alias-interactive-bg-hover, transparent) !important;
+	border-color: var(--agy-border-card-hover) !important;
+	box-shadow: var(--agy-shadow-card-hover) !important;
 }
 .agy-console-status {
 	display: inline-flex;
 	align-items: center;
 	gap: 7px;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: var(--agy-bg-card);
+	border: 1px solid var(--agy-border-card);
 	color: var(--agy-text-secondary);
 	font-size: 12px;
+	font-weight: 500;
+	box-shadow: var(--agy-shadow-card);
 }
 .agy-console-status-dot {
 	width: 7px;
@@ -1042,9 +1046,17 @@ body.dark,
 	border-radius: 50%;
 	background: var(--agy-text-tertiary);
 }
-.agy-console-status-dot[data-state="ready"] { background: var(--agy-badge-ready-text); }
-.agy-console-status-dot[data-state="pending"] { background: var(--agy-quota-med-text); }
-.agy-console-status-dot[data-state="disabled"] { background: var(--agy-text-muted); }
+.agy-console-status-dot[data-state="ready"] {
+	background: #10b981;
+	box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+.agy-console-status-dot[data-state="pending"] {
+	background: #f59e0b;
+	box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+.agy-console-status-dot[data-state="disabled"] {
+	background: var(--agy-text-muted);
+}
 
 .agy-btn {
 	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -1193,124 +1205,207 @@ html.agy-modal-open body {
 	color: var(--agy-text-primary);
 }
 
+.agy-account-card {
+	position: relative;
+	background: var(--agy-bg-card);
+	border: 1px solid var(--agy-border-card);
+	border-radius: 12px;
+	padding: 14px 16px;
+	margin-bottom: 12px;
+	color: var(--agy-text-primary);
+	box-shadow: var(--agy-shadow-card);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.agy-account-card.agy-card-active {
+	background: var(--agy-bg-card-active) !important;
+	border-color: var(--agy-border-card-active) !important;
+	box-shadow: var(--agy-shadow-card-active) !important;
+}
+
 .agy-account-header {
-	display: grid !important;
-	grid-template-columns: minmax(0, 1fr) auto;
+	display: flex !important;
 	align-items: center !important;
-	gap: 8px 12px !important;
-	margin-bottom: 4px !important;
+	justify-content: space-between !important;
+	gap: 12px !important;
+	margin-bottom: 0 !important;
 }
 .agy-account-identity {
-	gap: 5px 9px !important;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
 	min-width: 0;
+	flex: 1 1 auto;
 }
 .agy-account-order-button {
-	width: 26px !important;
-	height: 26px !important;
-	min-height: 26px !important;
+	width: 20px !important;
+	height: 20px !important;
+	min-height: 20px !important;
 	padding: 0 !important;
-	border-radius: 5px !important;
-	color: var(--agy-text-secondary) !important;
+	border: 0 !important;
+	border-radius: 4px !important;
+	background: transparent !important;
+	color: var(--agy-text-tertiary) !important;
+	cursor: pointer;
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+.agy-account-order-button:hover:not(:disabled) {
+	background: var(--agy-bg-btn-hover) !important;
+	color: var(--agy-text-primary) !important;
 }
 .agy-account-email {
-	color: var(--agy-text-secondary) !important;
-	font-size: 12px !important;
+	color: var(--agy-badge-email-text) !important;
+	font-size: 11.5px !important;
+	background: var(--agy-badge-email-bg);
+	border: 1px solid var(--agy-badge-email-border);
+	border-radius: 999px;
+	padding: 1px 7px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 }
 .agy-account-state {
-	background: transparent !important;
-	border: 0 !important;
-	border-radius: 0 !important;
-	padding: 0 !important;
+	border-radius: 999px !important;
+	padding: 1px 7px !important;
 	font-size: 11px !important;
-	font-weight: 500 !important;
+	font-weight: 600 !important;
+	line-height: 1.4 !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 4px !important;
 }
-.agy-account-state-error { color: var(--agy-danger-text) !important; }
-.agy-account-state-warning { color: var(--agy-quota-med-text) !important; }
-.agy-account-state-selected { color: var(--agy-badge-ready-text) !important; }
-.agy-account-meta { color: var(--agy-text-tertiary) !important; }
+.agy-account-state-error {
+	background: var(--agy-danger-hover-bg) !important;
+	color: var(--agy-danger-hover-text) !important;
+	border: 1px solid var(--agy-danger-hover-border) !important;
+}
+.agy-account-state-warning {
+	background: rgba(245, 158, 11, 0.15) !important;
+	color: var(--agy-quota-med-text) !important;
+	border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+.agy-account-state-selected {
+	background: var(--agy-badge-active-bg) !important;
+	color: var(--agy-badge-active-text) !important;
+	border: 1px solid var(--agy-badge-active-border) !important;
+}
+.agy-account-meta {
+	color: var(--agy-badge-proxy-text) !important;
+	background: var(--agy-badge-proxy-bg);
+	border: 1px solid var(--agy-badge-proxy-border);
+	border-radius: 999px;
+	padding: 1px 7px;
+	font-size: 10.5px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
 .agy-card-actions {
+	display: flex;
+	align-items: center;
 	gap: 6px !important;
 	flex-wrap: wrap;
 	justify-content: flex-end;
+	flex-shrink: 0;
 }
 .agy-account-action {
-	min-height: 30px !important;
-	padding: 4px 8px !important;
+	min-height: 28px !important;
+	padding: 3px 8px !important;
 	border: 1px solid var(--agy-border-btn) !important;
 	border-radius: 6px !important;
 	background: var(--agy-bg-btn) !important;
 	color: var(--agy-text-btn) !important;
-	font-size: 12px !important;
-	line-height: 1.25 !important;
+	font-size: 11.5px !important;
+	line-height: 1.3 !important;
 	white-space: nowrap;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 .agy-account-action:hover:not(:disabled) {
 	background: var(--agy-bg-btn-hover) !important;
+	border-color: var(--agy-border-card-hover) !important;
 }
 .agy-account-action-primary {
 	border-color: var(--agy-border-btn-primary) !important;
 	background: var(--agy-bg-btn-primary) !important;
 	color: var(--agy-text-btn-primary) !important;
 	font-weight: 600 !important;
+	box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3) !important;
 }
 .agy-account-action-primary:hover:not(:disabled) {
-	filter: brightness(0.94);
+	filter: brightness(1.08) !important;
 }
 .agy-account-action-danger {
-	border-color: var(--agy-danger-border) !important;
+	border: 1px solid var(--agy-danger-border) !important;
 	background: var(--agy-danger-bg) !important;
 	color: var(--agy-danger-text) !important;
 }
 .agy-account-action-danger:hover:not(:disabled) {
+	border-color: var(--agy-danger-hover-border) !important;
 	background: var(--agy-danger-hover-bg) !important;
+	color: var(--agy-danger-hover-text) !important;
 }
 .agy-account-quota {
-	margin-top: 0 !important;
-	padding: 4px 0 0 !important;
-	background: transparent !important;
-	border: 0 !important;
+	margin-top: 10px !important;
+	padding: 10px 12px !important;
+	background: var(--agy-bg-quota-box) !important;
+	border: 1px solid var(--agy-border-quota-box) !important;
+	border-radius: 8px !important;
 }
 .agy-account-quota-summary {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	min-height: 30px;
+	padding-top: 6px;
+	margin-top: 6px;
+	border-top: 1px dashed var(--agy-border-quota-box);
 }
 .agy-quota-summary-text {
 	color: var(--agy-text-secondary);
-	font-size: 12px;
+	font-size: 11.5px;
 	font-variant-numeric: tabular-nums;
 }
 .agy-account-expand {
 	display: inline-flex !important;
 	align-items: center;
-	gap: 5px !important;
-	padding: 4px 0 !important;
+	gap: 4px !important;
+	padding: 2px 4px !important;
 	border: 0 !important;
 	background: transparent !important;
-	color: var(--dsw-alias-state-business-primary, #2563eb) !important;
-	font-size: 12px !important;
+	color: var(--dsw-alias-state-business-primary, #3b82f6) !important;
+	font-size: 11.5px !important;
 	font-weight: 500 !important;
+	cursor: pointer;
 	white-space: nowrap;
+	transition: opacity 0.15s ease;
+}
+.agy-account-expand:hover {
+	opacity: 0.85;
 }
 .agy-family-quota {
 	margin: 0 !important;
-	padding: 8px 0 !important;
+	padding: 3px 0 !important;
 	background: transparent !important;
 	border: 0 !important;
-	border-bottom: 1px solid var(--agy-border-divider) !important;
-	border-radius: 0 !important;
 }
-.agy-family-quota:last-child { border-bottom: 0 !important; }
 .agy-quota-line {
 	margin: 5px 0 !important;
 	font-size: 12px !important;
+	display: flex;
+	align-items: center;
 }
 .agy-quota-line > div:first-of-type {
-	height: 5px !important;
+	height: 6px !important;
 	border: 0 !important;
 	margin: 0 12px !important;
+	border-radius: 999px !important;
 }
 .agy-quota-line > div:last-child {
 	width: 148px !important;
@@ -1347,13 +1442,22 @@ html.agy-modal-open body {
 	margin-top: 2px;
 	line-height: 1.4;
 }
-/* Keep the transport setting aligned with the rest of the DSH settings. */
-.agy-direct-mode-row {
+/* Direct mode card & iOS/macOS style switch */
+.agy-direct-mode-card {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 8px 16px;
-  padding: 14px 0;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--agy-bg-card);
+  border: 1px solid var(--agy-border-card);
+  box-shadow: var(--agy-shadow-card);
+  margin-bottom: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.agy-direct-mode-card:hover {
+  border-color: var(--agy-border-card-hover);
 }
 .agy-direct-mode-copy {
   display: flex;
@@ -1366,32 +1470,32 @@ html.agy-modal-open body {
 .agy-direct-mode-switch {
   position: relative;
   flex: 0 0 auto;
-  width: 36px;
-  height: 20px;
+  width: 42px;
+  height: 24px;
   padding: 0;
   border: 1px solid var(--agy-border-btn);
   border-radius: 999px;
   background: var(--agy-bg-btn);
   cursor: pointer;
-  transition: background-color .15s ease, border-color .15s ease;
+  transition: background-color .2s ease, border-color .2s ease;
 }
 .agy-direct-mode-switch[aria-checked="true"] {
-  background: var(--agy-seg-btn-active-bg);
-  border-color: var(--agy-seg-btn-active-bg);
+  background: #2563eb;
+  border-color: #2563eb;
 }
 .agy-direct-mode-switch-knob {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: var(--agy-text-secondary);
-  transition: transform .15s ease, background-color .15s ease;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform .2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .agy-direct-mode-switch[aria-checked="true"] .agy-direct-mode-switch-knob {
-  transform: translateX(16px);
-  background: var(--agy-seg-btn-active-text);
+  transform: translateX(18px);
 }
 .agy-direct-mode-switch:focus-visible { outline: 2px solid var(--dsw-alias-state-business-primary, #2563eb); outline-offset: 3px; }
 .agy-direct-mode-switch:disabled { opacity: .55; cursor: wait; }
@@ -1578,11 +1682,11 @@ const S: Record<string, Record<string, unknown>> = {
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		padding: '4px 0',
+		padding: '4px 0 14px',
 		background: 'transparent',
 		border: '0',
 		borderRadius: '0',
-		marginBottom: '12px',
+		marginBottom: '8px',
 		color: 'var(--agy-text-primary)',
 		boxShadow: 'none',
 	},
@@ -1635,38 +1739,36 @@ const S: Record<string, Record<string, unknown>> = {
 		fontWeight: 700,
 	},
 	card: {
-		background: 'transparent',
-		border: '0',
-		borderBottom: '1px solid var(--agy-border-divider)',
-		borderRadius: '0',
-		padding: '12px 4px',
-		marginBottom: '0',
+		background: 'var(--agy-bg-card)',
+		border: '1px solid var(--agy-border-card)',
+		borderRadius: '12px',
+		padding: '14px 16px',
+		marginBottom: '12px',
 		color: 'var(--agy-text-primary)',
-		boxShadow: 'none',
-		transition: 'background-color 0.15s ease, opacity 0.15s ease',
+		boxShadow: 'var(--agy-shadow-card)',
+		transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
 	},
 	cardPrimary: {
-		background: 'transparent',
-		border: '0',
-		borderBottom: '1px solid var(--agy-border-divider)',
-		borderRadius: '0',
-		padding: '12px 4px',
-		marginBottom: '0',
+		background: 'var(--agy-bg-card-active)',
+		border: '1px solid var(--agy-border-card-active)',
+		borderRadius: '12px',
+		padding: '14px 16px',
+		marginBottom: '12px',
 		color: 'var(--agy-text-primary)',
-		boxShadow: 'none',
-		transition: 'background-color 0.15s ease, opacity 0.15s ease',
+		boxShadow: 'var(--agy-shadow-card-active)',
+		transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
 	},
 	quotaBox: {
-		background: 'transparent',
-		border: '0',
-		borderRadius: '0',
-		padding: '4px 0 0',
-		marginTop: '2px',
+		background: 'var(--agy-bg-quota-box)',
+		border: '1px solid var(--agy-border-quota-box)',
+		borderRadius: '8px',
+		padding: '8px 12px',
+		marginTop: '10px',
 	},
 	progressBarBg: {
 		flex: '1',
-		height: '5px',
-		borderRadius: '3px',
+		height: '6px',
+		borderRadius: '999px',
 		background: 'var(--agy-bg-progress-track)',
 		border: '0',
 		overflow: 'hidden',
@@ -1676,20 +1778,21 @@ const S: Record<string, Record<string, unknown>> = {
 		display: 'inline-flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: '5px 9px',
+		padding: '5px 10px',
 		borderRadius: '6px',
 		border: '1px solid var(--agy-border-btn)',
 		background: 'var(--agy-bg-btn)',
 		color: 'var(--agy-text-btn)',
 		cursor: 'pointer',
 		fontSize: '12px',
-		fontWeight: 600,
+		fontWeight: 500,
+		transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
 	},
 	btnPrimary: {
 		display: 'inline-flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: '6px 10px',
+		padding: '5px 12px',
 		borderRadius: '6px',
 		border: '1px solid var(--agy-border-btn-primary)',
 		background: 'var(--agy-bg-btn-primary)',
@@ -1697,46 +1800,54 @@ const S: Record<string, Record<string, unknown>> = {
 		cursor: 'pointer',
 		fontSize: '12px',
 		fontWeight: 600,
-		boxShadow: 'none',
+		boxShadow: '0 1px 3px rgba(37, 99, 235, 0.3)',
+		transition: 'background-color 0.15s ease, filter 0.15s ease',
 	},
 	btnDanger: {
 		display: 'inline-flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: '4px 9px',
+		padding: '3px 7px',
 		borderRadius: '6px',
 		border: '1px solid var(--agy-danger-border)',
 		background: 'var(--agy-danger-bg)',
 		color: 'var(--agy-danger-text)',
 		cursor: 'pointer',
-		fontSize: '11px',
-		fontWeight: 600,
+		fontSize: '11.5px',
+		fontWeight: 500,
+		lineHeight: '1.4',
+		transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
 	},
 	btnSm: {
 		display: 'inline-flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: '4px 9px',
-		borderRadius: '5px',
+		padding: '3px 8px',
+		borderRadius: '6px',
 		border: '1px solid var(--agy-border-btn)',
 		background: 'var(--agy-bg-btn)',
 		color: 'var(--agy-text-btn)',
 		cursor: 'pointer',
 		fontSize: '11.5px',
-		fontWeight: 600,
+		fontWeight: 500,
+		lineHeight: '1.4',
+		transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
 	},
 	btnSmPrimary: {
 		display: 'inline-flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: '4px 9px',
-		borderRadius: '5px',
+		padding: '3px 10px',
+		borderRadius: '6px',
 		border: '1px solid var(--agy-border-btn-primary)',
 		background: 'var(--agy-bg-btn-primary)',
 		color: 'var(--agy-text-btn-primary)',
 		cursor: 'pointer',
 		fontSize: '11.5px',
-		fontWeight: 700,
+		fontWeight: 600,
+		lineHeight: '1.4',
+		boxShadow: '0 1px 3px rgba(37, 99, 235, 0.3)',
+		transition: 'background-color 0.15s ease, filter 0.15s ease',
 	},
 	segGroup: {
 		display: 'inline-flex',
@@ -1823,12 +1934,13 @@ const S: Record<string, Record<string, unknown>> = {
 		fontWeight: 500,
 	},
 	authModal: {
-		background: 'var(--agy-auth-box-bg)',
-		border: '0',
-		borderRadius: '8px',
-		padding: '12px',
-		marginBottom: '12px',
+		background: 'var(--agy-bg-card)',
+		border: '1px solid var(--agy-border-card)',
+		borderRadius: '12px',
+		padding: '16px',
+		marginBottom: '16px',
 		color: 'var(--agy-text-primary)',
+		boxShadow: 'var(--agy-shadow-card)',
 	},
 };
 
@@ -2325,28 +2437,16 @@ export function apply(ctx: ClientContext): void {
 			const accIndex = accounts.indexOf(acc);
 
 			const cardStyle = {
-				...S.card,
+				...(isInUse ? S.cardPrimary : S.card),
 				cursor: 'default',
-				padding: '12px 4px',
-				marginBottom: '0',
-				...(!acc.enabled ? { opacity: 0.72 } : {}),
+				...(!acc.enabled ? { opacity: 0.65 } : {}),
 			};
 			// Built-in aliases are canonical server data; translate display only.
 			const legacyDefault = acc.defaultAlias === undefined && acc.systemHome && acc.alias === '主账号 (系统登录)';
 			const displayAlias = acc.defaultAlias || legacyDefault
 				? acc.systemHome ? t('account.defaultAlias') : t('account.aliasDefault', { number: accIndex + 1 })
 				: acc.alias;
-			const quotaPercent = (fraction: number | undefined): string =>
-				typeof fraction === 'number' && Number.isFinite(fraction)
-					? `${Math.round(Math.max(0, Math.min(1, fraction)) * 100)}%`
-					: '—';
 			const googleQuota = acc.quotas.google;
-			const quotaSummary = googleQuota
-				? t('account.quotaSummary', {
-					fiveHour: quotaPercent(googleQuota.remainingFraction),
-					weekly: quotaPercent(googleQuota.weeklyFraction),
-				})
-				: t('account.quotaPending');
 
 			const googleModels = acc.quotas.google?.models ?? [];
 			const argonModels = acc.quotas.argon?.models ?? [];
@@ -2361,55 +2461,61 @@ export function apply(ctx: ClientContext): void {
 
 			return h('div', {
 				key: acc.id,
-				className: 'agy-account-card agy-card-hover',
+				className: `agy-account-card agy-card-hover${isInUse ? ' agy-card-active' : ''}`,
 				style: cardStyle,
 			},
 				// Header row
 				h('div', {
 					className: 'agy-account-header',
-					style: {
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-						userSelect: 'none',
-						gap: '8px',
-						marginBottom: '8px',
-					},
 				},
-					h('div', { className: 'agy-account-identity', style: { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', flex: '1', minWidth: 0 } },
-						accounts.length > 1 ? h('span', {
-							className: 'agy-account-order',
-							style: { color: 'var(--agy-text-tertiary)', fontSize: '11px', fontVariantNumeric: 'tabular-nums' },
-							title: `优先级 #${accIndex + 1}`,
-						}, `${accIndex + 1}.`) : null,
+					h('div', { className: 'agy-account-identity' },
 						accounts.length > 1 ? h('div', {
-							style: { display: 'inline-flex', gap: '2px', alignItems: 'center' },
+							style: { display: 'inline-flex', gap: '3px', alignItems: 'center', marginRight: '2px' },
 						},
+							h('span', {
+								className: 'agy-account-order',
+								style: {
+									display: 'inline-flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									minWidth: '22px',
+									height: '18px',
+									padding: '0 5px',
+									borderRadius: '999px',
+									fontSize: '11px',
+									fontWeight: 700,
+									background: 'rgba(255, 255, 255, 0.06)',
+									color: 'var(--agy-text-secondary)',
+								},
+								title: `优先级 #${accIndex + 1}`,
+							}, `#${accIndex + 1}`),
 							accIndex > 0 ? h('button', {
 								type: 'button',
-								className: 'agy-btn agy-account-order-button',
+								className: 'agy-account-order-button',
 								'aria-label': t('account.moveUp'),
-								style: { ...S.btnSm, padding: '1px 4px', fontSize: '10px', lineHeight: 1, height: '18px' },
 								title: t('account.moveUp'),
 								onClick: () => void moveAccount(acc.id, -1),
-							}, uiIcon('arrowUp', 10)) : null,
+							}, uiIcon('chevronUp', 11)) : null,
 							accIndex < accounts.length - 1 ? h('button', {
 								type: 'button',
-								className: 'agy-btn agy-account-order-button',
+								className: 'agy-account-order-button',
 								'aria-label': t('account.moveDown'),
-								style: { ...S.btnSm, padding: '1px 4px', fontSize: '10px', lineHeight: 1, height: '18px' },
 								title: t('account.moveDown'),
 								onClick: () => void moveAccount(acc.id, 1),
-							}, uiIcon('arrowDown', 10)) : null,
+							}, uiIcon('chevronDown', 11)) : null,
 						) : null,
 						h('span', {
 							className: 'agy-pulse-dot',
-							style: { background: dotColor, marginLeft: '1px' },
+							style: {
+								background: dotColor,
+								boxShadow: `0 0 6px ${dotColor}`,
+								margin: '0 2px',
+							},
 						}),
 						h('span', {
 							style: {
 								fontWeight: 700,
-								fontSize: '13px',
+								fontSize: '13.5px',
 								color: 'var(--agy-text-primary)',
 								whiteSpace: 'nowrap',
 							},
@@ -2418,14 +2524,9 @@ export function apply(ctx: ClientContext): void {
 						isAuthRequired ? h('span', {
 							className: 'agy-account-state agy-account-state-error',
 							style: {
-								...S.badgeTag,
-								background: 'var(--agy-badge-email-bg)',
-								color: '#ef4444',
-								borderColor: '#fca5a5',
 								gap: '3px',
-								fontSize: '10px',
-								padding: '1px 5px',
-								fontWeight: 700,
+								fontSize: '10.5px',
+								padding: '1px 7px',
 								whiteSpace: 'nowrap',
 								flexShrink: 0,
 							},
@@ -2433,99 +2534,66 @@ export function apply(ctx: ClientContext): void {
 						hasCooldown ? h('span', {
 							className: 'agy-account-state agy-account-state-warning',
 							style: {
-								...S.badgeTag,
-								background: 'rgba(245, 158, 11, 0.15)',
-								color: '#f59e0b',
-								borderColor: 'rgba(245, 158, 11, 0.4)',
 								gap: '3px',
-								fontSize: '10px',
-								padding: '1px 5px',
-								fontWeight: 700,
+								fontSize: '10.5px',
+								padding: '1px 7px',
 								whiteSpace: 'nowrap',
 								flexShrink: 0,
 							},
 						}, uiIcon('alert', 10, '#f59e0b'), '冷却中') : null,
 						acc.email ? h('span', {
 							className: 'agy-account-email',
-							style: {
-								...S.badgeTag,
-								background: 'var(--agy-badge-email-bg)',
-								color: 'var(--agy-badge-email-text)',
-								borderColor: 'var(--agy-badge-email-border)',
-								gap: '4px',
-								fontSize: '11px',
-								padding: '1px 6px',
-								whiteSpace: 'nowrap',
-							},
 							title: acc.email,
 						}, uiIcon('mail', 10, 'var(--agy-badge-email-text)'), acc.email) : null,
 						isInUse ? h('span', {
 							className: 'agy-account-state agy-account-state-selected',
-							style: {
-								...S.badgeTag,
-								background: 'rgba(16, 185, 129, 0.12)',
-								color: '#10b981',
-								borderColor: 'rgba(16, 185, 129, 0.45)',
-								gap: '3px',
-								fontSize: '10px',
-								padding: '1px 5px',
-								fontWeight: 700,
-								whiteSpace: 'nowrap',
-								flexShrink: 0,
-							},
 							title: t('status.inUse'),
-						}, uiIcon('zap', 10, '#10b981'), t('status.inUse')) : null,
+						}, uiIcon('check', 10, 'var(--agy-badge-active-text)'), t('status.inUse')) : null,
 						(() => {
 							const effectiveProxy = acc.proxyUrl || pool?.systemProxy;
 							return effectiveProxy ? h('span', {
 								className: 'agy-account-meta',
-								style: {
-									...S.badgeTag,
-									background: 'var(--agy-badge-proxy-bg)',
-									color: 'var(--agy-badge-proxy-text)',
-									borderColor: 'var(--agy-badge-proxy-border)',
-									gap: '4px',
-									fontSize: '10px',
-									padding: '1px 5px',
-								},
 								title: effectiveProxy,
 							}, uiIcon('globe', 10, 'var(--agy-badge-proxy-text)'), t('status.proxy')) : null;
 						})(),
 						!acc.enabled ? h('span', {
 							className: 'agy-account-state',
 							style: {
-								...S.badgeTag,
 								background: 'var(--agy-bg-subbox)',
 								color: 'var(--agy-text-secondary)',
-								borderColor: 'var(--agy-border-subbox)',
+								border: '1px solid var(--agy-border-subbox)',
 								gap: '3px',
-								fontSize: '10px',
-								padding: '1px 5px',
-								fontWeight: 700,
+								fontSize: '10.5px',
+								padding: '1px 7px',
 							},
 							title: t('status.disabled'),
 						}, uiIcon('power', 10, '#64748b'), t('status.disabled')) : null,
 					),
 					h('div', {
 						className: 'agy-card-actions',
-						style: { display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 },
 					},
 						h('button', {
 							type: 'button',
 							className: `agy-btn agy-account-action${acc.enabled ? '' : ' agy-account-action-primary'}`,
-							style: acc.enabled
-								? { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px' }
-								: { ...S.btnSmPrimary, gap: '3px', fontSize: '11px', padding: '2px 6px' },
+							style: acc.enabled ? { ...S.btnSm, gap: '3px' } : { ...S.btnSmPrimary, gap: '3px' },
 							title: acc.enabled ? t('account.disableTitle') : t('account.enableTitle'),
 							disabled: accountActionBusy(acc, 'enable'),
 							onClick: () => void toggleAccountEnabled(acc),
 						}, loadingAction === `enable:${acc.id}`
 							? [renderSpinner(), acc.enabled ? t('account.disable') : t('account.enable')]
 							: [uiIcon('power', 10, 'currentColor'), ` ${acc.enabled ? t('account.disable') : t('account.enable')}`]),
+						acc.enabled && !isInUse && !isAuthRequired ? h('button', {
+							type: 'button',
+							className: 'agy-btn agy-account-action agy-account-action-primary',
+							style: { ...S.btnSmPrimary, gap: '4px', padding: '3px 10px' },
+							title: t('account.setActive'),
+							disabled: accountActionBusy(acc, 'active'),
+							onClick: () => void setActiveAccount(acc.id),
+						}, loadingAction === `active:${acc.id}` ? [renderSpinner(), t('account.settingActive')] : [uiIcon('zap', 11), ` ${t('account.setActive')}`]) : null,
 						h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-action',
-							style: { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px', minWidth: '58px', justifyContent: 'center' },
+							style: { ...S.btnSm, gap: '3px' },
 							title: t('account.syncTitle'),
 							disabled: accountActionBusy(acc, 'refresh'),
 							onClick: () => void refreshQuota(acc.id),
@@ -2533,43 +2601,36 @@ export function apply(ctx: ClientContext): void {
 						acc.enabled && !acc.authRequired ? h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-action',
-							style: { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px', minWidth: '58px', justifyContent: 'center' },
+							style: { ...S.btnSm, gap: '3px' },
 							title: t('account.warmupTitle'),
 							disabled: accountActionBusy(acc, 'warmup'),
 							onClick: () => void warmupAccount(acc.id),
-				}, loadingAction === `warmup:${acc.id}` ? [renderSpinner(), t('account.warmingUp')] : [uiIcon('flame', 10, 'var(--agy-text-secondary)'), ` ${t('account.warmup')}`]) : null,
-						acc.enabled && !isInUse ? h('button', {
-							type: 'button',
-							className: 'agy-btn agy-account-action agy-account-action-primary',
-							style: { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px' },
-							title: t('account.setActive'),
-							disabled: accountActionBusy(acc, 'active'),
-							onClick: () => void setActiveAccount(acc.id),
-						}, loadingAction === `active:${acc.id}` ? [renderSpinner(), t('account.settingActive')] : [uiIcon('zap', 10), ` ${t('account.setActive')}`]) : null,
-
+						}, loadingAction === `warmup:${acc.id}` ? [renderSpinner(), t('account.warmingUp')] : [uiIcon('flame', 10, 'var(--agy-text-secondary)'), ` ${t('account.warmup')}`]) : null,
 						h('button', {
 							type: 'button',
 							className: `agy-btn agy-account-action${isEditingProxy ? ' agy-account-action-primary' : ''}`,
-							style: isEditingProxy ? { ...S.btnSmPrimary, gap: '3px', fontSize: '11px', padding: '2px 6px' } : { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px' },
+							style: isEditingProxy ? { ...S.btnSmPrimary, gap: '3px' } : { ...S.btnSm, gap: '3px' },
 							disabled: accountActionBusy(acc, 'proxy'),
 							onClick: () => setEditingProxyId(isEditingProxy ? null : acc.id),
 						}, [uiIcon('globe', 10), ` ${t('proxy.button')}`]),
 						accounts.length > 1 ? h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-action agy-account-action-danger',
-							style: { ...S.btnDanger, padding: '2px 6px', fontSize: '11px' },
+							style: S.btnDanger,
 							title: t('account.removeTitle'),
 							'aria-label': t('account.removeTitle'),
 							disabled: accountActionBusy(acc, 'remove'),
 							onClick: () => void removeAccount(acc.id, displayAlias),
-						}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon('trash', 11, 'var(--agy-danger-text)')) : null,
+						}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon('trash', 11, 'currentColor')) : null,
 					),
 				),
-				// Keep the account pool scannable. The full family/model breakdown is
-				// one click away, so several accounts do not become several dashboards.
+				// Quota details
 				h('div', { key: 'agy-body', className: 'agy-account-quota', style: S.quotaBox },
+					renderQuotaBar('Gemini', 'google', acc),
 					h('div', { className: 'agy-account-quota-summary' },
-						h('span', { className: 'agy-quota-summary-text' }, quotaSummary),
+						h('span', { className: 'agy-quota-summary-text' },
+							hasCooldown ? '⚠️ 冷却保护期中（轮询将暂缓使用）' : googleQuota ? 'Google Gemini 官方额度实时监控' : t('account.quotaPending')
+						),
 						h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-expand',
@@ -2578,8 +2639,7 @@ export function apply(ctx: ClientContext): void {
 							onClick: () => toggleExpand(acc.id),
 						}, uiIcon(isExpanded ? 'chevronUp' : 'chevronDown', 11), t(isExpanded ? 'account.collapseOthers' : 'account.expandOthers')),
 					),
-					isExpanded ? h('div', { id: `agy-quota-${acc.id}` },
-						renderQuotaBar('Gemini', 'google', acc),
+					isExpanded ? h('div', { id: `agy-quota-${acc.id}`, style: { marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--agy-border-quota-box)' } },
 						acc.quotas.argon ? renderQuotaBar('Argon', 'argon', acc) : null,
 						renderQuotaBar('Claude', 'anthropic', acc),
 						renderQuotaBar('GPT-OSS', 'openai', acc),
@@ -2777,7 +2837,7 @@ export function apply(ctx: ClientContext): void {
 						'data-state': status?.enabled === false ? 'disabled' : isAuthed ? 'ready' : 'pending',
 						'aria-hidden': true,
 					}),
-					h('span', null, status?.enabled === false ? t('status.disabled') : isAuthed ? t('status.ready') : t('status.unverified')),
+					h('span', null, status?.enabled === false ? t('status.disabled') : isAuthed ? (status.experimentalDirect ? '服务就绪 · 直连加速' : '服务就绪 · AGY CLI') : t('status.unverified')),
 				),
 				h('div', { className: 'agy-header-actions', style: { display: 'flex', gap: '6px', alignItems: 'center' } },
 					!addingAccount ? h('button', {
@@ -2806,10 +2866,24 @@ export function apply(ctx: ClientContext): void {
 			),
 			renderToastBanner(),
 			addAccountSection,
-			h('div', { className: 'agy-setting-row agy-direct-mode-row', style: { marginBottom: '12px' } },
+			h('div', { className: 'agy-direct-mode-card' },
 				h('div', { className: 'agy-direct-mode-copy' },
-					h('span', { id: 'agy-direct-mode-label', className: 'agy-setting-label' }, t('direct.title')),
-					h('span', { className: 'agy-setting-help', style: S.muted }, t('direct.description')),
+					h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+						uiIcon('zap', 14, status.experimentalDirect ? '#2563eb' : 'var(--agy-text-secondary)'),
+						h('span', { id: 'agy-direct-mode-label', className: 'agy-setting-label', style: { fontWeight: 600, fontSize: '13px', color: 'var(--agy-text-primary)' } }, t('direct.title')),
+						status.experimentalDirect ? h('span', {
+							style: {
+								fontSize: '10.5px',
+								fontWeight: 600,
+								color: '#10b981',
+								background: 'rgba(16, 185, 129, 0.12)',
+								border: '1px solid rgba(16, 185, 129, 0.25)',
+								borderRadius: '999px',
+								padding: '1px 6px',
+							},
+						}, '直连生效中') : null,
+					),
+					h('span', { className: 'agy-setting-help', style: { ...S.muted, marginTop: '3px' } }, t('direct.description')),
 				),
 				h('button', {
 					type: 'button', className: 'agy-direct-mode-switch', role: 'switch',
@@ -2819,10 +2893,28 @@ export function apply(ctx: ClientContext): void {
 					onClick: () => { void setCfg('experimentalDirect', status.experimentalDirect !== true); },
 				}, h('span', { className: 'agy-direct-mode-switch-knob', 'aria-hidden': true })),
 			),
-			h('div', { className: 'agy-section-heading', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', padding: '0 2px' } },
-				h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
-					h('span', { style: { fontWeight: 700, fontSize: '13.5px', color: 'var(--agy-text-primary)' } }, `统一账号池 (${accounts.length})`),
-					h('span', { style: { fontSize: '11px', color: 'var(--agy-text-tertiary)' } }, status.experimentalDirect ? '· 当前请求走直连' : '· 当前请求走 AGY CLI'),
+			h('div', { className: 'agy-section-heading', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', padding: '0 2px' } },
+				h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+					h('span', { style: { fontWeight: 700, fontSize: '14px', color: 'var(--agy-text-primary)' } }, '统一账号池'),
+					h('span', {
+						style: {
+							display: 'inline-flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							padding: '1px 7px',
+							borderRadius: '999px',
+							background: 'rgba(59, 130, 246, 0.12)',
+							color: '#3b82f6',
+							fontSize: '11px',
+							fontWeight: 700,
+						},
+					}, `${accounts.length}`),
+					h('span', { style: { fontSize: '11.5px', color: 'var(--agy-text-tertiary)' } },
+						status.experimentalDirect ? '· 请求直连 Google API' : '· 请求走 AGY CLI 桥接'
+					),
+				),
+				h('span', { style: { fontSize: '11.5px', color: 'var(--agy-text-tertiary)' } },
+					pool?.mode === 'sequential' ? '自动顺序轮询' : pool?.mode === 'round-robin' ? '均衡轮询' : '手动选择'
 				),
 			),
 			renderedAccountCards,
