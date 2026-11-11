@@ -669,7 +669,7 @@ function renderFamilyQuotaBar(
 		}
 		if (pct <= 20) {
 			return {
-				bar: 'linear-gradient(90deg, #dc2626, #ef4444)',
+				bar: 'var(--agy-quota-low-text)',
 				text: 'var(--agy-quota-low-text)',
 				bg: 'var(--agy-quota-low-bg)',
 				border: 'var(--agy-quota-low-border)',
@@ -677,14 +677,14 @@ function renderFamilyQuotaBar(
 		}
 		if (pct <= 50) {
 			return {
-				bar: 'linear-gradient(90deg, #d97706, #f59e0b)',
+				bar: 'var(--agy-quota-med-text)',
 				text: 'var(--agy-quota-med-text)',
 				bg: 'var(--agy-quota-med-bg)',
 				border: 'var(--agy-quota-med-border)',
 			};
 		}
 		return {
-			bar: 'linear-gradient(90deg, #059669, #10b981)',
+			bar: 'var(--dsw-alias-state-business-primary, #2563eb)',
 			text: 'var(--agy-quota-high-text)',
 			bg: 'var(--agy-quota-high-bg)',
 			border: 'var(--agy-quota-high-border)',
@@ -699,8 +699,8 @@ function renderFamilyQuotaBar(
 		const tooltipText = typeof rawFraction === 'number'
 			? `${(rawFraction * 100).toFixed(1)}% (raw: ${rawFraction})${rawReset ? ` · reset: ${rawReset}` : ''}`
 			: resetStr ? `↻ ${resetStr}` : undefined;
-		return h('div', { className: 'agy-quota-line', style: { display: 'flex', alignItems: 'center', fontSize: '11.5px', margin: '4px 0' } },
-			h('span', { style: { width: '64px', color: 'var(--agy-text-window-label)', fontSize: '11px', fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap' } }, windowName),
+		return h('div', { className: 'agy-quota-line', style: { display: 'flex', alignItems: 'center', fontSize: '12px', margin: '4px 0' } },
+			h('span', { style: { width: '72px', color: 'var(--agy-text-secondary)', fontSize: '12px', fontWeight: 500, flexShrink: 0, whiteSpace: 'nowrap' } }, windowName),
 			h('div', {
 				className: isShimmer ? 'agy-shimmer-track' : '',
 				style: S.progressBarBg,
@@ -715,29 +715,29 @@ function renderFamilyQuotaBar(
 					},
 				}),
 			),
-			h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '8px', width: '150px', minWidth: '150px', justifyContent: 'flex-end', flexShrink: 0 } },
+		h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '8px', width: '148px', minWidth: '148px', justifyContent: 'flex-end', flexShrink: 0 } },
 				h('span', {
 					title: tooltipText,
 					style: {
-						padding: '2px 7px',
-						borderRadius: '4px',
-						background: c.bg,
+						padding: '0',
+						borderRadius: '0',
+						background: 'transparent',
 						color: c.text,
-						border: `1px solid ${c.border}`,
-						fontWeight: 700,
-						fontSize: '11.5px',
+						border: '0',
+						fontWeight: 600,
+						fontSize: '12px',
 						lineHeight: 1.2,
 						cursor: tooltipText ? 'help' : 'default',
 					},
 				}, percent < 0 ? '—' : `${percent}%`),
-				resetStr ? h('span', { style: { color: 'var(--agy-text-secondary)', fontSize: '11px', fontWeight: 500 } }, `↻ ${resetStr}`) : null,
+				resetStr ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '11.5px', fontWeight: 400 } }, `↻ ${resetStr}`) : null,
 			),
 		);
 	};
 
-	return h('div', { style: { margin: '6px 0', padding: '8px 10px', background: 'var(--agy-bg-subbox)', borderRadius: '7px', border: '1px solid var(--agy-border-box)' } },
-		h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '12.5px', marginBottom: '5px', color: 'var(--agy-text-primary)' } },
-			brandIcon(FAMILY_BRAND[familyKey], 14),
+	return h('div', { className: 'agy-family-quota', style: { margin: '0', padding: '8px 0', background: 'transparent', borderRadius: '0', border: '0' } },
+		h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '12px', marginBottom: '4px', color: 'var(--agy-text-primary)' } },
+			brandIcon(FAMILY_BRAND[familyKey], 13),
 			h('span', null, label),
 		),
 		// Argon is a WEEKLY-only counter today: render the 5h row only when
@@ -755,27 +755,27 @@ const GLOBAL_CSS = `
 
 :root, body {
 	--agy-font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif);
-	--agy-bg-panel: var(--dsw-alias-bg-layer-2, #ffffff);
-	--agy-bg-card: var(--dsw-alias-bg-layer-2, #ffffff);
-	--agy-bg-card-primary: #f0f7ff;
-	--agy-bg-header: var(--dsw-alias-bg-layer-1, #f8fafc);
-	--agy-bg-box: var(--dsw-alias-bg-layer-1, #f8fafc);
-	--agy-bg-subbox: var(--dsw-alias-bg-layer-3, #f1f5f9);
+	--agy-bg-panel: var(--dsw-alias-bg-layer-1, #ffffff);
+	--agy-bg-card: var(--dsw-alias-bg-layer-1, #ffffff);
+	--agy-bg-card-primary: var(--dsw-alias-bg-layer-1, #ffffff);
+	--agy-bg-header: var(--dsw-alias-bg-layer-1, #ffffff);
+	--agy-bg-box: transparent;
+	--agy-bg-subbox: var(--dsw-alias-bg-layer-2, #f8fafc);
 	--agy-bg-input: var(--dsw-alias-bg-layer-1, #ffffff);
-	--agy-bg-btn: var(--dsw-alias-bg-layer-3, #f1f5f9);
+	--agy-bg-btn: var(--dsw-alias-bg-layer-2, #f1f5f9);
 	--agy-bg-btn-hover: var(--dsw-alias-interactive-bg-hover, #e2e8f0);
 	--agy-bg-btn-primary: var(--dsw-alias-state-business-primary, #2563eb);
-	--agy-bg-progress-track: #e2e8f0;
+	--agy-bg-progress-track: var(--dsw-alias-bg-layer-2, #e2e8f0);
 
-	--agy-border-card: var(--dsw-alias-border-l2, #e2e8f0);
-	--agy-border-card-primary: #3b82f6;
-	--agy-border-box: var(--dsw-alias-border-l1, #e2e8f0);
-	--agy-border-subbox: var(--dsw-alias-border-l2, #cbd5e1);
+	--agy-border-card: var(--dsw-alias-border-l1, #e2e8f0);
+	--agy-border-card-primary: var(--dsw-alias-border-l1, #e2e8f0);
+	--agy-border-box: transparent;
+	--agy-border-subbox: var(--dsw-alias-border-l1, #e2e8f0);
 	--agy-border-input: var(--dsw-alias-border-l2, #cbd5e1);
 	--agy-border-input-focus: var(--dsw-alias-state-business-primary, #2563eb);
 	--agy-border-btn: var(--dsw-alias-border-l2, #cbd5e1);
-	--agy-border-btn-primary: #2563eb;
-	--agy-border-divider: var(--dsw-alias-border-l2, #e2e8f0);
+	--agy-border-btn-primary: var(--dsw-alias-state-business-primary, #2563eb);
+	--agy-border-divider: var(--dsw-alias-border-l1, #e2e8f0);
 
 	--agy-text-primary: var(--dsw-alias-label-primary, #0f172a);
 	--agy-text-secondary: var(--dsw-alias-label-secondary, #334155);
@@ -783,52 +783,52 @@ const GLOBAL_CSS = `
 	--agy-text-muted: var(--dsw-alias-label-caption, #94a3b8);
 	--agy-text-btn: var(--dsw-alias-label-primary, #0f172a);
 	--agy-text-btn-primary: #ffffff;
-	--agy-text-window-label: #2563eb;
+	--agy-text-window-label: var(--dsw-alias-label-secondary, #475569);
 
-	--agy-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
-	--agy-shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
-	--agy-shadow-card-primary: 0 0 0 1px #3b82f6, 0 4px 14px rgba(37, 99, 235, 0.12);
-	--agy-shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.18);
+	--agy-shadow-card: none;
+	--agy-shadow-card-hover: none;
+	--agy-shadow-card-primary: none;
+	--agy-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.16);
 	--agy-modal-backdrop: rgba(15, 23, 42, 0.5);
 
 	/* Badges */
-	--agy-badge-primary-bg: #dbeafe;
-	--agy-badge-primary-text: #1e40af;
-	--agy-badge-primary-border: #60a5fa;
+	--agy-badge-primary-bg: transparent;
+	--agy-badge-primary-text: var(--dsw-alias-state-business-primary, #2563eb);
+	--agy-badge-primary-border: transparent;
 
-	--agy-badge-tag-bg: #f1f5f9;
-	--agy-badge-tag-text: #334155;
-	--agy-badge-tag-border: #cbd5e1;
+	--agy-badge-tag-bg: transparent;
+	--agy-badge-tag-text: var(--dsw-alias-label-secondary, #475569);
+	--agy-badge-tag-border: transparent;
 
-	--agy-badge-email-bg: #eff6ff;
-	--agy-badge-email-text: #1d4ed8;
-	--agy-badge-email-border: #bfdbfe;
+	--agy-badge-email-bg: transparent;
+	--agy-badge-email-text: var(--dsw-alias-label-secondary, #475569);
+	--agy-badge-email-border: transparent;
 
-	--agy-badge-proxy-bg: #ecfdf5;
-	--agy-badge-proxy-text: #047857;
-	--agy-badge-proxy-border: #a7f3d0;
+	--agy-badge-proxy-bg: transparent;
+	--agy-badge-proxy-text: var(--dsw-alias-label-secondary, #475569);
+	--agy-badge-proxy-border: transparent;
 
-	--agy-badge-ready-bg: #ecfdf5;
-	--agy-badge-ready-text: #047857;
-	--agy-badge-ready-border: #a7f3d0;
+	--agy-badge-ready-bg: transparent;
+	--agy-badge-ready-text: #17835c;
+	--agy-badge-ready-border: transparent;
 
-	--agy-badge-unready-bg: #eff6ff;
-	--agy-badge-unready-text: #1d4ed8;
-	--agy-badge-unready-border: #bfdbfe;
+	--agy-badge-unready-bg: transparent;
+	--agy-badge-unready-text: var(--dsw-alias-label-secondary, #475569);
+	--agy-badge-unready-border: transparent;
 
 	/* Quota status pills */
-	--agy-quota-high-bg: #ecfdf5;
+	--agy-quota-high-bg: transparent;
 	--agy-quota-high-text: #047857;
-	--agy-quota-high-border: #a7f3d0;
-	--agy-quota-med-bg: #fffbeb;
+	--agy-quota-high-border: transparent;
+	--agy-quota-med-bg: transparent;
 	--agy-quota-med-text: #b45309;
-	--agy-quota-med-border: #fde68a;
-	--agy-quota-low-bg: #fef2f2;
+	--agy-quota-med-border: transparent;
+	--agy-quota-low-bg: transparent;
 	--agy-quota-low-text: #b91c1c;
-	--agy-quota-low-border: #fecaca;
-	--agy-quota-none-bg: #f1f5f9;
+	--agy-quota-low-border: transparent;
+	--agy-quota-none-bg: transparent;
 	--agy-quota-none-text: #64748b;
-	--agy-quota-none-border: #cbd5e1;
+	--agy-quota-none-border: transparent;
 
 	/* Danger button */
 	--agy-danger-bg: #fef2f2;
@@ -859,12 +859,12 @@ const GLOBAL_CSS = `
 	--agy-toast-error-border: #fca5a5;
 
 	/* Auth Modal / Box */
-	--agy-auth-box-bg: #f0f7ff;
-	--agy-auth-box-border: #3b82f6;
+	--agy-auth-box-bg: var(--dsw-alias-bg-layer-2, #f8fafc);
+	--agy-auth-box-border: transparent;
 
 	/* Segment control */
-	--agy-seg-group-bg: #e2e8f0;
-	--agy-seg-group-border: #cbd5e1;
+	--agy-seg-group-bg: transparent;
+	--agy-seg-group-border: transparent;
 	--agy-seg-btn-text: #475569;
 	--agy-seg-btn-active-bg: var(--dsw-alias-state-business-primary, #2563eb);
 	--agy-seg-btn-active-text: #ffffff;
@@ -876,80 +876,80 @@ const GLOBAL_CSS = `
 body[data-ds-dark-theme],
 body.dark,
 [data-theme="dark"] {
-	--agy-bg-panel: var(--dsw-alias-bg-layer-2, #0f172a);
-	--agy-bg-card: var(--dsw-alias-bg-layer-2, #1e293b);
-	--agy-bg-card-primary: #111d33;
+	--agy-bg-panel: var(--dsw-alias-bg-layer-1, #0f172a);
+	--agy-bg-card: var(--dsw-alias-bg-layer-1, #0f172a);
+	--agy-bg-card-primary: var(--dsw-alias-bg-layer-1, #0f172a);
 	--agy-bg-header: var(--dsw-alias-bg-layer-1, #1e293b);
-	--agy-bg-box: var(--dsw-alias-bg-layer-1, #0f172a);
-	--agy-bg-subbox: var(--dsw-alias-bg-layer-3, #090d16);
+	--agy-bg-box: transparent;
+	--agy-bg-subbox: var(--dsw-alias-bg-layer-2, #1e293b);
 	--agy-bg-input: var(--dsw-alias-bg-layer-3, #090d16);
-	--agy-bg-btn: var(--dsw-alias-bg-layer-3, #334155);
+	--agy-bg-btn: var(--dsw-alias-bg-layer-2, #1e293b);
 	--agy-bg-btn-hover: var(--dsw-alias-interactive-bg-hover, #475569);
 	--agy-bg-btn-primary: var(--dsw-alias-state-business-primary, #2563eb);
-	--agy-bg-progress-track: #1e293b;
+	--agy-bg-progress-track: var(--dsw-alias-bg-layer-2, #1e293b);
 
-	--agy-border-card: var(--dsw-alias-border-l2, #334155);
-	--agy-border-card-primary: #3b82f6;
-	--agy-border-box: var(--dsw-alias-border-l1, #1e293b);
-	--agy-border-subbox: var(--dsw-alias-border-l2, #334155);
+	--agy-border-card: var(--dsw-alias-border-l1, #334155);
+	--agy-border-card-primary: var(--dsw-alias-border-l1, #334155);
+	--agy-border-box: transparent;
+	--agy-border-subbox: var(--dsw-alias-border-l1, #334155);
 	--agy-border-input: var(--dsw-alias-border-l2, #334155);
 	--agy-border-input-focus: #3b82f6;
 	--agy-border-btn: var(--dsw-alias-border-l2, #475569);
-	--agy-border-btn-primary: #3b82f6;
-	--agy-border-divider: var(--dsw-alias-border-l2, #334155);
+	--agy-border-btn-primary: var(--dsw-alias-state-business-primary, #3b82f6);
+	--agy-border-divider: var(--dsw-alias-border-l1, #334155);
 
 	--agy-text-primary: var(--dsw-alias-label-primary, #f8fafc);
 	--agy-text-secondary: var(--dsw-alias-label-secondary, #cbd5e1);
 	--agy-text-tertiary: var(--dsw-alias-label-tertiary, #94a3b8);
 	--agy-text-muted: var(--dsw-alias-label-caption, #64748b);
 	--agy-text-btn: var(--dsw-alias-label-primary, #ffffff);
-	--agy-text-btn-primary: #ffffff;
-	--agy-text-window-label: #93c5fd;
+	--agy-text-btn-primary: #0b1220;
+	--agy-text-window-label: var(--dsw-alias-label-secondary, #cbd5e1);
 
-	--agy-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
-	--agy-shadow-card-hover: 0 6px 16px rgba(0, 0, 0, 0.4);
-	--agy-shadow-card-primary: 0 0 16px rgba(59, 130, 246, 0.25);
-	--agy-shadow-modal: 0 25px 60px rgba(0, 0, 0, 0.8);
-	--agy-modal-backdrop: rgba(0, 0, 0, 0.75);
+	--agy-shadow-card: none;
+	--agy-shadow-card-hover: none;
+	--agy-shadow-card-primary: none;
+	--agy-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.36);
+	--agy-modal-backdrop: rgba(0, 0, 0, 0.48);
 
 	/* Badges */
-	--agy-badge-primary-bg: #1e3a8a;
-	--agy-badge-primary-text: #93c5fd;
-	--agy-badge-primary-border: #3b82f6;
+	--agy-badge-primary-bg: transparent;
+	--agy-badge-primary-text: var(--dsw-alias-state-business-primary, #93c5fd);
+	--agy-badge-primary-border: transparent;
 
-	--agy-badge-tag-bg: #0f172a;
+	--agy-badge-tag-bg: transparent;
 	--agy-badge-tag-text: #cbd5e1;
-	--agy-badge-tag-border: #334155;
+	--agy-badge-tag-border: transparent;
 
-	--agy-badge-email-bg: #1e293b;
-	--agy-badge-email-text: #93c5fd;
-	--agy-badge-email-border: #3b82f6;
+	--agy-badge-email-bg: transparent;
+	--agy-badge-email-text: var(--dsw-alias-label-secondary, #cbd5e1);
+	--agy-badge-email-border: transparent;
 
-	--agy-badge-proxy-bg: #064e3b;
-	--agy-badge-proxy-text: #6ee7b7;
-	--agy-badge-proxy-border: #059669;
+	--agy-badge-proxy-bg: transparent;
+	--agy-badge-proxy-text: var(--dsw-alias-label-secondary, #cbd5e1);
+	--agy-badge-proxy-border: transparent;
 
-	--agy-badge-ready-bg: rgba(16, 185, 129, 0.15);
+	--agy-badge-ready-bg: transparent;
 	--agy-badge-ready-text: #34d399;
-	--agy-badge-ready-border: rgba(16, 185, 129, 0.35);
+	--agy-badge-ready-border: transparent;
 
-	--agy-badge-unready-bg: rgba(59, 130, 246, 0.15);
-	--agy-badge-unready-text: #93c5fd;
-	--agy-badge-unready-border: rgba(59, 130, 246, 0.35);
+	--agy-badge-unready-bg: transparent;
+	--agy-badge-unready-text: var(--dsw-alias-label-secondary, #cbd5e1);
+	--agy-badge-unready-border: transparent;
 
 	/* Quota status pills */
-	--agy-quota-high-bg: #064e3b;
+	--agy-quota-high-bg: transparent;
 	--agy-quota-high-text: #6ee7b7;
-	--agy-quota-high-border: #059669;
-	--agy-quota-med-bg: #451a03;
+	--agy-quota-high-border: transparent;
+	--agy-quota-med-bg: transparent;
 	--agy-quota-med-text: #fde68a;
-	--agy-quota-med-border: #d97706;
-	--agy-quota-low-bg: #450a0a;
+	--agy-quota-med-border: transparent;
+	--agy-quota-low-bg: transparent;
 	--agy-quota-low-text: #fca5a5;
-	--agy-quota-low-border: #dc2626;
-	--agy-quota-none-bg: #1e293b;
+	--agy-quota-low-border: transparent;
+	--agy-quota-none-bg: transparent;
 	--agy-quota-none-text: #94a3b8;
-	--agy-quota-none-border: #475569;
+	--agy-quota-none-border: transparent;
 
 	/* Danger button */
 	--agy-danger-bg: #450a0a;
@@ -980,15 +980,15 @@ body.dark,
 	--agy-toast-error-border: #dc2626;
 
 	/* Auth Modal / Box */
-	--agy-auth-box-bg: #0f223a;
-	--agy-auth-box-border: #3b82f6;
+	--agy-auth-box-bg: var(--dsw-alias-bg-layer-2, #1e293b);
+	--agy-auth-box-border: transparent;
 
 	/* Segment control */
-	--agy-seg-group-bg: #090d16;
-	--agy-seg-group-border: #334155;
+	--agy-seg-group-bg: transparent;
+	--agy-seg-group-border: transparent;
 	--agy-seg-btn-text: #94a3b8;
-	--agy-seg-btn-active-bg: var(--dsw-alias-state-business-primary, #2563eb);
-	--agy-seg-btn-active-text: #ffffff;
+	--agy-seg-btn-active-bg: var(--dsw-alias-state-business-primary, #38bdf8);
+	--agy-seg-btn-active-text: #0b1220;
 	--agy-seg-danger-bg: #7f1d1d;
 	--agy-seg-danger-text: #fca5a5;
 	--agy-seg-danger-border: #ef4444;
@@ -1012,23 +1012,46 @@ body.dark,
 	border-radius: 50%;
 }
 .agy-card-hover {
-	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+	transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 .agy-card-hover:hover {
-	border-color: var(--agy-border-card-primary, #3b82f6) !important;
-	box-shadow: var(--agy-shadow-card-hover) !important;
+	background: var(--dsw-alias-interactive-bg-hover, transparent) !important;
 }
+.agy-console-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	color: var(--agy-text-secondary);
+	font-size: 12px;
+}
+.agy-console-status-dot {
+	width: 7px;
+	height: 7px;
+	flex: 0 0 7px;
+	border-radius: 50%;
+	background: var(--agy-text-tertiary);
+}
+.agy-console-status-dot[data-state="ready"] { background: var(--agy-badge-ready-text); }
+.agy-console-status-dot[data-state="pending"] { background: var(--agy-quota-med-text); }
+.agy-console-status-dot[data-state="disabled"] { background: var(--agy-text-muted); }
 
 .agy-btn {
-	transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, filter 0.15s ease, transform 0.15s ease;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 	user-select: none;
 }
-.agy-btn:hover:not(:disabled) {
-	filter: brightness(1.08);
-	transform: translateY(-0.5px);
+.agy-btn:not(.agy-btn-primary):not(.agy-account-action-primary):not(.agy-account-action-danger):hover:not(:disabled) {
+	background-color: var(--agy-bg-btn-hover) !important;
 }
-.agy-btn:active:not(:disabled) {
-	transform: translateY(0.5px);
+.agy-btn:focus-visible,
+.agy-select:focus-visible,
+.agy-console input:focus-visible {
+	outline: 2px solid var(--dsw-alias-state-business-primary, #2563eb);
+	outline-offset: 2px;
+}
+.agy-btn:disabled,
+.agy-select:disabled {
+	opacity: 0.58;
+	cursor: not-allowed;
 }
 
 /* Standalone enable/disable toggle (rows without a segment group). Class-based
@@ -1127,11 +1150,11 @@ html.agy-modal-open body {
 .agy-modal-panel {
 	position: relative;
 	width: 100%;
-	max-width: 640px;
-	max-height: min(820px, calc(100vh - 48px));
+	max-width: 760px;
+	max-height: min(760px, calc(100vh - 40px));
 	background: var(--agy-bg-panel);
 	border: 1px solid var(--agy-border-card);
-	border-radius: 14px;
+	border-radius: 10px;
 	box-shadow: var(--agy-shadow-modal);
 	display: flex;
 	flex-direction: column;
@@ -1143,7 +1166,7 @@ html.agy-modal-open body {
 	   ancestor of a scrolling subtree is the classic Chromium flicker trap — the
 	   backing layer is dropped and rebuilt while the body scrolls, so the panel
 	   blinks over the translucent backdrop. A forced translateZ(0) layer makes
-	   it worse (big fixed layer + shadow re-composited per frame). A 640px panel
+	   it worse (big fixed layer + shadow re-composited per frame). A 760px panel
 	   needs neither hint; plain overflow: hidden already clips it. */
 }
 .agy-submodel-row {
@@ -1157,6 +1180,189 @@ html.agy-modal-open body {
 	border: 1px solid var(--agy-border-box);
 	margin: 4px 0;
 	color: var(--agy-text-primary);
+}
+
+.agy-account-header {
+	display: grid !important;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center !important;
+	gap: 8px 12px !important;
+	margin-bottom: 4px !important;
+}
+.agy-account-identity {
+	gap: 5px 9px !important;
+	min-width: 0;
+}
+.agy-account-order-button {
+	width: 26px !important;
+	height: 26px !important;
+	min-height: 26px !important;
+	padding: 0 !important;
+	border-radius: 5px !important;
+	color: var(--agy-text-secondary) !important;
+}
+.agy-account-email {
+	color: var(--agy-text-secondary) !important;
+	font-size: 12px !important;
+}
+.agy-account-state {
+	background: transparent !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	font-size: 11px !important;
+	font-weight: 500 !important;
+}
+.agy-account-state-error { color: var(--agy-danger-text) !important; }
+.agy-account-state-warning { color: var(--agy-quota-med-text) !important; }
+.agy-account-state-selected { color: var(--agy-badge-ready-text) !important; }
+.agy-account-meta { color: var(--agy-text-tertiary) !important; }
+.agy-card-actions {
+	gap: 6px !important;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+.agy-account-action {
+	min-height: 30px !important;
+	padding: 4px 8px !important;
+	border: 1px solid var(--agy-border-btn) !important;
+	border-radius: 6px !important;
+	background: var(--agy-bg-btn) !important;
+	color: var(--agy-text-btn) !important;
+	font-size: 12px !important;
+	line-height: 1.25 !important;
+	white-space: nowrap;
+}
+.agy-account-action:hover:not(:disabled) {
+	background: var(--agy-bg-btn-hover) !important;
+}
+.agy-account-action-primary {
+	border-color: var(--agy-border-btn-primary) !important;
+	background: var(--agy-bg-btn-primary) !important;
+	color: var(--agy-text-btn-primary) !important;
+	font-weight: 600 !important;
+}
+.agy-account-action-primary:hover:not(:disabled) {
+	filter: brightness(0.94);
+}
+.agy-account-action-danger {
+	border-color: var(--agy-danger-border) !important;
+	background: var(--agy-danger-bg) !important;
+	color: var(--agy-danger-text) !important;
+}
+.agy-account-action-danger:hover:not(:disabled) {
+	background: var(--agy-danger-hover-bg) !important;
+}
+.agy-account-quota {
+	margin-top: 0 !important;
+	padding: 4px 0 0 !important;
+	background: transparent !important;
+	border: 0 !important;
+}
+.agy-account-quota-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 30px;
+}
+.agy-quota-summary-text {
+	color: var(--agy-text-secondary);
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+}
+.agy-account-expand {
+	display: inline-flex !important;
+	align-items: center;
+	gap: 5px !important;
+	padding: 4px 0 !important;
+	border: 0 !important;
+	background: transparent !important;
+	color: var(--dsw-alias-state-business-primary, #2563eb) !important;
+	font-size: 12px !important;
+	font-weight: 500 !important;
+	white-space: nowrap;
+}
+.agy-family-quota {
+	margin: 0 !important;
+	padding: 8px 0 !important;
+	background: transparent !important;
+	border: 0 !important;
+	border-bottom: 1px solid var(--agy-border-divider) !important;
+	border-radius: 0 !important;
+}
+.agy-family-quota:last-child { border-bottom: 0 !important; }
+.agy-quota-line {
+	margin: 5px 0 !important;
+	font-size: 12px !important;
+}
+.agy-quota-line > div:first-of-type {
+	height: 5px !important;
+	border: 0 !important;
+	margin: 0 12px !important;
+}
+.agy-quota-line > div:last-child {
+	width: 148px !important;
+	min-width: 148px !important;
+}
+.agy-account-quota .agy-btn {
+	justify-content: flex-start !important;
+	width: auto !important;
+	margin-top: 4px !important;
+	padding: 4px 0 !important;
+	background: transparent !important;
+	border: 0 !important;
+	color: var(--agy-text-secondary) !important;
+}
+.agy-settings { gap: 0 !important; }
+.agy-setting-row {
+	display: flex;
+	align-items: center;
+	min-height: 48px;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--agy-border-divider);
+}
+.agy-setting-copy {
+	min-width: 0;
+	flex: 1 1 auto;
+	padding-right: 20px;
+}
+.agy-setting-label {
+	font-size: 13px !important;
+	font-weight: 500 !important;
+}
+.agy-setting-help {
+	max-width: 56ch;
+	margin-top: 2px;
+	line-height: 1.4;
+}
+.agy-permission-row {
+	display: grid !important;
+	grid-template-columns: minmax(0, 1fr) minmax(210px, 260px);
+	align-items: center;
+	column-gap: 16px;
+}
+.agy-permission-row .agy-setting-help { grid-column: 1; }
+.agy-permission-row .agy-setting-copy { padding-right: 0; }
+.agy-permission-row .agy-select {
+	grid-column: 2;
+	grid-row: 1 / span 2;
+	width: 100% !important;
+	max-width: 260px !important;
+}
+.agy-section-heading {
+	font-size: 14px !important;
+	font-weight: 600 !important;
+}
+.agy-setting-models { border-bottom: 1px solid var(--agy-border-divider); }
+.agy-select { border-radius: 6px !important; }
+.agy-console .agy-btn-primary { box-shadow: none !important; white-space: nowrap; flex: 0 0 auto; }
+.agy-header-actions { flex-wrap: wrap; justify-content: flex-end; gap: 8px !important; }
+.agy-header-actions > button { min-height: 34px; white-space: nowrap; flex: 0 0 auto; }
+.agy-card-actions > button { min-width: 58px; }
+@media (prefers-reduced-motion: reduce) {
+	.agy-card-hover, .agy-btn, .agy-progress-fill { transition: none !important; }
+	.agy-spinner, .agy-shimmer-track::after { animation: none !important; }
 }
 
 /* Native dropdowns: the closed control carries inline colours, but the popup
@@ -1192,6 +1398,9 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 		padding: 14px 12px calc(18px + env(safe-area-inset-bottom)) !important;
 		-webkit-overflow-scrolling: touch;
 	}
+	.agy-account-header { grid-template-columns: minmax(0, 1fr); }
+	.agy-card-actions { justify-content: flex-start; }
+	.agy-account-quota-summary { align-items: flex-start; flex-direction: column; gap: 2px; }
 
 	/* A flex row may wrap instead of pushing the panel sideways. */
 	.agy-console [style*="display: flex"] { flex-wrap: wrap !important; }
@@ -1218,6 +1427,15 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 	/* Settings dropdowns share their row and stretch on a phone. */
 	.agy-console .agy-select { flex: 1 1 0 !important; min-width: 0 !important; max-width: none !important; height: 34px !important; }
 	.agy-console .agy-btn { min-height: 34px; }
+	.agy-console .agy-permission-row {
+		grid-template-columns: minmax(0, 1fr) !important;
+		row-gap: 8px !important;
+	}
+	.agy-console .agy-permission-row .agy-select {
+		grid-column: 1 !important;
+		grid-row: auto !important;
+		max-width: none !important;
+	}
 	/* The family label no longer reserves 140px of a 360px screen. */
 	.agy-console [style*="min-width: 140px"] { min-width: 0 !important; }
 	/* Per-model rows may wrap their value under the name. */
@@ -1261,6 +1479,10 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 		align-items: stretch;
 	}
 	.agy-card-actions > button { width: 100%; justify-content: center; }
+	.agy-setting-row { align-items: flex-start !important; }
+	.agy-setting-copy { padding-right: 0; }
+	.agy-permission-row { grid-template-columns: minmax(0, 1fr) !important; row-gap: 6px; }
+	.agy-permission-row .agy-select { grid-column: 1; grid-row: auto; max-width: none !important; }
 }
 
 @media (max-width: 420px) {
@@ -1297,13 +1519,13 @@ const S: Record<string, Record<string, unknown>> = {
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		padding: '12px 16px',
-		background: 'var(--agy-bg-header)',
-		border: '1px solid var(--agy-border-card)',
-		borderRadius: '10px',
+		padding: '4px 0',
+		background: 'transparent',
+		border: '0',
+		borderRadius: '0',
 		marginBottom: '12px',
 		color: 'var(--agy-text-primary)',
-		boxShadow: 'var(--agy-shadow-card)',
+		boxShadow: 'none',
 	},
 	badgePrimary: {
 		display: 'inline-flex',
@@ -1311,9 +1533,9 @@ const S: Record<string, Record<string, unknown>> = {
 		gap: '4px',
 		background: 'var(--agy-badge-primary-bg)',
 		color: 'var(--agy-badge-primary-text)',
-		border: '1px solid var(--agy-badge-primary-border)',
-		padding: '2px 8px',
-		borderRadius: '5px',
+		border: '0',
+		padding: '0',
+		borderRadius: '0',
 		fontSize: '11px',
 		fontWeight: 700,
 	},
@@ -1323,9 +1545,9 @@ const S: Record<string, Record<string, unknown>> = {
 		gap: '4px',
 		background: 'var(--agy-badge-tag-bg)',
 		color: 'var(--agy-badge-tag-text)',
-		border: '1px solid var(--agy-badge-tag-border)',
-		padding: '2px 7px',
-		borderRadius: '5px',
+		border: '0',
+		padding: '0',
+		borderRadius: '0',
 		fontSize: '11px',
 		fontWeight: 600,
 	},
@@ -1335,9 +1557,9 @@ const S: Record<string, Record<string, unknown>> = {
 		gap: '4px',
 		background: 'var(--agy-badge-ready-bg)',
 		color: 'var(--agy-badge-ready-text)',
-		border: '1px solid var(--agy-badge-ready-border)',
-		padding: '2px 8px',
-		borderRadius: '5px',
+		border: '0',
+		padding: '0',
+		borderRadius: '0',
 		fontSize: '11px',
 		fontWeight: 700,
 	},
@@ -1347,53 +1569,55 @@ const S: Record<string, Record<string, unknown>> = {
 		gap: '4px',
 		background: 'var(--agy-badge-unready-bg)',
 		color: 'var(--agy-badge-unready-text)',
-		border: '1px solid var(--agy-badge-unready-border)',
-		padding: '2px 8px',
-		borderRadius: '5px',
+		border: '0',
+		padding: '0',
+		borderRadius: '0',
 		fontSize: '11px',
 		fontWeight: 700,
 	},
 	card: {
-		background: 'var(--agy-bg-card)',
-		border: '1px solid var(--agy-border-card)',
-		borderRadius: '8px',
-		padding: '10px 14px',
-		marginBottom: '8px',
+		background: 'transparent',
+		border: '0',
+		borderBottom: '1px solid var(--agy-border-divider)',
+		borderRadius: '0',
+		padding: '12px 4px',
+		marginBottom: '0',
 		color: 'var(--agy-text-primary)',
-		boxShadow: 'var(--agy-shadow-card)',
-		transition: 'border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease',
+		boxShadow: 'none',
+		transition: 'background-color 0.15s ease, opacity 0.15s ease',
 	},
 	cardPrimary: {
-		background: 'var(--agy-bg-card)',
-		border: '1px solid var(--agy-border-card)',
-		borderRadius: '8px',
-		padding: '10px 14px',
-		marginBottom: '8px',
+		background: 'transparent',
+		border: '0',
+		borderBottom: '1px solid var(--agy-border-divider)',
+		borderRadius: '0',
+		padding: '12px 4px',
+		marginBottom: '0',
 		color: 'var(--agy-text-primary)',
-		boxShadow: 'var(--agy-shadow-card)',
-		transition: 'border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease',
+		boxShadow: 'none',
+		transition: 'background-color 0.15s ease, opacity 0.15s ease',
 	},
 	quotaBox: {
-		background: 'var(--agy-bg-box)',
-		border: '1px solid var(--agy-border-box)',
-		borderRadius: '8px',
-		padding: '8px 10px',
-		marginTop: '8px',
+		background: 'transparent',
+		border: '0',
+		borderRadius: '0',
+		padding: '4px 0 0',
+		marginTop: '2px',
 	},
 	progressBarBg: {
 		flex: '1',
-		height: '8px',
-		borderRadius: '4px',
+		height: '5px',
+		borderRadius: '3px',
 		background: 'var(--agy-bg-progress-track)',
-		border: '1px solid var(--agy-border-box)',
+		border: '0',
 		overflow: 'hidden',
-		margin: '0 10px',
+		margin: '0 12px',
 	},
 	btn: {
 		display: 'inline-flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: '5px 12px',
+		padding: '5px 9px',
 		borderRadius: '6px',
 		border: '1px solid var(--agy-border-btn)',
 		background: 'var(--agy-bg-btn)',
@@ -1406,15 +1630,15 @@ const S: Record<string, Record<string, unknown>> = {
 		display: 'inline-flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: '5px 13px',
+		padding: '6px 10px',
 		borderRadius: '6px',
 		border: '1px solid var(--agy-border-btn-primary)',
 		background: 'var(--agy-bg-btn-primary)',
 		color: 'var(--agy-text-btn-primary)',
 		cursor: 'pointer',
 		fontSize: '12px',
-		fontWeight: 700,
-		boxShadow: '0 2px 6px rgba(37, 99, 235, 0.35)',
+		fontWeight: 600,
+		boxShadow: 'none',
 	},
 	btnDanger: {
 		display: 'inline-flex',
@@ -1457,14 +1681,14 @@ const S: Record<string, Record<string, unknown>> = {
 	},
 	segGroup: {
 		display: 'inline-flex',
-		background: 'var(--agy-seg-group-bg)',
+		background: 'var(--agy-bg-btn)',
 		borderRadius: '7px',
-		padding: '3px',
-		border: '1px solid var(--agy-seg-group-border)',
+		padding: '2px',
+		border: '1px solid var(--agy-border-btn)',
 	},
 	segBtn: {
 		padding: '4px 10px',
-		borderRadius: '4px',
+		borderRadius: '5px',
 		border: 'none',
 		background: 'transparent',
 		color: 'var(--agy-seg-btn-text)',
@@ -1474,20 +1698,20 @@ const S: Record<string, Record<string, unknown>> = {
 	},
 	segBtnActive: {
 		padding: '4px 10px',
-		borderRadius: '4px',
+		borderRadius: '5px',
 		border: 'none',
 		background: 'var(--agy-seg-btn-active-bg)',
 		color: 'var(--agy-seg-btn-active-text)',
 		cursor: 'pointer',
 		fontSize: '11.5px',
-		fontWeight: 700,
-		boxShadow: '0 2px 4px rgba(37, 99, 235, 0.4)',
+		fontWeight: 600,
+		boxShadow: 'none',
 	},
 	input: {
 		flex: '1',
-		padding: '7px 12px',
+		padding: '7px 10px',
 		borderRadius: '6px',
-		border: '1.5px solid var(--agy-border-input)',
+		border: '1px solid var(--agy-border-input)',
 		background: 'var(--agy-bg-input)',
 		color: 'var(--agy-text-primary)',
 		fontSize: '12.5px',
@@ -1513,26 +1737,21 @@ const S: Record<string, Record<string, unknown>> = {
 	// cannot read currentColor); color-scheme is set in GLOBAL_CSS so the popup
 	// list follows the theme as well.
 	select: {
-		appearance: 'none',
-		WebkitAppearance: 'none',
-		height: '28px',
-		padding: '0 22px 0 8px',
+		appearance: 'auto',
+		WebkitAppearance: 'menulist',
+		height: '32px',
+		padding: '0 8px',
 		borderRadius: '6px',
-		border: '1px solid var(--agy-border-btn)',
+		border: '1px solid var(--agy-border-input)',
 		backgroundColor: 'var(--agy-bg-input)',
 		color: 'var(--agy-text-primary)',
 		fontFamily: 'inherit',
-		fontSize: '11.5px',
-		fontWeight: 600,
+		fontSize: '12px',
+		fontWeight: 400,
 		cursor: 'pointer',
-		minWidth: '104px',
-		maxWidth: '190px',
+		minWidth: '120px',
+		maxWidth: '260px',
 		textOverflow: 'ellipsis',
-		backgroundImage:
-			'linear-gradient(45deg, transparent 50%, var(--agy-text-tertiary) 50%), linear-gradient(135deg, var(--agy-text-tertiary) 50%, transparent 50%)',
-		backgroundPosition: 'calc(100% - 13px) calc(50% + 1px), calc(100% - 9px) calc(50% + 1px)',
-		backgroundSize: '4px 4px, 4px 4px',
-		backgroundRepeat: 'no-repeat',
 	},
 	noticeBanner: {
 		display: 'flex',
@@ -1546,10 +1765,10 @@ const S: Record<string, Record<string, unknown>> = {
 	},
 	authModal: {
 		background: 'var(--agy-auth-box-bg)',
-		border: '1.5px solid var(--agy-auth-box-border)',
-		borderRadius: '10px',
-		padding: '14px 16px',
-		marginBottom: '14px',
+		border: '0',
+		borderRadius: '8px',
+		padding: '12px',
+		marginBottom: '12px',
 		color: 'var(--agy-text-primary)',
 	},
 };
@@ -1988,7 +2207,6 @@ export function apply(ctx: ClientContext): void {
 		const authoritativeActiveId = pool?.activeAccountId ?? pool?.lastActiveAccountId ?? pool?.activeAccountIds?.google ?? pool?.primaryAccountId;
 		const activeAccountId = optimisticActiveId ?? authoritativeActiveId;
 		const renderedAccountCards = accounts.map((acc: ManagedAccount) => {
-			const isPrimary = acc.id === pool?.primaryAccountId;
 			const hasCooldown = Object.entries(acc.cooldowns).some(([, cd]) => cd && cd.cooldownUntil > Date.now());
 			const isAuthRequired = acc.authRequired;
 			const isInUse = acc.enabled && !isAuthRequired && activeAccountId !== undefined && activeAccountId === acc.id;
@@ -2000,8 +2218,8 @@ export function apply(ctx: ClientContext): void {
 			const cardStyle = {
 				...S.card,
 				cursor: 'default',
-				padding: '10px 14px',
-				marginBottom: '8px',
+				padding: '12px 4px',
+				marginBottom: '0',
 				...(!acc.enabled ? { opacity: 0.72 } : {}),
 			};
 			// Built-in aliases are canonical server data; translate display only.
@@ -2009,6 +2227,17 @@ export function apply(ctx: ClientContext): void {
 			const displayAlias = acc.defaultAlias || legacyDefault
 				? acc.systemHome ? t('account.defaultAlias') : t('account.aliasDefault', { number: accIndex + 1 })
 				: acc.alias;
+			const quotaPercent = (fraction: number | undefined): string =>
+				typeof fraction === 'number' && Number.isFinite(fraction)
+					? `${Math.round(Math.max(0, Math.min(1, fraction)) * 100)}%`
+					: '—';
+			const googleQuota = acc.quotas.google;
+			const quotaSummary = googleQuota
+				? t('account.quotaSummary', {
+					fiveHour: quotaPercent(googleQuota.remainingFraction),
+					weekly: quotaPercent(googleQuota.weeklyFraction),
+				})
+				: t('account.quotaPending');
 
 			const googleModels = acc.quotas.google?.models ?? [];
 			const argonModels = acc.quotas.argon?.models ?? [];
@@ -2023,11 +2252,12 @@ export function apply(ctx: ClientContext): void {
 
 			return h('div', {
 				key: acc.id,
-				className: 'agy-card-hover',
+				className: 'agy-account-card agy-card-hover',
 				style: cardStyle,
 			},
 				// Header row
 				h('div', {
+					className: 'agy-account-header',
 					style: {
 						display: 'flex',
 						alignItems: 'center',
@@ -2037,32 +2267,27 @@ export function apply(ctx: ClientContext): void {
 						marginBottom: '8px',
 					},
 				},
-					h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', flex: '1', minWidth: 0 } },
-						h('span', {
-							style: {
-								...S.badgeTag,
-								fontWeight: 700,
-								fontSize: '10.5px',
-								padding: '1px 5px',
-								background: isPrimary ? 'var(--agy-badge-primary-bg)' : 'var(--agy-badge-tag-bg)',
-								color: isPrimary ? 'var(--agy-badge-primary-text)' : 'var(--agy-badge-tag-text)',
-								borderColor: isPrimary ? 'var(--agy-badge-primary-border)' : 'var(--agy-badge-tag-border)',
-							},
+					h('div', { className: 'agy-account-identity', style: { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', flex: '1', minWidth: 0 } },
+						accounts.length > 1 ? h('span', {
+							className: 'agy-account-order',
+							style: { color: 'var(--agy-text-tertiary)', fontSize: '11px', fontVariantNumeric: 'tabular-nums' },
 							title: `优先级 #${accIndex + 1}`,
-						}, `#${accIndex + 1}`),
+						}, `${accIndex + 1}.`) : null,
 						accounts.length > 1 ? h('div', {
 							style: { display: 'inline-flex', gap: '2px', alignItems: 'center' },
 						},
 							accIndex > 0 ? h('button', {
 								type: 'button',
-								className: 'agy-btn',
+								className: 'agy-btn agy-account-order-button',
+								'aria-label': t('account.moveUp'),
 								style: { ...S.btnSm, padding: '1px 4px', fontSize: '10px', lineHeight: 1, height: '18px' },
 								title: t('account.moveUp'),
 								onClick: () => void moveAccount(acc.id, -1),
 							}, uiIcon('arrowUp', 10)) : null,
 							accIndex < accounts.length - 1 ? h('button', {
 								type: 'button',
-								className: 'agy-btn',
+								className: 'agy-btn agy-account-order-button',
+								'aria-label': t('account.moveDown'),
 								style: { ...S.btnSm, padding: '1px 4px', fontSize: '10px', lineHeight: 1, height: '18px' },
 								title: t('account.moveDown'),
 								onClick: () => void moveAccount(acc.id, 1),
@@ -2070,7 +2295,7 @@ export function apply(ctx: ClientContext): void {
 						) : null,
 						h('span', {
 							className: 'agy-pulse-dot',
-							style: { background: dotColor, boxShadow: `0 0 6px ${dotColor}aa`, marginLeft: '1px' },
+							style: { background: dotColor, marginLeft: '1px' },
 						}),
 						h('span', {
 							style: {
@@ -2081,18 +2306,8 @@ export function apply(ctx: ClientContext): void {
 							},
 							title: displayAlias,
 						}, displayAlias),
-						h('span', {
-							style: {
-								...S.badgeTag,
-								background: 'rgba(59, 130, 246, 0.12)',
-								color: '#3b82f6',
-								borderColor: 'rgba(59, 130, 246, 0.35)',
-								fontSize: '10px',
-								padding: '1px 5px',
-								fontWeight: 700,
-							},
-						}, 'AGY'),
 						isAuthRequired ? h('span', {
+							className: 'agy-account-state agy-account-state-error',
 							style: {
 								...S.badgeTag,
 								background: 'var(--agy-badge-email-bg)',
@@ -2107,6 +2322,7 @@ export function apply(ctx: ClientContext): void {
 							},
 						}, uiIcon('alert', 10, '#ef4444'), t('status.authRequired')) : null,
 						hasCooldown ? h('span', {
+							className: 'agy-account-state agy-account-state-warning',
 							style: {
 								...S.badgeTag,
 								background: 'rgba(245, 158, 11, 0.15)',
@@ -2121,6 +2337,7 @@ export function apply(ctx: ClientContext): void {
 							},
 						}, uiIcon('alert', 10, '#f59e0b'), '冷却中') : null,
 						acc.email ? h('span', {
+							className: 'agy-account-email',
 							style: {
 								...S.badgeTag,
 								background: 'var(--agy-badge-email-bg)',
@@ -2134,6 +2351,7 @@ export function apply(ctx: ClientContext): void {
 							title: acc.email,
 						}, uiIcon('mail', 10, 'var(--agy-badge-email-text)'), acc.email) : null,
 						isInUse ? h('span', {
+							className: 'agy-account-state agy-account-state-selected',
 							style: {
 								...S.badgeTag,
 								background: 'rgba(16, 185, 129, 0.12)',
@@ -2151,6 +2369,7 @@ export function apply(ctx: ClientContext): void {
 						(() => {
 							const effectiveProxy = acc.proxyUrl || pool?.systemProxy;
 							return effectiveProxy ? h('span', {
+								className: 'agy-account-meta',
 								style: {
 									...S.badgeTag,
 									background: 'var(--agy-badge-proxy-bg)',
@@ -2164,6 +2383,7 @@ export function apply(ctx: ClientContext): void {
 							}, uiIcon('globe', 10, 'var(--agy-badge-proxy-text)'), t('status.proxy')) : null;
 						})(),
 						!acc.enabled ? h('span', {
+							className: 'agy-account-state',
 							style: {
 								...S.badgeTag,
 								background: 'var(--agy-bg-subbox)',
@@ -2183,7 +2403,7 @@ export function apply(ctx: ClientContext): void {
 					},
 						h('button', {
 							type: 'button',
-							className: 'agy-btn',
+							className: `agy-btn agy-account-action${acc.enabled ? '' : ' agy-account-action-primary'}`,
 							style: acc.enabled
 								? { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px' }
 								: { ...S.btnSmPrimary, gap: '3px', fontSize: '11px', padding: '2px 6px' },
@@ -2192,10 +2412,10 @@ export function apply(ctx: ClientContext): void {
 							onClick: () => void toggleAccountEnabled(acc),
 						}, loadingAction === `enable:${acc.id}`
 							? [renderSpinner(), acc.enabled ? t('account.disable') : t('account.enable')]
-							: [uiIcon('power', 10, acc.enabled ? 'var(--agy-text-secondary)' : '#ffffff'), ` ${acc.enabled ? t('account.disable') : t('account.enable')}`]),
+							: [uiIcon('power', 10, 'currentColor'), ` ${acc.enabled ? t('account.disable') : t('account.enable')}`]),
 						h('button', {
 							type: 'button',
-							className: 'agy-btn',
+							className: 'agy-btn agy-account-action',
 							style: { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px', minWidth: '58px', justifyContent: 'center' },
 							title: t('account.syncTitle'),
 							disabled: accountActionBusy(acc, 'refresh'),
@@ -2203,15 +2423,15 @@ export function apply(ctx: ClientContext): void {
 						}, loadingAction === `refresh:${acc.id}` ? [renderSpinner(), t('account.syncing')] : [uiIcon('refresh', 10), ` ${t('account.sync')}`]),
 						acc.enabled && !acc.authRequired ? h('button', {
 							type: 'button',
-							className: 'agy-btn',
+							className: 'agy-btn agy-account-action',
 							style: { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px', minWidth: '58px', justifyContent: 'center' },
 							title: t('account.warmupTitle'),
 							disabled: accountActionBusy(acc, 'warmup'),
 							onClick: () => void warmupAccount(acc.id),
-						}, loadingAction === `warmup:${acc.id}` ? [renderSpinner(), t('account.warmingUp')] : [uiIcon('flame', 10, '#f97316'), ` ${t('account.warmup')}`]) : null,
+				}, loadingAction === `warmup:${acc.id}` ? [renderSpinner(), t('account.warmingUp')] : [uiIcon('flame', 10, 'var(--agy-text-secondary)'), ` ${t('account.warmup')}`]) : null,
 						acc.enabled && !isInUse ? h('button', {
 							type: 'button',
-							className: 'agy-btn',
+							className: 'agy-btn agy-account-action agy-account-action-primary',
 							style: { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px' },
 							title: t('account.setActive'),
 							disabled: accountActionBusy(acc, 'active'),
@@ -2220,14 +2440,14 @@ export function apply(ctx: ClientContext): void {
 
 						h('button', {
 							type: 'button',
-							className: 'agy-btn',
+							className: `agy-btn agy-account-action${isEditingProxy ? ' agy-account-action-primary' : ''}`,
 							style: isEditingProxy ? { ...S.btnSmPrimary, gap: '3px', fontSize: '11px', padding: '2px 6px' } : { ...S.btnSm, gap: '3px', fontSize: '11px', padding: '2px 6px' },
 							disabled: accountActionBusy(acc, 'proxy'),
 							onClick: () => setEditingProxyId(isEditingProxy ? null : acc.id),
 						}, [uiIcon('globe', 10), ` ${t('proxy.button')}`]),
 						accounts.length > 1 ? h('button', {
 							type: 'button',
-							className: 'agy-btn',
+							className: 'agy-btn agy-account-action agy-account-action-danger',
 							style: { ...S.btnDanger, padding: '2px 6px', fontSize: '11px' },
 							title: t('account.removeTitle'),
 							'aria-label': t('account.removeTitle'),
@@ -2236,65 +2456,54 @@ export function apply(ctx: ClientContext): void {
 						}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon('trash', 11, 'var(--agy-danger-text)')) : null,
 					),
 				),
-				// Body: Always directly visible, showing quota
-h('div', { key: 'agy-body', style: S.quotaBox },
-						renderQuotaBar('Gemini', 'google', acc),
-						// Gemini 4 Argon (Pro/Ultra only): the backend reports its own
-						// quota group/weekly bucket ONLY for accounts that have the
-						// permission, so gate the row on the data itself — free and
-						// legacy plans never see an empty Argon panel.
-						acc.quotas.argon ? renderQuotaBar('Argon', 'argon', acc) : null,
+				// Keep the account pool scannable. The full family/model breakdown is
+				// one click away, so several accounts do not become several dashboards.
+				h('div', { key: 'agy-body', id: `agy-quota-${acc.id}`, className: 'agy-account-quota', style: S.quotaBox },
+					!isExpanded ? h('div', { className: 'agy-account-quota-summary' },
+						h('span', { className: 'agy-quota-summary-text' }, quotaSummary),
 						h('button', {
 							type: 'button',
-							className: 'agy-btn',
-							style: {
-								width: '100%',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '5px',
-								marginTop: '6px',
-								padding: '5px 10px',
-								fontSize: '11px',
-								fontWeight: 600,
-								cursor: 'pointer',
-								color: isExpanded ? 'var(--dsw-alias-state-business-primary, #3b82f6)' : 'var(--agy-text-secondary)',
-								background: 'var(--agy-bg-subbox)',
-								border: '1px dashed var(--agy-border-box)',
-								borderRadius: '6px',
-							},
+							className: 'agy-btn agy-account-expand',
+							'aria-expanded': false,
+							'aria-controls': `agy-quota-${acc.id}`,
 							onClick: () => toggleExpand(acc.id),
-						},
-							uiIcon(isExpanded ? 'chevronUp' : 'chevronDown', 10),
-							h('span', null, isExpanded ? t('account.collapseOthers') : t('account.expandOthers')),
-						),
-						isExpanded ? [
-							renderQuotaBar('Claude', 'anthropic', acc),
-							renderQuotaBar('GPT-OSS', 'openai', acc),
-							allChildModels.length > 0 ? h('div', {
-								style: {
-									marginTop: '8px',
-									paddingTop: '8px',
-									borderTop: '1px solid var(--agy-border-box)',
-								},
+						}, uiIcon('chevronDown', 11), t('account.expandOthers')),
+					) : [
+						renderQuotaBar('Gemini', 'google', acc),
+						acc.quotas.argon ? renderQuotaBar('Argon', 'argon', acc) : null,
+						renderQuotaBar('Claude', 'anthropic', acc),
+						renderQuotaBar('GPT-OSS', 'openai', acc),
+						allChildModels.length > 0 ? h('div', {
+							style: {
+								marginTop: '8px',
+								paddingTop: '8px',
+								borderTop: '1px solid var(--agy-border-box)',
 							},
-								h('div', { style: { color: 'var(--agy-text-secondary)', marginBottom: '6px', fontWeight: 600, fontSize: '11px' } }, t('account.models')),
-								allChildModels.map(({ family, model }) => {
-									const frac = model.remainingFraction ?? 1;
-									const pct = Math.round(frac * 100);
-									const w = formatQuotaWindow(t, model.resetTime);
-									const pColor = pct <= 20 ? 'var(--agy-quota-low-text)' : pct <= 50 ? 'var(--agy-quota-med-text)' : 'var(--agy-quota-high-text)';
-									return h('div', { key: `${family}-${model.modelId}`, className: 'agy-submodel-row' },
-										h('span', { style: { fontWeight: 500, color: 'var(--agy-text-primary)' } }, `[${family}] ${model.displayName || model.modelId}`),
-										h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
-											h('span', { style: { color: pColor, fontWeight: 700 } }, `${pct}%`),
-											w.resetText ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '10.5px' } }, `↻ ${w.resetText}`) : null,
-										),
-									);
-								}),
-							) : null,
-						] : null,
-					),
+						},
+							h('div', { style: { color: 'var(--agy-text-secondary)', marginBottom: '6px', fontWeight: 600, fontSize: '11px' } }, t('account.models')),
+							allChildModels.map(({ family, model }) => {
+								const frac = model.remainingFraction ?? 1;
+								const pct = Math.round(frac * 100);
+								const w = formatQuotaWindow(t, model.resetTime);
+								const pColor = pct <= 20 ? 'var(--agy-quota-low-text)' : pct <= 50 ? 'var(--agy-quota-med-text)' : 'var(--agy-quota-high-text)';
+								return h('div', { key: `${family}-${model.modelId}`, className: 'agy-submodel-row' },
+									h('span', { style: { fontWeight: 500, color: 'var(--agy-text-primary)' } }, `[${family}] ${model.displayName || model.modelId}`),
+									h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+										h('span', { style: { color: pColor, fontWeight: 700 } }, `${pct}%`),
+										w.resetText ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '10.5px' } }, `↻ ${w.resetText}`) : null,
+									),
+								);
+							}),
+						) : null,
+						h('button', {
+							type: 'button',
+							className: 'agy-btn agy-account-expand',
+							'aria-expanded': true,
+							'aria-controls': `agy-quota-${acc.id}`,
+							onClick: () => toggleExpand(acc.id),
+						}, uiIcon('chevronUp', 11), t('account.collapseOthers')),
+					],
+				),
 				hasCooldown ? h('div', {
 					key: 'cd-body',
 					style: {
@@ -2343,7 +2552,7 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 						}),
 						h('button', {
 							type: 'button',
-							className: 'agy-btn',
+							className: 'agy-btn agy-btn-primary',
 							style: S.btnPrimary,
 							disabled: accountActionBusy(acc, 'proxy'),
 							onClick: () => void saveProxy(acc.id),
@@ -2369,8 +2578,8 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 					h('div', { style: { fontWeight: 700, fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--agy-text-primary)' } },
 						uiIcon('plus', 13, 'var(--agy-btn-primary-bg)'),
 						t('account.add'),
-					),
-					),
+				),
+				),
 				(!flowActive
 						? h('div', null,
 							h('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' } },
@@ -2392,11 +2601,11 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 							h('div', { style: { display: 'flex', gap: '8px' } },
 								h('button', {
 									type: 'button',
-									className: 'agy-btn',
+									className: 'agy-btn agy-btn-primary',
 									style: { ...S.btnPrimary, gap: '4px' },
 									disabled: isBusy,
 									onClick: () => void handleBeginAddAccount(),
-								}, loadingAction === 'pool:beginAdd' ? [renderSpinner(), t('auth.openingBrowser')] : [uiIcon('externalLink', 12, '#ffffff'), ` ${t('auth.openBrowser')}`]),
+								}, loadingAction === 'pool:beginAdd' ? [renderSpinner(), t('auth.openingBrowser')] : [uiIcon('externalLink', 12, 'currentColor'), ` ${t('auth.openBrowser')}`]),
 								h('button', {
 									type: 'button',
 									className: 'agy-btn',
@@ -2435,11 +2644,11 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 								}),
 								h('button', {
 									type: 'button',
-									className: 'agy-btn',
+									className: 'agy-btn agy-btn-primary',
 									style: { ...S.btnPrimary, gap: '4px' },
 									disabled: isBusy || !authCodeInput.trim(),
 									onClick: () => void handleCompleteAddAccount(),
-								}, loadingAction === 'pool:completeAdd' ? [renderSpinner(), t('auth.activating')] : [uiIcon('check', 12, '#ffffff'), ` ${t('auth.activate')}`]),
+								}, loadingAction === 'pool:completeAdd' ? [renderSpinner(), t('auth.activating')] : [uiIcon('check', 12, 'currentColor'), ` ${t('auth.activate')}`]),
 								h('button', {
 									type: 'button',
 									className: 'agy-btn',
@@ -2448,7 +2657,7 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 								}, t('cancel')),
 							),
 						))
-)
+			)
 			: null;
 
 		if (status === null) {
@@ -2459,28 +2668,33 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 
 		return h('div', { className: 'agy-console', style: S.container },
 			h('div', { style: S.headerCard },
-				h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
-					agyIcon(18),
-					h('span', { style: { fontWeight: 700, fontSize: '14px', color: 'var(--agy-text-primary)' } }, 'Antigravity'),
-					h('span', { style: isAuthed && status?.enabled !== false ? S.badgeReady : S.badgeUnready }, status?.enabled === false ? t('status.disabled') : isAuthed ? t('status.ready') : t('status.unverified')),
+				h('div', { className: 'agy-console-status', role: 'status' },
+					h('span', {
+						className: 'agy-console-status-dot',
+						'data-state': status?.enabled === false ? 'disabled' : isAuthed ? 'ready' : 'pending',
+						'aria-hidden': true,
+					}),
+					h('span', null, status?.enabled === false ? t('status.disabled') : isAuthed ? t('status.ready') : t('status.unverified')),
 				),
 				h('div', { className: 'agy-header-actions', style: { display: 'flex', gap: '6px', alignItems: 'center' } },
 					!addingAccount ? h('button', {
 						type: 'button',
-						className: 'agy-btn',
+						className: 'agy-btn agy-btn-primary',
 						style: { ...S.btnPrimary, gap: '4px' },
 						onClick: () => setAddingAccount(true),
-					}, [uiIcon('plus', 12, '#ffffff'), ` ${t('account.add')}`]) : null,
+					}, [uiIcon('plus', 12, 'currentColor'), ` ${t('header.addAccount')}`]) : null,
 					h('button', {
 						type: 'button',
 						className: 'agy-btn',
+						title: t('header.warmup'),
 						style: { ...S.btn, gap: '4px' },
 						disabled: isBusy,
 						onClick: () => void warmupAccount(),
-					}, loadingAction === 'warmup:all' ? [renderSpinner(), t('header.warmingUp')] : [uiIcon('flame', 12, '#f97316'), ` ${t('header.warmup')}`]),
+					}, loadingAction === 'warmup:all' ? [renderSpinner(), t('header.warmingUp')] : [uiIcon('flame', 12, 'var(--agy-text-secondary)'), ` ${t('header.warmup')}`]),
 					h('button', {
 						type: 'button',
 						className: 'agy-btn',
+						title: t('header.refreshQuota'),
 						style: { ...S.btn, gap: '4px' },
 						disabled: isBusy,
 						onClick: () => void refreshQuota(),
@@ -2489,22 +2703,25 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 			),
 			renderToastBanner(),
 			addAccountSection,
-			h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', padding: '0 2px' } },
+				h('div', { className: 'agy-section-heading', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px', padding: '0 2px' } },
 				h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
-					h('span', { style: { fontWeight: 700, fontSize: '12.5px', color: 'var(--agy-text-primary)' } }, `账号池 (${accounts.length})`),
+						h('span', { style: { fontWeight: 600, color: 'var(--agy-text-primary)' } }, `账号池 (${accounts.length})`),
 				),
 			),
 			renderedAccountCards,
-			h('div', { style: { marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--agy-border-divider)' } },
-				h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } },
-					h('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
-						h('span', { style: { color: 'var(--agy-text-primary)', fontWeight: 600, fontSize: '12.5px' } }, t('config.runtimeTitle')),
+			h('div', { className: 'agy-settings-section', style: { marginTop: '18px', paddingTop: '12px', borderTop: '1px solid var(--agy-border-divider)' } },
+				h('div', { className: 'agy-settings', style: { display: 'flex', flexDirection: 'column', gap: '10px' } },
+					h('div', { className: 'agy-settings-heading', style: { display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '4px' } },
+						h('span', { className: 'agy-section-heading', style: { color: 'var(--agy-text-primary)' } }, t('config.runtimeTitle')),
 						h('span', { style: S.muted }, t('config.runtimeDesc')),
 					),
-					h('div', { style: { display: 'flex', flexDirection: 'column', gap: '6px' } },
-						h('label', { htmlFor: 'agy-permission-mode', style: { color: 'var(--agy-text-primary)', fontWeight: 600, fontSize: '12.5px' } }, t('config.permissionMode')),
+					h('div', { className: 'agy-setting-row agy-permission-row' },
+						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column' } },
+							h('label', { className: 'agy-setting-label', htmlFor: 'agy-permission-mode', style: { color: 'var(--agy-text-primary)' } }, t('config.permissionMode')),
+							h('span', { className: 'agy-setting-help', style: S.muted, role: 'status' }, status?.permissionMode === 'skip' ? t('config.permissionSkipDesc') : t('config.permissionDesc')),
+						),
 						h('select', {
-							id: 'agy-permission-mode', className: 'agy-select', style: { ...S.select, maxWidth: '100%', width: '100%', height: '34px' },
+							id: 'agy-permission-mode', className: 'agy-select', style: { ...S.select, width: '100%', height: '32px' },
 							value: status?.permissionMode ?? 'accept-edits',
 							disabled: loadingAction === 'config:permissionMode',
 							onChange: (e: { target?: { value?: string } }) => void setCfg('permissionMode', e.target?.value),
@@ -2513,10 +2730,11 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 							h('option', { value: 'accept-edits' }, t('config.permissionEdits')),
 							h('option', { value: 'skip' }, t('config.permissionSkip')),
 						]),
-						h('span', { style: S.muted, role: 'status' }, status?.permissionMode === 'skip' ? t('config.permissionSkipDesc') : t('config.permissionDesc')),
 					),
-					h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
-						h('span', { style: { color: 'var(--agy-text-primary)', fontWeight: 600, fontSize: '12.5px' } }, t('pool.label')),
+					h('div', { className: 'agy-setting-row', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column' } },
+							h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('pool.label')),
+						),
 						h('div', { style: S.segGroup },
 							h('button', {
 								type: 'button',
@@ -2538,10 +2756,10 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 							}, t('pool.roundRobin')),
 						),
 					),
-					h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
-						h('div', { style: { display: 'flex', flexDirection: 'column' } },
-							h('span', { style: { color: 'var(--agy-text-primary)', fontWeight: 600, fontSize: '12.5px' } }, t('config.autoWarmup')),
-							h('span', { style: S.muted }, t('config.autoWarmupDesc')),
+					h('div', { className: 'agy-setting-row', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column' } },
+							h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('config.autoWarmup')),
+							h('span', { className: 'agy-setting-help', style: S.muted }, t('config.autoWarmupDesc')),
 						),
 						h('div', { style: S.segGroup },
 							h('button', {
@@ -2558,10 +2776,10 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 							}, t('config.off')),
 						),
 					),
-					h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' } },
-						h('div', { style: { display: 'flex', flexDirection: 'column', minWidth: 0, flex: '1 1 0' } },
-							h('span', { style: { color: 'var(--agy-text-primary)', fontWeight: 600, fontSize: '12.5px' } }, t('config.autoTranslate')),
-							h('span', { style: S.muted }, t('config.autoTranslateDesc')),
+					h('div', { className: 'agy-setting-row', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' } },
+						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column', minWidth: 0, flex: '1 1 0' } },
+							h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('config.autoTranslate')),
+							h('span', { className: 'agy-setting-help', style: S.muted }, t('config.autoTranslateDesc')),
 						),
 						h('div', { style: S.cfgRowRight },
 							h('div', { style: S.segGroup },
@@ -2611,10 +2829,10 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 							}).map((option) => h('option', { key: option.value, value: option.value }, option.label))),
 						),
 					),
-					h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
-						h('div', { style: { display: 'flex', flexDirection: 'column' } },
-							h('span', { style: { color: 'var(--agy-text-primary)', fontWeight: 600, fontSize: '12.5px' } }, t('config.defaultEffort')),
-							h('span', { style: S.muted }, t('config.defaultEffortDesc')),
+					h('div', { className: 'agy-setting-row', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column' } },
+							h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('config.defaultEffort')),
+							h('span', { className: 'agy-setting-help', style: S.muted }, t('config.defaultEffortDesc')),
 						),
 						h('div', { style: S.segGroup },
 							h('button', {
@@ -2643,8 +2861,8 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 							}, t('effort.high')),
 						),
 					),
-					h('div', { style: { display: 'flex', flexDirection: 'column', gap: '6px' } },
-						h('span', { style: { color: 'var(--agy-text-primary)', fontWeight: 600, fontSize: '12.5px' } }, t('models.label')),
+					h('div', { className: 'agy-setting-models', style: { display: 'flex', flexDirection: 'column', gap: '6px', padding: '10px 0' } },
+						h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('models.label')),
 						catalogModels.length === 0
 							? h('span', { style: S.muted }, t('models.empty'))
 							: h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } },
@@ -2720,9 +2938,9 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'space-between',
-						padding: '14px 18px',
+						padding: '12px 16px',
 						borderBottom: '1px solid var(--agy-border-card)',
-						background: 'var(--agy-bg-header)',
+						background: 'transparent',
 						color: 'var(--agy-text-primary)',
 					},
 				},
@@ -2732,14 +2950,15 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 					),
 					h('button', {
 						type: 'button',
+						className: 'agy-btn',
 						title: t('console.close'),
 						'aria-label': t('console.close'),
 						style: {
-							background: 'var(--agy-bg-btn)',
-							border: '1px solid var(--agy-border-btn)',
+							background: 'transparent',
+							border: '1px solid transparent',
 							color: 'var(--agy-text-btn)',
 							cursor: 'pointer',
-							padding: '4px 8px',
+							padding: '6px',
 							borderRadius: '6px',
 							display: 'inline-flex',
 							alignItems: 'center',
@@ -2747,7 +2966,7 @@ h('div', { key: 'agy-body', style: S.quotaBox },
 						onClick: () => agyModalStore.setOpen(false),
 					}, uiIcon('x', 14, 'var(--agy-text-btn)')),
 				),
-				h('div', { className: 'agy-modal-body', style: { overflowY: 'auto', overscrollBehavior: 'contain', padding: '18px', flex: '1', minHeight: 0, background: 'var(--agy-bg-panel)' } },
+				h('div', { className: 'agy-modal-body', style: { overflowY: 'auto', overscrollBehavior: 'contain', padding: '14px 16px 16px', flex: '1', minHeight: 0, background: 'var(--agy-bg-panel)' } },
 					h(AgySettingsSection, { isModal: true, onClose: () => agyModalStore.setOpen(false) }),
 				),
 			),
