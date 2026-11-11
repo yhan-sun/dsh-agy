@@ -2059,7 +2059,6 @@ var EventMapper = class {
 	openAcc = "";
 	emittedByKey = /* @__PURE__ */ new Map();
 	announcedTools = /* @__PURE__ */ new Set();
-	pendingAnnounced = /* @__PURE__ */ new Set();
 	thinkingAnnounced = /* @__PURE__ */ new Set();
 	/**
 	* Steps whose banner already streamed WITHOUT prose (issue #43: desktop
@@ -2266,17 +2265,7 @@ var EventMapper = class {
 				return;
 			}
 			if (ev.stepKind === "tool" && ev.tool) {
-				if (!(ev.state === "DONE" || ev.state === "ERROR" || ev.state === void 0 && (ev.tool.output !== void 0 || ev.tool.error !== void 0))) {
-					if (this.opts.cutOnTool && !this.finished && ev.state === "ACTIVE" && !this.pendingAnnounced.has(ev.stepKey)) {
-						this.pendingAnnounced.add(ev.stepKey);
-						yield* this.ensureBlock("reasoning");
-						const unwrapped = unwrapMcpTool(ev.tool.name, ev.tool.args);
-						const label = unwrapped.server ? `${unwrapped.tool} (${unwrapped.server})` : unwrapped.tool;
-						const d = this.appendDelta("[agy tool running: " + label + " — the result card streams when it finishes]\n");
-						if (d) yield d;
-					}
-					return;
-				}
+				if (!(ev.state === "DONE" || ev.state === "ERROR" || ev.state === void 0 && (ev.tool.output !== void 0 || ev.tool.error !== void 0))) return;
 				if (this.announcedTools.has(ev.stepKey)) return;
 				this.announcedTools.add(ev.stepKey);
 				if (!this.opts.cutOnTool) return;
@@ -35525,8 +35514,9 @@ var QuotaService = class {
 	}
 	/**
 	* Get a valid access token, refreshing via refresh_token when expired.
-	* Uses the public Antigravity client credentials (env-overridable), so
-	* refresh works out of the box.
+	* Uses OAuth client credentials supplied by the DSH host environment.
+	* Refresh remains disabled until both AGY_CLIENT_ID and
+	* AGY_CLIENT_SECRET are configured.
 	*
 	* Concurrent calls for the SAME account share one in-flight attempt: the
 	* poll timer, three manual HTTP entry points and per-account allSettled

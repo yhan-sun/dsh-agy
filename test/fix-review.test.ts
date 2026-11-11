@@ -66,14 +66,16 @@ describe('mapper fixes', () => {
 		assert.equal(text2, ' beta', 'only the grown suffix is emitted')
 	})
 
-	test('ACTIVE tool steps emit a pending reasoning note once', () => {
+	test('ACTIVE tool steps leave reasoning untouched until the completed tool card', () => {
 		const rec = new RunRecording()
 		rec.append(step({ stepKey: 't0', stepKind: 'tool', state: 'ACTIVE', tool: { name: 'run_command' } }))
 		rec.append(step({ stepKey: 't0', stepKind: 'tool', state: 'ACTIVE', tool: { name: 'run_command' } }))
 		const mapper = new EventMapper({ runId: 'r', cutOnTool: true, usage: rec })
 		const notes = [...mapper.map(rec.eventAt(0)!, 0), ...mapper.map(rec.eventAt(1)!, 1)]
 			.filter((c) => c.type === 'reasoning-delta')
-		assert.equal(notes.length, 1, 'pending note deduped per stepKey')
+		assert.equal(notes.length, 0, 'temporary tool status must not persist as reasoning')
+		const done = [...mapper.map(step({ stepKey: 't0', stepKind: 'tool', state: 'DONE', tool: { name: 'run_command', output: 'ok' } }), 2)]
+		assert.ok(done.some((c) => c.type === 'finish' && c.reason.kind === 'tool-calls'))
 	})
 
 	test('DONE tool cut forwards the last per-call usage sample, not 0/0', () => {

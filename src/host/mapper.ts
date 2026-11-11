@@ -165,7 +165,6 @@ export class EventMapper {
   private openAcc = ''
   private readonly emittedByKey = new Map<string, string>()
   private readonly announcedTools = new Set<string>()
-  private readonly pendingAnnounced = new Set<string>()
   private readonly thinkingAnnounced = new Set<string>()
   /**
    * Steps whose banner already streamed WITHOUT prose (issue #43: desktop
@@ -413,29 +412,10 @@ export class EventMapper {
           ev.state === 'DONE' ||
           ev.state === 'ERROR' ||
           (ev.state === undefined && (ev.tool.output !== undefined || ev.tool.error !== undefined))
-        if (!isCompleted) {
-          // Live progress for long-running agy tools: while a step is ACTIVE
-          // (a maven build can hold the turn for many minutes) nothing else
-          // streams, so the turn looked frozen. Emit the pending note once per
-          // step into the reasoning block; the completed step still cuts the
-          // span with the real tool card below.
-          if (
-            this.opts.cutOnTool &&
-            !this.finished &&
-            ev.state === 'ACTIVE' &&
-            !this.pendingAnnounced.has(ev.stepKey)
-          ) {
-            this.pendingAnnounced.add(ev.stepKey)
-            yield* this.ensureBlock('reasoning')
-            const unwrapped = unwrapMcpTool(ev.tool.name, ev.tool.args)
-            const label = unwrapped.server ? `${unwrapped.tool} (${unwrapped.server})` : unwrapped.tool
-            const d = this.appendDelta(
-              '[agy tool running: ' + label + ' — the result card streams when it finishes]\n',
-            )
-            if (d) yield d
-          }
-          return
-        }
+        // The host's reasoning stream is durable, so a temporary progress
+        // message here remains visible after the tool has finished. Keep
+        // reasoning for model thoughts and emit the native card on completion.
+        if (!isCompleted) return
         if (this.announcedTools.has(ev.stepKey)) return
         this.announcedTools.add(ev.stepKey)
         if (!this.opts.cutOnTool) return // auxiliary calls show no tool detail
