@@ -9,12 +9,12 @@
 Install the public GitHub package into DSH Desktop:
 
 ```bash
-dsh plugin --profile desktop add github:yhan-sun/dsh-agy
+dsh plugin --profile desktop add 'https://codeload.github.com/yhan-sun/dsh-agy/tar.gz/650c2752785afd64be80ac73a35f55f2424014f5'
 ```
 
 The package keeps the upstream plugin ID `dsh-agy-link`; update or remove an existing copy of that plugin in the same DSH profile before installing this fork.
 
-The repository includes the built files, so Git installation does not need to run a prepare script. Maintainers must rebuild and commit `dist` alongside source changes.
+The repository includes the built files. Use the pinned source archive above: DSH’s strict pnpm policy may still classify a `github:` dependency as an unapproved build even without a prepare script. An archive install avoids that Git-package classification. The archive contains the integrated source; normal runtime libraries such as `qrcode` are installed by pnpm. Maintainers must rebuild and commit `dist` alongside source changes.
 
 Restart DSH. Open **Settings → Antigravity** to sign in and configure the plugin. You can also select an Antigravity model from DSH’s model picker.
 
