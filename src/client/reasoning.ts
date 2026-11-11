@@ -196,8 +196,13 @@ export function installAutoExpandReasoning(): () => void {
 	if (typeof window === 'undefined' || typeof document === 'undefined') return () => {};
 	disposeAutoExpandReasoning();
 	injectStyles();
-	const observer = new MutationObserver(() => {
-		scheduleScan();
+	const observer = new MutationObserver((records) => {
+		// Streaming can update an existing text node without inserting a new
+		// element. Rescan those changes only inside reasoning rows.
+		if (records.some((record) => record.type === 'childList' ||
+			(record.type === 'characterData' && record.target.parentElement?.closest('div[data-variant="think"]')))) {
+			scheduleScan();
+		}
 	});
 	activeObserver = observer;
 	unbindSettle = onScrollSettle(() => {
@@ -205,7 +210,7 @@ export function installAutoExpandReasoning(): () => void {
 	});
 	const setupObserver = () => {
 		if (document.body) {
-			observer.observe(document.body, { childList: true, subtree: true });
+			observer.observe(document.body, { childList: true, characterData: true, subtree: true });
 			scanThinkingRows();
 		}
 	};

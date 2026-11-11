@@ -2458,17 +2458,18 @@ export function apply(ctx: ClientContext): void {
 				),
 				// Keep the account pool scannable. The full family/model breakdown is
 				// one click away, so several accounts do not become several dashboards.
-				h('div', { key: 'agy-body', id: `agy-quota-${acc.id}`, className: 'agy-account-quota', style: S.quotaBox },
-					!isExpanded ? h('div', { className: 'agy-account-quota-summary' },
+				h('div', { key: 'agy-body', className: 'agy-account-quota', style: S.quotaBox },
+					h('div', { className: 'agy-account-quota-summary' },
 						h('span', { className: 'agy-quota-summary-text' }, quotaSummary),
 						h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-expand',
-							'aria-expanded': false,
+							'aria-expanded': isExpanded,
 							'aria-controls': `agy-quota-${acc.id}`,
 							onClick: () => toggleExpand(acc.id),
-						}, uiIcon('chevronDown', 11), t('account.expandOthers')),
-					) : [
+						}, uiIcon(isExpanded ? 'chevronUp' : 'chevronDown', 11), t(isExpanded ? 'account.collapseOthers' : 'account.expandOthers')),
+					),
+					isExpanded ? h('div', { id: `agy-quota-${acc.id}` },
 						renderQuotaBar('Gemini', 'google', acc),
 						acc.quotas.argon ? renderQuotaBar('Argon', 'argon', acc) : null,
 						renderQuotaBar('Claude', 'anthropic', acc),
@@ -2495,14 +2496,7 @@ export function apply(ctx: ClientContext): void {
 								);
 							}),
 						) : null,
-						h('button', {
-							type: 'button',
-							className: 'agy-btn agy-account-expand',
-							'aria-expanded': true,
-							'aria-controls': `agy-quota-${acc.id}`,
-							onClick: () => toggleExpand(acc.id),
-						}, uiIcon('chevronUp', 11), t('account.collapseOthers')),
-					],
+					) : h('div', { id: `agy-quota-${acc.id}`, hidden: true }),
 				),
 				hasCooldown ? h('div', {
 					key: 'cd-body',

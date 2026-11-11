@@ -4007,8 +4007,8 @@ div[data-variant="think"] [class*="thinkBody"] {
 			if (typeof window === "undefined" || typeof document === "undefined") return () => {};
 			disposeAutoExpandReasoning();
 			injectStyles$2();
-			const observer = new MutationObserver(() => {
-				scheduleScan();
+			const observer = new MutationObserver((records) => {
+				if (records.some((record) => record.type === "childList" || record.type === "characterData" && record.target.parentElement?.closest("div[data-variant=\"think\"]"))) scheduleScan();
 			});
 			activeObserver = observer;
 			unbindSettle = onScrollSettle(() => {
@@ -4018,6 +4018,7 @@ div[data-variant="think"] [class*="thinkBody"] {
 				if (document.body) {
 					observer.observe(document.body, {
 						childList: true,
+						characterData: true,
 						subtree: true
 					});
 					scanThinkingRows();
@@ -7511,60 +7512,49 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						onClick: () => void removeAccount(acc.id, displayAlias)
 					}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon("trash", 11, "var(--agy-danger-text)")) : null)), h("div", {
 						key: "agy-body",
-						id: `agy-quota-${acc.id}`,
 						className: "agy-account-quota",
 						style: S.quotaBox
-					}, !isExpanded ? h("div", { className: "agy-account-quota-summary" }, h("span", { className: "agy-quota-summary-text" }, quotaSummary), h("button", {
+					}, h("div", { className: "agy-account-quota-summary" }, h("span", { className: "agy-quota-summary-text" }, quotaSummary), h("button", {
 						type: "button",
 						className: "agy-btn agy-account-expand",
-						"aria-expanded": false,
+						"aria-expanded": isExpanded,
 						"aria-controls": `agy-quota-${acc.id}`,
 						onClick: () => toggleExpand(acc.id)
-					}, uiIcon("chevronDown", 11), t("account.expandOthers"))) : [
-						renderQuotaBar("Gemini", "google", acc),
-						acc.quotas.argon ? renderQuotaBar("Argon", "argon", acc) : null,
-						renderQuotaBar("Claude", "anthropic", acc),
-						renderQuotaBar("GPT-OSS", "openai", acc),
-						allChildModels.length > 0 ? h("div", { style: {
-							marginTop: "8px",
-							paddingTop: "8px",
-							borderTop: "1px solid var(--agy-border-box)"
-						} }, h("div", { style: {
-							color: "var(--agy-text-secondary)",
-							marginBottom: "6px",
-							fontWeight: 600,
-							fontSize: "11px"
-						} }, t("account.models")), allChildModels.map(({ family, model }) => {
-							const frac = model.remainingFraction ?? 1;
-							const pct = Math.round(frac * 100);
-							const w = formatQuotaWindow(t, model.resetTime);
-							const pColor = pct <= 20 ? "var(--agy-quota-low-text)" : pct <= 50 ? "var(--agy-quota-med-text)" : "var(--agy-quota-high-text)";
-							return h("div", {
-								key: `${family}-${model.modelId}`,
-								className: "agy-submodel-row"
-							}, h("span", { style: {
-								fontWeight: 500,
-								color: "var(--agy-text-primary)"
-							} }, `[${family}] ${model.displayName || model.modelId}`), h("div", { style: {
-								display: "flex",
-								alignItems: "center",
-								gap: "8px"
-							} }, h("span", { style: {
-								color: pColor,
-								fontWeight: 700
-							} }, `${pct}%`), w.resetText ? h("span", { style: {
-								color: "var(--agy-text-tertiary)",
-								fontSize: "10.5px"
-							} }, `↻ ${w.resetText}`) : null));
-						})) : null,
-						h("button", {
-							type: "button",
-							className: "agy-btn agy-account-expand",
-							"aria-expanded": true,
-							"aria-controls": `agy-quota-${acc.id}`,
-							onClick: () => toggleExpand(acc.id)
-						}, uiIcon("chevronUp", 11), t("account.collapseOthers"))
-					]), hasCooldown ? h("div", {
+					}, uiIcon(isExpanded ? "chevronUp" : "chevronDown", 11), t(isExpanded ? "account.collapseOthers" : "account.expandOthers"))), isExpanded ? h("div", { id: `agy-quota-${acc.id}` }, renderQuotaBar("Gemini", "google", acc), acc.quotas.argon ? renderQuotaBar("Argon", "argon", acc) : null, renderQuotaBar("Claude", "anthropic", acc), renderQuotaBar("GPT-OSS", "openai", acc), allChildModels.length > 0 ? h("div", { style: {
+						marginTop: "8px",
+						paddingTop: "8px",
+						borderTop: "1px solid var(--agy-border-box)"
+					} }, h("div", { style: {
+						color: "var(--agy-text-secondary)",
+						marginBottom: "6px",
+						fontWeight: 600,
+						fontSize: "11px"
+					} }, t("account.models")), allChildModels.map(({ family, model }) => {
+						const frac = model.remainingFraction ?? 1;
+						const pct = Math.round(frac * 100);
+						const w = formatQuotaWindow(t, model.resetTime);
+						const pColor = pct <= 20 ? "var(--agy-quota-low-text)" : pct <= 50 ? "var(--agy-quota-med-text)" : "var(--agy-quota-high-text)";
+						return h("div", {
+							key: `${family}-${model.modelId}`,
+							className: "agy-submodel-row"
+						}, h("span", { style: {
+							fontWeight: 500,
+							color: "var(--agy-text-primary)"
+						} }, `[${family}] ${model.displayName || model.modelId}`), h("div", { style: {
+							display: "flex",
+							alignItems: "center",
+							gap: "8px"
+						} }, h("span", { style: {
+							color: pColor,
+							fontWeight: 700
+						} }, `${pct}%`), w.resetText ? h("span", { style: {
+							color: "var(--agy-text-tertiary)",
+							fontSize: "10.5px"
+						} }, `↻ ${w.resetText}`) : null));
+					})) : null) : h("div", {
+						id: `agy-quota-${acc.id}`,
+						hidden: true
+					})), hasCooldown ? h("div", {
 						key: "cd-body",
 						style: {
 							background: "var(--agy-warn-bg)",
