@@ -503,6 +503,42 @@ function agyIcon(size = 16): unknown {
 }
 
 /**
+ * Antigravity outline navigation icon matching DSH Desktop native icon family:
+ * 16x16 geometry, monochrome currentColor, 1.25px stroke, no fill.
+ */
+function IconAntigravityNav(props?: { size?: number; className?: string }): unknown {
+	const size = props?.size ?? 16;
+	return h('svg', {
+		width: size,
+		height: size,
+		viewBox: '0 0 36 36',
+		fill: 'none',
+		stroke: 'currentColor',
+		'stroke-width': '2.6',
+		'stroke-linecap': 'round',
+		'stroke-linejoin': 'round',
+		'aria-hidden': true,
+		'data-agy-nav-icon': 'true',
+		className: props?.className,
+		style: { display: 'inline-block', verticalAlign: '-2.5px', flexShrink: 0 },
+	},
+		h('path', { d: 'M 6.8 14.2 C 8.2 9.6 17.8 7.2 26.2 10.8 C 28.0 11.6 29.3 12.6 30.2 13.8' }),
+		h('circle', { cx: 18, cy: 18, r: 7.5 }),
+		h('path', { d: 'M 30.2 13.8 C 31.4 18.2 21.8 26.2 12.8 24.2 C 9.4 23.4 7.4 21.8 6.6 19.6' }),
+		h('circle', { cx: 8.2, cy: 18.2, r: 2.0, fill: 'currentColor', stroke: 'none' }),
+		h('circle', { cx: 28.4, cy: 20.4, r: 1.6, fill: 'currentColor', stroke: 'none' }),
+	);
+}
+
+const AGY_OUTLINE_SVG = '<svg width="16" height="16" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-agy-nav-icon="true">'
+	+ '<path d="M 6.8 14.2 C 8.2 9.6 17.8 7.2 26.2 10.8 C 28.0 11.6 29.3 12.6 30.2 13.8"/>'
+	+ '<circle cx="18" cy="18" r="7.5"/>'
+	+ '<path d="M 30.2 13.8 C 31.4 18.2 21.8 26.2 12.8 24.2 C 9.4 23.4 7.4 21.8 6.6 19.6"/>'
+	+ '<circle cx="8.2" cy="18.2" r="2.0" fill="currentColor" stroke="none"/>'
+	+ '<circle cx="28.4" cy="20.4" r="1.6" fill="currentColor" stroke="none"/>'
+	+ '</svg>';
+
+/**
  * Settings dialog navigation icon replacement for Antigravity.
  * DSH settings shell projects nav glyphs from a closed list and falls back to a generic gear
  * for third-party sections. We dynamically inject a stylesheet matching Antigravity's section
@@ -511,22 +547,7 @@ function agyIcon(size = 16): unknown {
 const NAV_ICON_MARKER = 'data-dsh-agy-nav-icon';
 const NAV_ROW_SELECTOR = '[role="dialog"] nav button, [role="dialog"] nav a, [role="dialog"] aside button, .dsh-settings-nav button';
 
-const AGY_NAV_LOGO_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">'
-	+ '<defs>'
-	+ '<linearGradient id="an-orb" x1="12" y1="11" x2="25" y2="25" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#38BDF8"/><stop offset="45%" stop-color="#6366F1"/><stop offset="85%" stop-color="#9333EA"/><stop offset="100%" stop-color="#C026D3"/></linearGradient>'
-	+ '<linearGradient id="an-rf" x1="6" y1="24" x2="31" y2="12" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00D2FF"/><stop offset="40%" stop-color="#38BDF8"/><stop offset="70%" stop-color="#818CF8"/><stop offset="100%" stop-color="#F43F5E"/></linearGradient>'
-	+ '<linearGradient id="an-rb" x1="7" y1="12" x2="29" y2="24" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#38BDF8" stop-opacity="0.4"/><stop offset="100%" stop-color="#A855F7" stop-opacity="0.4"/></linearGradient>'
-	+ '<linearGradient id="an-hl" x1="14" y1="12" x2="19" y2="18" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.65"/><stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.05"/></linearGradient>'
-	+ '</defs>'
-	+ '<path d="M 6.8 14.2 C 8.2 9.6 17.8 7.2 26.2 10.8 C 28.0 11.6 29.3 12.6 30.2 13.8" stroke="url(#an-rb)" stroke-width="2.4" stroke-linecap="round"/>'
-	+ '<circle cx="18" cy="18" r="7.5" fill="url(#an-orb)"/>'
-	+ '<path d="M 13.2 15.2 A 5.5 5.5 0 0 1 21.0 13.0 A 6.2 6.2 0 0 0 14.0 18.0 Z" fill="url(#an-hl)"/>'
-	+ '<path d="M 30.2 13.8 C 31.4 18.2 21.8 26.2 12.8 24.2 C 9.4 23.4 7.4 21.8 6.6 19.6" stroke="url(#an-rf)" stroke-width="2.6" stroke-linecap="round"/>'
-	+ '<circle cx="8.2" cy="18.2" r="2.2" fill="#00D2FF"/>'
-	+ '<circle cx="8.2" cy="18.2" r="1.0" fill="#FFFFFF"/>'
-	+ '<circle cx="28.4" cy="20.4" r="1.8" fill="#F43F5E"/>'
-	+ '<circle cx="28.4" cy="20.4" r="0.8" fill="#FFFFFF"/>'
-	+ '</svg>';
+const AGY_NAV_LOGO_SVG = AGY_OUTLINE_SVG;
 
 function agyNavLogoUrl(): string {
 	return `data:image/svg+xml,${encodeURIComponent(AGY_NAV_LOGO_SVG)}`;
@@ -541,9 +562,10 @@ function isOwnNavRow(rowText: string | null | undefined, wantedLabel: string): b
 
 function navIconCss(logoUrl: string): string {
 	return [
-		`[${NAV_ICON_MARKER}] > svg:not([data-agy-logo]) { display: none !important; }`,
-		`[${NAV_ICON_MARKER}] > [class*="icon" i] > svg:not([data-agy-logo]) { display: none !important; }`,
-		`[${NAV_ICON_MARKER}]::before { display: none !important; content: none !important; }`,
+		`[${NAV_ICON_MARKER}]::before,`,
+		`[${NAV_ICON_MARKER}]::after { display: none !important; content: none !important; width: 0 !important; height: 0 !important; }`,
+		`[${NAV_ICON_MARKER}] svg:not([data-agy-nav-icon]) { display: none !important; }`,
+		`[${NAV_ICON_MARKER}] [class*="icon" i] svg:not([data-agy-nav-icon]) { display: none !important; }`,
 	].join('\n');
 }
 
@@ -561,16 +583,40 @@ function installSettingsNavIcon(ctx: ClientContext, resolveLabel: () => string):
 		scheduled = false;
 		if (disposed) return;
 		const wanted = resolveLabel();
-		// Only touch the DOM when the marker is not already correct. Unconditional
-		// writes made every sync pass enqueue another sync pass (the observer
-		// watches this very attribute), which turned a single host re-render into
-		// a self-sustaining loop during streaming/scroll reflows (2026-10-23).
 		for (const row of Array.from(document.querySelectorAll(NAV_ROW_SELECTOR))) {
 			const shouldMark = isOwnNavRow(row.textContent, wanted);
 			const marked = row.hasAttribute(NAV_ICON_MARKER);
-			if (shouldMark === marked) continue;
-			if (shouldMark) row.setAttribute(NAV_ICON_MARKER, '');
-			else row.removeAttribute(NAV_ICON_MARKER);
+			if (shouldMark !== marked) {
+				if (shouldMark) row.setAttribute(NAV_ICON_MARKER, '');
+				else row.removeAttribute(NAV_ICON_MARKER);
+			}
+			if (shouldMark) {
+				// In-place SVG replacement for host shells that don't slot the icon
+				const existingCustom = row.querySelector('svg[data-agy-nav-icon]');
+				if (!existingCustom) {
+					const fallbackSvg = row.querySelector('svg');
+					if (fallbackSvg) {
+						const holder = document.createElement('div');
+						holder.innerHTML = AGY_OUTLINE_SVG;
+						const replacement = holder.firstElementChild;
+						if (replacement) {
+							const cls = fallbackSvg.getAttribute('class');
+							if (cls) replacement.setAttribute('class', cls);
+							fallbackSvg.parentNode?.replaceChild(replacement, fallbackSvg);
+						}
+					}
+				}
+				// Remove any stray extra SVGs if shell rendered both slot and fallback
+				const allSvgs = Array.from(row.querySelectorAll('svg'));
+				if (allSvgs.length > 1) {
+					for (let i = 1; i < allSvgs.length; i++) {
+						const extra = allSvgs[i];
+						if (extra && !extra.hasAttribute('data-agy-nav-icon')) {
+							extra.remove();
+						}
+					}
+				}
+			}
 		}
 	};
 	const schedule = () => {
@@ -584,12 +630,6 @@ function installSettingsNavIcon(ctx: ClientContext, resolveLabel: () => string):
 		if (disposed || !document.body) return;
 		try {
 			observer = new MutationObserver(schedule);
-			// attributeFilter is load-bearing: sync() writes NAV_ICON_MARKER, and an
-			// unfiltered subtree observer re-fires on its own writes (measured 5
-			// self-induced passes per host mutation). characterData is deliberately
-			// NOT observed — label text changes arrive as childList of the row, and
-			// watching every text node made the host's streaming output drive full
-			// nav sweeps.
 			observer.observe(document.body, {
 				childList: true,
 				subtree: true,
@@ -1640,6 +1680,211 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 	.agy-modal-body { padding: 12px 10px calc(16px + env(safe-area-inset-bottom)) !important; }
 	.agy-console [style*="justify-content: space-between"] { gap: 6px !important; }
 }
+
+/* ------------------------------------------------------------------
+   DSH Desktop Native Design System (Tokens & Components Parity)
+   ------------------------------------------------------------------ */
+.dshDesktopSettingsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  margin-top: 10px;
+  border-top: 1px solid var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.08));
+}
+.dshDesktopSettingsGroupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.dshDesktopSettingsGroupTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary, #f8fafc);
+  line-height: 1.4;
+}
+.dshDesktopSettingsGroupIntro {
+  margin: 4px 0 0;
+  color: var(--dsw-alias-label-secondary, #94a3b8);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.dshDesktopSettingsToggleRow,
+.dshDesktopSettingsChoice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-layer-1, rgba(255, 255, 255, 0.03));
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.dshDesktopSettingsToggleRow:hover,
+.dshDesktopSettingsChoice:hover {
+  border-color: var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.14));
+}
+.dshDesktopSettingsChoiceCopy {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.dshDesktopSettingsChoiceTitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary, #f8fafc);
+}
+.dshDesktopSettingsChoiceBody {
+  display: block;
+  margin-top: 3px;
+  color: var(--dsw-alias-label-secondary, #94a3b8);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.dshDesktopSettingsToggle {
+  flex: 0 0 auto;
+  position: relative;
+  width: 40px;
+  height: 22px;
+  padding: 2px;
+  border: none;
+  border-radius: 999px;
+  background: var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.18));
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dshDesktopSettingsToggle[aria-checked="true"] {
+  background: var(--dsw-alias-brand-primary, #38bdf8);
+}
+.dshDesktopSettingsToggle:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.dshDesktopSettingsToggle:focus-visible {
+  outline: 2px solid var(--dsw-alias-brand-primary, #38bdf8);
+  outline-offset: 2px;
+}
+.dshDesktopSettingsToggleKnob {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  transform: translateX(0);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dshDesktopSettingsToggle[aria-checked="true"] .dshDesktopSettingsToggleKnob {
+  transform: translateX(18px);
+}
+.dshDesktopSettingsSelect {
+  flex: 0 0 auto;
+  min-width: 140px;
+  height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.14));
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2, rgba(255, 255, 255, 0.05));
+  color: var(--dsw-alias-label-primary, #f8fafc);
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+}
+.dshDesktopSettingsSelect:focus-visible {
+  border-color: var(--dsw-alias-brand-primary, #38bdf8);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-alias-brand-primary, #38bdf8) 20%, transparent);
+}
+.dshDesktopSettingsButton {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.14));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary, #f8fafc);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.dshDesktopSettingsButton:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover, rgba(255, 255, 255, 0.08));
+}
+.dshDesktopSettingsButtonPrimary {
+  background: var(--dsw-alias-brand-primary, #38bdf8) !important;
+  border-color: var(--dsw-alias-brand-primary, #38bdf8) !important;
+  color: #0b1220 !important;
+  font-weight: 600 !important;
+}
+.dshDesktopSettingsButtonPrimary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.dshDesktopSettingsButtonDanger {
+  color: var(--dsw-alias-state-error-primary, #f87171) !important;
+  border-color: rgba(248, 113, 113, 0.25) !important;
+}
+.dshDesktopSettingsButtonDanger:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.12) !important;
+}
+.dshDesktopSettingsBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--dsw-alias-bg-layer-2, rgba(255, 255, 255, 0.06));
+  color: var(--dsw-alias-label-secondary, #94a3b8);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.dshDesktopSegmentGroup {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.08));
+  gap: 2px;
+}
+.dshDesktopSegmentBtn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #94a3b8);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.dshDesktopSegmentBtn:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary, #f8fafc);
+}
+.dshDesktopSegmentBtn[aria-pressed="true"],
+.dshDesktopSegmentBtn.active {
+  background: var(--dsw-alias-brand-primary, #38bdf8);
+  color: #0b1220;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
 `;
 
 function injectGlobalStyles(): void {
@@ -2011,14 +2256,27 @@ export function apply(ctx: ClientContext): void {
 			return () => { live = false; void fiber.dispose(); };
 		}, []);
 		if (client === null) return h('p', { style: S.muted, role: 'status' }, t('direct.unavailable'));
-		return h('div', { className: 'agy-direct-panel' },
-			status.directProxyInvalid ? h('p', { role: 'alert' }, t('direct.proxyInvalid')) : null,
-			h('div', { className: 'agy-setting-row' },
-				h('div', { className: 'agy-setting-copy' }, h('label', { htmlFor: 'agy-direct-proxy', className: 'agy-setting-label' }, t('direct.proxy')),
-					h('span', { className: 'agy-setting-help', style: S.muted }, t('direct.proxyHelp'))),
-				h('div', { style: { display: 'flex', gap: '6px', minWidth: 0, flexWrap: 'wrap' } },
-					h('input', { id: 'agy-direct-proxy', style: S.input, value: proxyDraft, placeholder: t('direct.proxyPlaceholder'), onChange: (e: { target?: { value?: string } }) => setProxyDraft(e.target?.value ?? '') }),
-					h('button', { type: 'button', className: 'agy-btn', style: S.btn, onClick: () => { void setConfig('directProxyUrl', proxyDraft.trim()); } }, t('direct.proxySave')),
+		return h('div', { className: 'agy-direct-panel', style: { display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' } },
+			status.directProxyInvalid ? h('p', { className: 'dshDesktopSettingsError', role: 'alert' }, t('direct.proxyInvalid')) : null,
+			h('div', { className: 'dshDesktopSettingsToggleRow' },
+				h('div', { className: 'dshDesktopSettingsChoiceCopy' },
+					h('label', { htmlFor: 'agy-direct-proxy', className: 'dshDesktopSettingsChoiceTitle' }, t('direct.proxy')),
+					h('span', { className: 'dshDesktopSettingsChoiceBody' }, t('direct.proxyHelp')),
+				),
+				h('div', { style: { display: 'flex', gap: '8px', minWidth: 0, flexWrap: 'wrap', alignItems: 'center' } },
+					h('input', {
+						id: 'agy-direct-proxy',
+						className: 'dshDesktopSettingsSelect',
+						style: { width: '220px', minWidth: '180px' },
+						value: proxyDraft,
+						placeholder: t('direct.proxyPlaceholder'),
+						onChange: (e: { target?: { value?: string } }) => setProxyDraft(e.target?.value ?? ''),
+					}),
+					h('button', {
+						type: 'button',
+						className: 'dshDesktopSettingsButton',
+						onClick: () => { void setConfig('directProxyUrl', proxyDraft.trim()); },
+					}, t('direct.proxySave')),
 				),
 			),
 			h(AntigravityAuthSettings, {
@@ -2853,232 +3111,193 @@ export function apply(ctx: ClientContext): void {
 			),
 			renderToastBanner(),
 			addAccountSection,
-			h('div', { className: 'agy-direct-mode-card' },
-				h('div', { className: 'agy-direct-mode-copy' },
-					h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
-						uiIcon('zap', 14, status.experimentalDirect ? '#2563eb' : 'var(--agy-text-secondary)'),
-						h('span', { id: 'agy-direct-mode-label', className: 'agy-setting-label', style: { fontWeight: 600, fontSize: '13px', color: 'var(--agy-text-primary)' } }, t('direct.title')),
+			h('div', { className: 'dshDesktopSettingsToggleRow', style: { marginBottom: '14px' } },
+				h('div', { className: 'dshDesktopSettingsChoiceCopy' },
+					h('div', { className: 'dshDesktopSettingsChoiceTitle' },
+						uiIcon('zap', 14, status.experimentalDirect ? 'var(--dsw-alias-brand-primary, #38bdf8)' : 'var(--dsw-alias-label-secondary, #94a3b8)'),
+						h('span', { id: 'agy-direct-mode-label' }, t('direct.title')),
 						status.experimentalDirect ? h('span', {
+							className: 'dshDesktopSettingsBadge',
 							style: {
-								fontSize: '10.5px',
-								fontWeight: 600,
-								color: '#10b981',
-								background: 'rgba(16, 185, 129, 0.12)',
-								border: '1px solid rgba(16, 185, 129, 0.25)',
-								borderRadius: '999px',
-								padding: '1px 6px',
+								color: 'var(--dsw-alias-state-success-primary, #34d399)',
+								background: 'color-mix(in srgb, var(--dsw-alias-state-success-primary, #34d399) 12%, transparent)',
 							},
 						}, '直连生效中') : null,
 					),
-					h('span', { className: 'agy-setting-help', style: { ...S.muted, marginTop: '3px' } }, t('direct.description')),
+					h('span', { className: 'dshDesktopSettingsChoiceBody' }, t('direct.description')),
 				),
 				h('button', {
-					type: 'button', className: 'agy-direct-mode-switch', role: 'switch',
+					type: 'button',
+					className: 'dshDesktopSettingsToggle',
+					role: 'switch',
 					'aria-labelledby': 'agy-direct-mode-label',
 					'aria-checked': status.experimentalDirect === true,
 					disabled: loadingAction === 'config:experimentalDirect',
 					onClick: () => { void setCfg('experimentalDirect', status.experimentalDirect !== true); },
-				}, h('span', { className: 'agy-direct-mode-switch-knob', 'aria-hidden': true })),
+				}, h('span', { className: 'dshDesktopSettingsToggleKnob', 'aria-hidden': true })),
 			),
-			h('div', { className: 'agy-section-heading', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', padding: '0 2px' } },
+			h('div', { className: 'dshDesktopSettingsGroupHeader', style: { marginBottom: '12px', marginTop: '16px' } },
 				h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
-					h('span', { style: { fontWeight: 700, fontSize: '14px', color: 'var(--agy-text-primary)' } }, '统一账号池'),
-					h('span', {
-						style: {
-							display: 'inline-flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							padding: '1px 7px',
-							borderRadius: '999px',
-							background: 'rgba(59, 130, 246, 0.12)',
-							color: '#3b82f6',
-							fontSize: '11px',
-							fontWeight: 700,
-						},
-					}, `${accounts.length}`),
-					h('span', { style: { fontSize: '11.5px', color: 'var(--agy-text-tertiary)' } },
-						status.experimentalDirect ? '· 请求直连 Google API' : '· 请求走 AGY CLI 桥接'
+					h('h3', { className: 'dshDesktopSettingsGroupTitle' }, '统一账号池'),
+					h('span', { className: 'dshDesktopSettingsBadge', style: { color: 'var(--dsw-alias-brand-primary, #38bdf8)' } }, `${accounts.length}`),
+					h('span', { className: 'dshDesktopSettingsGroupIntro', style: { margin: 0 } },
+						status.experimentalDirect ? '· 请求直连 Google API' : '· 请求走 AGY CLI 桥接',
 					),
 				),
-				h('span', { style: { fontSize: '11.5px', color: 'var(--agy-text-tertiary)' } },
-					pool?.mode === 'sequential' ? '自动顺序轮询' : pool?.mode === 'round-robin' ? '均衡轮询' : '手动选择'
+				h('div', { className: 'dshDesktopSegmentGroup' },
+					h('button', {
+						type: 'button',
+						className: `dshDesktopSegmentBtn${pool?.mode === 'manual' || !pool?.mode ? ' active' : ''}`,
+						'aria-pressed': pool?.mode === 'manual' || !pool?.mode,
+						onClick: () => void setMode('manual'),
+					}, t('pool.manual')),
+					h('button', {
+						type: 'button',
+						className: `dshDesktopSegmentBtn${pool?.mode === 'sequential' ? ' active' : ''}`,
+						'aria-pressed': pool?.mode === 'sequential',
+						onClick: () => void setMode('sequential'),
+					}, t('pool.sequential')),
+					h('button', {
+						type: 'button',
+						className: `dshDesktopSegmentBtn${pool?.mode === 'round-robin' ? ' active' : ''}`,
+						'aria-pressed': pool?.mode === 'round-robin',
+						onClick: () => void setMode('round-robin'),
+					}, t('pool.roundRobin')),
 				),
 			),
 			renderedAccountCards,
 			status.directRuntime === 'starting' ? h('p', { style: S.muted, role: 'status' }, t('direct.loading')) : null,
 			status.directRuntime === 'error' ? h('p', { role: 'alert' }, t('direct.error')) : null,
 			status.directRuntime === 'loaded' ? h(DirectSettingsPane, { status, setConfig: setCfg }) : null,
-			h('div', { className: 'agy-settings-section', style: { marginTop: '18px', paddingTop: '12px', borderTop: '1px solid var(--agy-border-divider)' } },
-				h('div', { className: 'agy-settings', style: { display: 'flex', flexDirection: 'column', gap: '10px' } },
-					h('div', { className: 'agy-settings-heading', style: { display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '4px' } },
-						h('span', { className: 'agy-section-heading', style: { color: 'var(--agy-text-primary)' } }, t('config.runtimeTitle')),
-						h('span', { style: S.muted }, t('config.runtimeDesc')),
+			h('section', { className: 'dshDesktopSettingsGroup' },
+				h('div', null,
+					h('h3', { className: 'dshDesktopSettingsGroupTitle' }, t('config.runtimeTitle')),
+					h('p', { className: 'dshDesktopSettingsGroupIntro' }, t('config.runtimeDesc')),
+				),
+				h('div', { className: 'dshDesktopSettingsToggleRow' },
+					h('div', { className: 'dshDesktopSettingsChoiceCopy' },
+						h('label', { htmlFor: 'agy-permission-mode', className: 'dshDesktopSettingsChoiceTitle' }, t('config.permissionMode')),
+						h('span', { className: 'dshDesktopSettingsChoiceBody', role: 'status' }, status?.permissionMode === 'skip' ? t('config.permissionSkipDesc') : t('config.permissionDesc')),
 					),
-					h('div', { className: 'agy-setting-row agy-permission-row' },
-						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column' } },
-							h('label', { className: 'agy-setting-label', htmlFor: 'agy-permission-mode', style: { color: 'var(--agy-text-primary)' } }, t('config.permissionMode')),
-							h('span', { className: 'agy-setting-help', style: S.muted, role: 'status' }, status?.permissionMode === 'skip' ? t('config.permissionSkipDesc') : t('config.permissionDesc')),
-						),
+					h('select', {
+						id: 'agy-permission-mode',
+						className: 'agy-select',
+						value: status?.permissionMode ?? 'accept-edits',
+						disabled: loadingAction === 'config:permissionMode',
+						onChange: (e: { target?: { value?: string } }) => void setCfg('permissionMode', e.target?.value),
+					}, [
+						h('option', { value: 'plan' }, t('config.permissionPlan')),
+						h('option', { value: 'accept-edits' }, t('config.permissionEdits')),
+						h('option', { value: 'skip' }, t('config.permissionSkip')),
+					]),
+				),
+				h('div', { className: 'dshDesktopSettingsToggleRow' },
+					h('div', { className: 'dshDesktopSettingsChoiceCopy' },
+						h('span', { className: 'dshDesktopSettingsChoiceTitle' }, t('config.autoWarmup')),
+						h('span', { className: 'dshDesktopSettingsChoiceBody' }, t('config.autoWarmupDesc')),
+					),
+					h('button', {
+						type: 'button',
+						role: 'switch',
+						className: 'dshDesktopSettingsToggle',
+						'aria-checked': status?.autoWarmup === true,
+						disabled: loadingAction === 'config:autoWarmup',
+						onClick: () => void setCfg('autoWarmup', status?.autoWarmup !== true),
+					}, h('span', { className: 'dshDesktopSettingsToggleKnob', 'aria-hidden': true })),
+				),
+				h('div', { className: 'dshDesktopSettingsToggleRow' },
+					h('div', { className: 'dshDesktopSettingsChoiceCopy' },
+						h('span', { className: 'dshDesktopSettingsChoiceTitle' }, t('config.autoTranslate')),
+						h('span', { className: 'dshDesktopSettingsChoiceBody' }, t('config.autoTranslateDesc')),
+					),
+					h('div', { className: 'cfgRowRight', style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+						h('button', {
+							type: 'button',
+							role: 'switch',
+							className: 'dshDesktopSettingsToggle',
+							'aria-checked': status?.autoTranslate === true,
+							disabled: loadingAction === 'config:autoTranslate',
+							onClick: () => void setCfg('autoTranslate', status?.autoTranslate !== true),
+						}, h('span', { className: 'dshDesktopSettingsToggleKnob', 'aria-hidden': true })),
 						h('select', {
-							id: 'agy-permission-mode', className: 'agy-select', style: { ...S.select, width: '100%', height: '32px' },
-							value: status?.permissionMode ?? 'accept-edits',
-							disabled: loadingAction === 'config:permissionMode',
-							onChange: (e: { target?: { value?: string } }) => void setCfg('permissionMode', e.target?.value),
-						}, [
-							h('option', { value: 'plan' }, t('config.permissionPlan')),
-							h('option', { value: 'accept-edits' }, t('config.permissionEdits')),
-							h('option', { value: 'skip' }, t('config.permissionSkip')),
-						]),
+							className: 'agy-select',
+							'aria-label': t('config.translateModel'),
+							title: t('config.translateModelDesc'),
+							value: status?.translateModel ?? '',
+							disabled: loadingAction === 'config:translateModel',
+							onChange: (e: { target?: { value?: string } }) => void setCfg('translateModel', e?.target?.value ?? ''),
+						}, translateModelOptions(status?.translateModel ?? '', geminiCatalogModels(catalogModels), t('config.translateModelAuto')).map((option) =>
+							h('option', { key: option.value, value: option.value }, option.label),
+						)),
+						h('select', {
+							className: 'agy-select',
+							'aria-label': t('config.translateEffort'),
+							title: t('config.translateEffortDesc'),
+							style: { minWidth: '85px', maxWidth: '110px' },
+							value: status?.translateEffort ?? '',
+							disabled: loadingAction === 'config:translateEffort',
+							onChange: (e: { target?: { value?: string } }) => void setCfg('translateEffort', e?.target?.value ?? ''),
+						}, translateEffortOptions(status?.translateEffort ?? '', {
+							auto: t('config.translateEffortAuto'),
+							low: t('effort.low'),
+							medium: t('effort.medium'),
+							high: t('effort.high'),
+						}).map((option) => h('option', { key: option.value, value: option.value }, option.label))),
 					),
-					h('div', { className: 'agy-setting-row', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
-						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column' } },
-							h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('pool.label')),
-						),
-						h('div', { style: S.segGroup },
-							h('button', {
-								type: 'button',
-								style: pool?.mode === 'manual' || !pool?.mode ? S.segBtnActive : S.segBtn,
-								'aria-pressed': pool?.mode === 'manual' || !pool?.mode,
-								onClick: () => void setMode('manual'),
-							}, t('pool.manual')),
-							h('button', {
-								type: 'button',
-								style: pool?.mode === 'sequential' ? S.segBtnActive : S.segBtn,
-								'aria-pressed': pool?.mode === 'sequential',
-								onClick: () => void setMode('sequential'),
-							}, t('pool.sequential')),
-							h('button', {
-								type: 'button',
-								style: pool?.mode === 'round-robin' ? S.segBtnActive : S.segBtn,
-								'aria-pressed': pool?.mode === 'round-robin',
-								onClick: () => void setMode('round-robin'),
-							}, t('pool.roundRobin')),
-						),
+				),
+				h('div', { className: 'dshDesktopSettingsToggleRow' },
+					h('div', { className: 'dshDesktopSettingsChoiceCopy' },
+						h('span', { className: 'dshDesktopSettingsChoiceTitle' }, t('config.defaultEffort')),
+						h('span', { className: 'dshDesktopSettingsChoiceBody' }, t('config.defaultEffortDesc')),
 					),
-					h('div', { className: 'agy-setting-row', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
-						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column' } },
-							h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('config.autoWarmup')),
-							h('span', { className: 'agy-setting-help', style: S.muted }, t('config.autoWarmupDesc')),
-						),
-						h('div', { style: S.segGroup },
-							h('button', {
-								type: 'button',
-								style: status?.autoWarmup === true ? S.segBtnActive : S.segBtn,
-								disabled: loadingAction === 'config:autoWarmup',
-								onClick: () => void setCfg('autoWarmup', true),
-							}, t('config.on')),
-							h('button', {
-								type: 'button',
-								style: status?.autoWarmup !== true ? S.segBtnActive : S.segBtn,
-								disabled: loadingAction === 'config:autoWarmup',
-								onClick: () => void setCfg('autoWarmup', false),
-							}, t('config.off')),
-						),
+					h('div', { className: 'dshDesktopSegmentGroup' },
+						h('button', {
+							type: 'button',
+							className: `dshDesktopSegmentBtn${status?.defaultEffort === '' ? ' active' : ''}`,
+							disabled: loadingAction === 'config:defaultEffort',
+							onClick: () => void setCfg('defaultEffort', ''),
+						}, t('effort.auto')),
+						h('button', {
+							type: 'button',
+							className: `dshDesktopSegmentBtn${status?.defaultEffort === 'low' ? ' active' : ''}`,
+							disabled: loadingAction === 'config:defaultEffort',
+							onClick: () => void setCfg('defaultEffort', 'low'),
+						}, t('effort.low')),
+						h('button', {
+							type: 'button',
+							className: `dshDesktopSegmentBtn${status?.defaultEffort === 'medium' ? ' active' : ''}`,
+							disabled: loadingAction === 'config:defaultEffort',
+							onClick: () => void setCfg('defaultEffort', 'medium'),
+						}, t('effort.medium')),
+						h('button', {
+							type: 'button',
+							className: `dshDesktopSegmentBtn${status?.defaultEffort === 'high' ? ' active' : ''}`,
+							disabled: loadingAction === 'config:defaultEffort',
+							onClick: () => void setCfg('defaultEffort', 'high'),
+						}, t('effort.high')),
 					),
-					h('div', { className: 'agy-setting-row', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' } },
-						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column', minWidth: 0, flex: '1 1 0' } },
-							h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('config.autoTranslate')),
-							h('span', { className: 'agy-setting-help', style: S.muted }, t('config.autoTranslateDesc')),
-						),
-						h('div', { style: S.cfgRowRight },
-							h('div', { style: S.segGroup },
-								h('button', {
+				),
+				h('div', { className: 'dshDesktopSettingsToggleRow', style: { flexDirection: 'column', alignItems: 'stretch', gap: '8px' } },
+					h('div', { className: 'dshDesktopSettingsChoiceCopy' },
+						h('span', { className: 'dshDesktopSettingsChoiceTitle' }, t('models.label')),
+						h('span', { className: 'dshDesktopSettingsChoiceBody' }, t('models.hint')),
+					),
+					catalogModels.length === 0
+						? h('span', { style: S.muted }, t('models.empty'))
+						: h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } },
+							catalogModels.map((m) => {
+								const isHidden = hiddenModelSet.has(m.id);
+								return h('button', {
 									type: 'button',
-									style: status?.autoTranslate === true ? S.segBtnActive : S.segBtn,
-									disabled: loadingAction === 'config:autoTranslate',
-									onClick: () => void setCfg('autoTranslate', true),
-								}, t('config.on')),
-								h('button', {
-									type: 'button',
-									style: status?.autoTranslate !== true ? S.segBtnActive : S.segBtn,
-									disabled: loadingAction === 'config:autoTranslate',
-									onClick: () => void setCfg('autoTranslate', false),
-								}, t('config.off')),
-							),
-							// Which model explains the reply. The empty value keeps the host
-							// fallback chain (gemini-3.8-flash → newest gemini-*-flash →
-							// session default), so the dropdown never pins a slug silently.
-							h('select', {
-								className: 'agy-select',
-								'aria-label': t('config.translateModel'),
-								title: t('config.translateModelDesc'),
-								style: S.select,
-								value: status?.translateModel ?? '',
-								disabled: loadingAction === 'config:translateModel',
-								onChange: (e: { target?: { value?: string } }) => void setCfg('translateModel', e?.target?.value ?? ''),
-							}, translateModelOptions(status?.translateModel ?? '', geminiCatalogModels(catalogModels), t('config.translateModelAuto')).map((option) =>
-								h('option', { key: option.value, value: option.value }, option.label),
-							)),
-							// How hard that model thinks. Empty = follow the
-							// default-effort row directly below.
-							h('select', {
-								className: 'agy-select',
-								'aria-label': t('config.translateEffort'),
-								title: t('config.translateEffortDesc'),
-								// Levels are 3 characters wide at most: no need to reserve 104px.
-								style: { ...S.select, minWidth: '78px', maxWidth: '110px' },
-								value: status?.translateEffort ?? '',
-								disabled: loadingAction === 'config:translateEffort',
-								onChange: (e: { target?: { value?: string } }) => void setCfg('translateEffort', e?.target?.value ?? ''),
-							}, translateEffortOptions(status?.translateEffort ?? '', {
-								auto: t('config.translateEffortAuto'),
-								low: t('effort.low'),
-								medium: t('effort.medium'),
-								high: t('effort.high'),
-							}).map((option) => h('option', { key: option.value, value: option.value }, option.label))),
+									key: m.id,
+									title: m.id,
+									disabled: loadingAction === 'config:hiddenModels',
+									className: `dshDesktopSegmentBtn${isHidden ? '' : ' active'}`,
+									style: isHidden ? { opacity: 0.45, textDecoration: 'line-through' } : {},
+									onClick: () => void toggleModelHidden(m.id, !isHidden),
+								}, m.name);
+							}),
 						),
-					),
-					h('div', { className: 'agy-setting-row', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
-						h('div', { className: 'agy-setting-copy', style: { display: 'flex', flexDirection: 'column' } },
-							h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('config.defaultEffort')),
-							h('span', { className: 'agy-setting-help', style: S.muted }, t('config.defaultEffortDesc')),
-						),
-						h('div', { style: S.segGroup },
-							h('button', {
-								type: 'button',
-								style: status?.defaultEffort === '' ? S.segBtnActive : S.segBtn,
-								disabled: loadingAction === 'config:defaultEffort',
-								onClick: () => void setCfg('defaultEffort', ''),
-							}, t('effort.auto')),
-							h('button', {
-								type: 'button',
-								style: status?.defaultEffort === 'low' ? S.segBtnActive : S.segBtn,
-								disabled: loadingAction === 'config:defaultEffort',
-								onClick: () => void setCfg('defaultEffort', 'low'),
-							}, t('effort.low')),
-							h('button', {
-								type: 'button',
-								style: status?.defaultEffort === 'medium' ? S.segBtnActive : S.segBtn,
-								disabled: loadingAction === 'config:defaultEffort',
-								onClick: () => void setCfg('defaultEffort', 'medium'),
-							}, t('effort.medium')),
-							h('button', {
-								type: 'button',
-								style: status?.defaultEffort === 'high' ? S.segBtnActive : S.segBtn,
-								disabled: loadingAction === 'config:defaultEffort',
-								onClick: () => void setCfg('defaultEffort', 'high'),
-							}, t('effort.high')),
-						),
-					),
-					h('div', { className: 'agy-setting-models', style: { display: 'flex', flexDirection: 'column', gap: '6px', padding: '10px 0' } },
-						h('span', { className: 'agy-setting-label', style: { color: 'var(--agy-text-primary)' } }, t('models.label')),
-						catalogModels.length === 0
-							? h('span', { style: S.muted }, t('models.empty'))
-							: h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } },
-								catalogModels.map((m) => {
-									const isHidden = hiddenModelSet.has(m.id);
-									return h('button', {
-										type: 'button',
-										key: m.id,
-										title: m.id,
-										disabled: loadingAction === 'config:hiddenModels',
-										style: isHidden ? { ...S.segBtn, opacity: 0.45, textDecoration: 'line-through' } : S.segBtnActive,
-										onClick: () => void toggleModelHidden(m.id, !isHidden),
-									}, m.name);
-								}),
-							),
-						h('span', { style: S.muted }, t('models.hint')),
-					),
 				),
 			),
 		);
@@ -3313,7 +3532,7 @@ export function apply(ctx: ClientContext): void {
 				id: 'agy-link',
 				order: 20,
 			},
-			(ownerProps?: unknown) => agyIcon((ownerProps as { size?: number } | undefined)?.size ?? 16),
+			(ownerProps?: unknown) => IconAntigravityNav({ size: (ownerProps as { size?: number } | undefined)?.size ?? 16 }),
 		);
 		return dispose;
 	});
