@@ -453,6 +453,7 @@ function agyIcon(size = 16): unknown {
 		height: size,
 		fill: 'none',
 		'aria-hidden': true,
+		'data-agy-logo': 'true',
 		style: { display: 'inline-block', verticalAlign: '-2.5px', flexShrink: 0 },
 	},
 		h('defs', null,
@@ -540,27 +541,9 @@ function isOwnNavRow(rowText: string | null | undefined, wantedLabel: string): b
 
 function navIconCss(logoUrl: string): string {
 	return [
-		`[${NAV_ICON_MARKER}] > svg { display: none !important; }`,
-		`[${NAV_ICON_MARKER}] > [class*="icon"] > svg { display: none !important; }`,
-		`[${NAV_ICON_MARKER}]::before {`,
-		`  content: '';`,
-		`  flex: none;`,
-		`  width: 16px;`,
-		`  height: 16px;`,
-		`  background-image: url("${logoUrl}");`,
-		`  background-repeat: no-repeat;`,
-		`  background-position: center;`,
-		`  background-size: 16px 16px;`,
-		`  opacity: 0.92;`,
-		`  transition: opacity 0.15s ease, transform 0.15s ease;`,
-		`}`,
-		`[${NAV_ICON_MARKER}]:hover::before,`,
-		`[${NAV_ICON_MARKER}][aria-selected="true"]::before,`,
-		`[${NAV_ICON_MARKER}].active::before,`,
-		`[${NAV_ICON_MARKER}][data-state="active"]::before {`,
-		`  opacity: 1;`,
-		`  transform: scale(1.08);`,
-		`}`,
+		`[${NAV_ICON_MARKER}] > svg:not([data-agy-logo]) { display: none !important; }`,
+		`[${NAV_ICON_MARKER}] > [class*="icon" i] > svg:not([data-agy-logo]) { display: none !important; }`,
+		`[${NAV_ICON_MARKER}]::before { display: none !important; content: none !important; }`,
 	].join('\n');
 }
 
@@ -2469,8 +2452,25 @@ export function apply(ctx: ClientContext): void {
 					className: 'agy-account-header',
 				},
 					h('div', { className: 'agy-account-identity' },
+						h('span', {
+							className: 'agy-pulse-dot',
+							style: {
+								background: dotColor,
+								boxShadow: `0 0 6px ${dotColor}`,
+								margin: '0 4px 0 0',
+							},
+						}),
+						h('span', {
+							style: {
+								fontWeight: 700,
+								fontSize: '13.5px',
+								color: 'var(--agy-text-primary)',
+								whiteSpace: 'nowrap',
+							},
+							title: displayAlias,
+						}, displayAlias),
 						accounts.length > 1 ? h('div', {
-							style: { display: 'inline-flex', gap: '3px', alignItems: 'center', marginRight: '2px' },
+							style: { display: 'inline-flex', gap: '3px', alignItems: 'center', marginLeft: '4px' },
 						},
 							h('span', {
 								className: 'agy-account-order',
@@ -2504,23 +2504,6 @@ export function apply(ctx: ClientContext): void {
 								onClick: () => void moveAccount(acc.id, 1),
 							}, uiIcon('chevronDown', 11)) : null,
 						) : null,
-						h('span', {
-							className: 'agy-pulse-dot',
-							style: {
-								background: dotColor,
-								boxShadow: `0 0 6px ${dotColor}`,
-								margin: '0 2px',
-							},
-						}),
-						h('span', {
-							style: {
-								fontWeight: 700,
-								fontSize: '13.5px',
-								color: 'var(--agy-text-primary)',
-								whiteSpace: 'nowrap',
-							},
-							title: displayAlias,
-						}, displayAlias),
 						isAuthRequired ? h('span', {
 							className: 'agy-account-state agy-account-state-error',
 							style: {
@@ -3314,6 +3297,19 @@ export function apply(ctx: ClientContext): void {
 				locale: NS,
 			},
 			AgySettingsSection,
+		);
+		return dispose;
+	});
+
+	// Register custom Antigravity brand icon for Settings dialog navigation
+	ctx.slots.inject('settings.section.icon', () => {
+		const dispose = ctx.slots.register(
+			{
+				name: 'settings.section.icon',
+				id: 'agy-link',
+				order: 20,
+			},
+			(ownerProps?: unknown) => agyIcon((ownerProps as { size?: number } | undefined)?.size ?? 16),
 		);
 		return dispose;
 	});

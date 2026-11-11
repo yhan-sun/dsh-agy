@@ -7702,6 +7702,7 @@ body.dark .agy-tsl-card,
 				height: size,
 				fill: "none",
 				"aria-hidden": true,
+				"data-agy-logo": "true",
 				style: {
 					display: "inline-block",
 					verticalAlign: "-2.5px",
@@ -7835,27 +7836,9 @@ body.dark .agy-tsl-card,
 		}
 		function navIconCss(logoUrl) {
 			return [
-				`[${NAV_ICON_MARKER}] > svg { display: none !important; }`,
-				`[${NAV_ICON_MARKER}] > [class*="icon"] > svg { display: none !important; }`,
-				`[${NAV_ICON_MARKER}]::before {`,
-				`  content: '';`,
-				`  flex: none;`,
-				`  width: 16px;`,
-				`  height: 16px;`,
-				`  background-image: url("${logoUrl}");`,
-				`  background-repeat: no-repeat;`,
-				`  background-position: center;`,
-				`  background-size: 16px 16px;`,
-				`  opacity: 0.92;`,
-				`  transition: opacity 0.15s ease, transform 0.15s ease;`,
-				`}`,
-				`[${NAV_ICON_MARKER}]:hover::before,`,
-				`[${NAV_ICON_MARKER}][aria-selected="true"]::before,`,
-				`[${NAV_ICON_MARKER}].active::before,`,
-				`[${NAV_ICON_MARKER}][data-state="active"]::before {`,
-				`  opacity: 1;`,
-				`  transform: scale(1.08);`,
-				`}`
+				`[${NAV_ICON_MARKER}] > svg:not([data-agy-logo]) { display: none !important; }`,
+				`[${NAV_ICON_MARKER}] > [class*="icon" i] > svg:not([data-agy-logo]) { display: none !important; }`,
+				`[${NAV_ICON_MARKER}]::before { display: none !important; content: none !important; }`
 			].join("\n");
 		}
 		function installSettingsNavIcon(ctx, resolveLabel) {
@@ -9743,11 +9726,26 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						key: acc.id,
 						className: `agy-account-card agy-card-hover${isInUse ? " agy-card-active" : ""}`,
 						style: cardStyle
-					}, h("div", { className: "agy-account-header" }, h("div", { className: "agy-account-identity" }, accounts.length > 1 ? h("div", { style: {
+					}, h("div", { className: "agy-account-header" }, h("div", { className: "agy-account-identity" }, h("span", {
+						className: "agy-pulse-dot",
+						style: {
+							background: dotColor,
+							boxShadow: `0 0 6px ${dotColor}`,
+							margin: "0 4px 0 0"
+						}
+					}), h("span", {
+						style: {
+							fontWeight: 700,
+							fontSize: "13.5px",
+							color: "var(--agy-text-primary)",
+							whiteSpace: "nowrap"
+						},
+						title: displayAlias
+					}, displayAlias), accounts.length > 1 ? h("div", { style: {
 						display: "inline-flex",
 						gap: "3px",
 						alignItems: "center",
-						marginRight: "2px"
+						marginLeft: "4px"
 					} }, h("span", {
 						className: "agy-account-order",
 						style: {
@@ -9776,22 +9774,7 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						"aria-label": t("account.moveDown"),
 						title: t("account.moveDown"),
 						onClick: () => void moveAccount(acc.id, 1)
-					}, uiIcon("chevronDown", 11)) : null) : null, h("span", {
-						className: "agy-pulse-dot",
-						style: {
-							background: dotColor,
-							boxShadow: `0 0 6px ${dotColor}`,
-							margin: "0 2px"
-						}
-					}), h("span", {
-						style: {
-							fontWeight: 700,
-							fontSize: "13.5px",
-							color: "var(--agy-text-primary)",
-							whiteSpace: "nowrap"
-						},
-						title: displayAlias
-					}, displayAlias), isAuthRequired ? h("span", {
+					}, uiIcon("chevronDown", 11)) : null) : null, isAuthRequired ? h("span", {
 						className: "agy-account-state agy-account-state-error",
 						style: {
 							gap: "3px",
@@ -10692,6 +10675,13 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					label: () => locale.bind(NS)("section.label"),
 					locale: NS
 				}, AgySettingsSection);
+			});
+			ctx.slots.inject("settings.section.icon", () => {
+				return ctx.slots.register({
+					name: "settings.section.icon",
+					id: "agy-link",
+					order: 20
+				}, (ownerProps) => agyIcon(ownerProps?.size ?? 16));
 			});
 			ctx.slots.inject("plugins.bundle.config", () => {
 				return ctx.slots.register({
