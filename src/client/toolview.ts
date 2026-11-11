@@ -219,6 +219,24 @@ export function IconCheckOutline14(size = 12, className = ''): unknown {
 	}));
 }
 
+export function IconChatOutline14(size = 12, className = ''): unknown {
+	return hx('svg', {
+		width: size,
+		height: size,
+		className: className || undefined,
+		viewBox: '0 0 24 24',
+		fill: 'none',
+		stroke: 'currentColor',
+		strokeWidth: 2,
+		strokeLinecap: 'round',
+		strokeLinejoin: 'round',
+		style: { display: 'inline-block', verticalAlign: '-1.5px', flexShrink: 0 },
+		'aria-hidden': true,
+	}, hx('path', {
+		d: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
+	}));
+}
+
 export function IconQuestionOutline16(size = 14, className = ''): unknown {
 	return hx('svg', {
 		width: size,
@@ -888,7 +906,7 @@ function QuestionCardBody({ model }: { model: MirrorCardModel }): unknown {
 					onInsert();
 				},
 			},
-				inserted ? '✓ 已填入对话框' : '💬 填入对话框 / Insert into Chat'
+				inserted ? [IconCheckOutline14(11), ' 已填入对话框'] : [IconChatOutline14(11), ' 填入对话框 / Insert into Chat']
 			),
 			model.output ? h('div', { className: 'agy-tv-q-answered' }, `已记录: ${model.output}`) : null
 		)

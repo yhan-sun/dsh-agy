@@ -108,16 +108,16 @@ async function handle(deps: CommandDeps, raw: string, invocation?: CommandInvoca
             cds.push(`${fam} cooldown: ${sec}s left (${cd.reason})`)
           }
         }
-          let statusText = '   - Status: 🟢 Ready'
+          let statusText = '   - Status: Ready'
           if (!a.enabled) {
-            statusText = '   - Status: ⏸️ Disabled'
+            statusText = '   - Status: Disabled'
           } else if (a.authRequired) {
-            statusText = `   - Status: 🔴 Auth required (${a.authError || 'sign in again'})`
+            statusText = `   - Status: Auth required (${a.authError || 'sign in again'})`
           } else if (cds.length > 0) {
-            statusText = `   - ⚠️ ${cds.join('; ')}`
+            statusText = `   - [Cooldown] ${cds.join('; ')}`
           }
           lines.push(
-            `${i + 1}. **${a.alias}** (${a.email || a.id})${isPrimary ? ' ⭐ primary' : ''}`,
+            `${i + 1}. **${a.alias}** (${a.email || a.id})${isPrimary ? ' [primary]' : ''}`,
             // Proxy URLs can embed user:pass — never print them raw into the GUI.
             `   - Proxy: ${a.proxyUrl ? redactProxyUrl(a.proxyUrl) : deps.cfg().proxyUrl ? redactProxyUrl(deps.cfg().proxyUrl) : 'system default'}`,
             quotaLine,
@@ -148,7 +148,7 @@ async function handle(deps: CommandDeps, raw: string, invocation?: CommandInvoca
           `- Isolated directory: \`${acc.dir}\``,
           `- Run in terminal: \`HOME="${acc.dir}" agy\` to authenticate this Google account.`,
           `- The slot stays OUT of rotation (authRequired) until the login completes and a quota refresh verifies it.`,
-          `- Once logged in, run: \`/agy pool\` or click 🔄 刷新额度 in WebUI.`,
+          `- Once logged in, run: \`/agy pool\` or click 刷新额度 in WebUI.`,
         ].join('\n'))
       }
       if (sub === 'refresh-quota') {
@@ -211,14 +211,8 @@ async function handle(deps: CommandDeps, raw: string, invocation?: CommandInvoca
           if (!activeGoal || !latestGoalChange) {
             return ok('**DSH Goal Status**: No active goal in this session.')
           }
-          const phaseEmoji: Record<string, string> = {
-            active: '🟢',
-            paused: '⏸️',
-            blocked: '🚫',
-            complete: '✅',
-          }
           return ok([
-            `**DSH Goal Status** (${phaseEmoji[activeGoal.phase] ?? '⚪'} \`${activeGoal.phase}\`)`,
+            `**DSH Goal Status** (\`${activeGoal.phase}\`)`,
             `- **Goal ID**: \`${activeGoal.id}\` (rev ${activeGoal.revision})`,
             `- **Objective**: ${activeGoal.objective}`,
             `- **Rounds**: ${latestGoalChange.roundsStarted ?? 1} / ${activeGoal.maxGoalRounds ?? 256}`,
@@ -244,7 +238,7 @@ async function handle(deps: CommandDeps, raw: string, invocation?: CommandInvoca
               createdAt: latestGoalChange.createdAt ?? Date.now(),
               updatedAt: Date.now(),
             })
-            return ok(`✅ Marked goal \`${activeGoal.id}\` as complete. Automatic continuation rounds stopped.`)
+            return ok(`Marked goal \`${activeGoal.id}\` as complete. Automatic continuation rounds stopped.`)
           }
           return err('Session cannot append events.')
         }
@@ -267,7 +261,7 @@ async function handle(deps: CommandDeps, raw: string, invocation?: CommandInvoca
               createdAt: latestGoalChange.createdAt ?? Date.now(),
               updatedAt: Date.now(),
             })
-            return ok(`⏸️ Paused goal \`${activeGoal.id}\`.`)
+            return ok(`Paused goal \`${activeGoal.id}\`.`)
           }
           return err('Session cannot append events.')
         }
@@ -290,7 +284,7 @@ async function handle(deps: CommandDeps, raw: string, invocation?: CommandInvoca
               createdAt: latestGoalChange.createdAt ?? Date.now(),
               updatedAt: Date.now(),
             })
-            return ok(`▶️ Resumed goal \`${activeGoal.id}\`.`)
+            return ok(`Resumed goal \`${activeGoal.id}\`.`)
           }
           return err('Session cannot append events.')
         }

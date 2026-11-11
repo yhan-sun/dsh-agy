@@ -45,7 +45,7 @@ test('agy enable-account and disable-account toggle account state and reflect in
 
   // /agy pool shows Disabled status
   const poolRes = await def.handler({ rawInput: 'pool' } as never)
-  assert.match(poolRes.text ?? '', /Status: ⏸️ Disabled/)
+  assert.match(poolRes.text ?? '', /Status: Disabled/)
 
   // Enable account
   const enRes = await def.handler({ rawInput: `enable-account ${sec.id}` } as never)
@@ -53,7 +53,7 @@ test('agy enable-account and disable-account toggle account state and reflect in
   assert.equal(pool.getAccount(sec.id)?.enabled, true)
 
   const poolRes2 = await def.handler({ rawInput: 'pool' } as never)
-  assert.match(poolRes2.text ?? '', /Status: 🟢 Ready/)
+  assert.match(poolRes2.text ?? '', /Status: Ready/)
 })
 
 test('agy goal commands manipulate session goal state', async () => {

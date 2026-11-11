@@ -487,7 +487,7 @@ async function renderInto(block: HTMLElement, source: string, lang = ''): Promis
 		} else {
 			// Explicit mermaid block: show clear warning without hiding the code block!
 			block.setAttribute('data-agy-mermaid', 'error')
-			mount.innerHTML = '<div class="agy-mermaid-warn">⚠️ Mermaid 图表解析失败，已保留原始代码呈现</div>'
+			mount.innerHTML = '<div class="agy-mermaid-warn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1.5px; margin-right: 4px; flex-shrink: 0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Mermaid 图表解析失败，已保留原始代码呈现</div>'
 		}
 		} finally {
 			cleanupTempElements(id)

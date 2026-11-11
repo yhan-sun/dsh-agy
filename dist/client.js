@@ -39,7 +39,12 @@ window.__ModuleLoader__.load({
 			arrowUp: "M12 19V5M5 12l7-7 7 7",
 			arrowDown: "M12 5v14M19 12l-7 7-7-7",
 			power: "M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10",
-			flame: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"
+			flame: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z",
+			messageSquare: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
+			image: "M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z M21 15l-5-5L5 21",
+			copy: "M9 9h13v13H9z M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1",
+			zoomIn: "M11 8v6M8 11h6M21 21l-4.35-4.35M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0z",
+			zoomOut: "M8 11h6M21 21l-4.35-4.35M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"
 		};
 		//#endregion
 		//#region src/client/config-options.ts
@@ -1186,7 +1191,7 @@ window.__ModuleLoader__.load({
 					box.className = "agy-decision-container";
 					const header = document.createElement("div");
 					header.className = "agy-decision-header";
-					header.innerHTML = "<span>💬 点击选项快速填入：</span>";
+					header.innerHTML = "<svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align: -1.5px; margin-right: 4px; flex-shrink: 0;\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg><span>点击选项快速填入：</span>";
 					box.appendChild(header);
 					const chips = document.createElement("div");
 					chips.className = "agy-decision-chips";
@@ -1197,7 +1202,7 @@ window.__ModuleLoader__.load({
 						chip.title = `点击填入: ${opt.fullText}`;
 						const numSpan = document.createElement("span");
 						numSpan.className = "agy-decision-chip-num";
-						numSpan.textContent = opt.num ?? "👉";
+						numSpan.textContent = opt.num ?? "•";
 						const textSpan = document.createElement("span");
 						textSpan.className = "agy-decision-chip-text";
 						textSpan.textContent = opt.title;
@@ -1275,6 +1280,12 @@ window.__ModuleLoader__.load({
 		let isDraggingLightbox = false;
 		let dragStartX = 0;
 		let dragStartY = 0;
+		const SVG_ZOOM_IN = "<svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"/><line x1=\"11\" y1=\"8\" x2=\"11\" y2=\"14\"/><line x1=\"8\" y1=\"11\" x2=\"14\" y2=\"11\"/></svg>";
+		const SVG_ZOOM_OUT = "<svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"/><line x1=\"8\" y1=\"11\" x2=\"14\" y2=\"11\"/></svg>";
+		const SVG_COPY = "<svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-1.5px;margin-right:4px;\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>";
+		const SVG_CHECK = "<svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-1.5px;margin-right:4px;\"><polyline points=\"20 6 9 17 4 12\"/></svg>";
+		const SVG_CLOSE = "<svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-1.5px;margin-right:4px;\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/></svg>";
+		const SVG_IMAGE = "<svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-1.5px;margin-right:3px;\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><circle cx=\"8.5\" cy=\"8.5\" r=\"1.5\"/><polyline points=\"21 15 16 10 5 21\"/></svg>";
 		const IMAGE_CSS = `
 .agy-image-card {
   display: inline-flex;
@@ -1501,12 +1512,14 @@ window.__ModuleLoader__.load({
 			actions.className = "agy-lightbox-actions";
 			const btnZoomIn = document.createElement("button");
 			btnZoomIn.className = "agy-lightbox-btn";
-			btnZoomIn.textContent = "🔍+";
+			btnZoomIn.innerHTML = SVG_ZOOM_IN;
 			btnZoomIn.title = "放大 / Zoom In";
+			btnZoomIn.setAttribute("aria-label", "放大");
 			const btnZoomOut = document.createElement("button");
 			btnZoomOut.className = "agy-lightbox-btn";
-			btnZoomOut.textContent = "🔍-";
+			btnZoomOut.innerHTML = SVG_ZOOM_OUT;
 			btnZoomOut.title = "缩小 / Zoom Out";
+			btnZoomOut.setAttribute("aria-label", "缩小");
 			const btnReset = document.createElement("button");
 			btnReset.className = "agy-lightbox-btn";
 			btnReset.textContent = "1:1";
@@ -1517,13 +1530,13 @@ window.__ModuleLoader__.load({
 			if (rawPath) {
 				const btnCopyPath = document.createElement("button");
 				btnCopyPath.className = "agy-lightbox-btn";
-				btnCopyPath.textContent = "📋 复制路径";
+				btnCopyPath.innerHTML = `${SVG_COPY}<span>复制路径</span>`;
 				btnCopyPath.onclick = (e) => {
 					e.stopPropagation();
 					if (navigator.clipboard) navigator.clipboard.writeText(rawPath).then(() => {
-						btnCopyPath.textContent = "✓ 已复制";
+						btnCopyPath.innerHTML = `${SVG_CHECK}<span>已复制</span>`;
 						setTimeout(() => {
-							btnCopyPath.textContent = "📋 复制路径";
+							btnCopyPath.innerHTML = `${SVG_COPY}<span>复制路径</span>`;
 						}, 1500);
 					}).catch(() => {});
 				};
@@ -1531,7 +1544,7 @@ window.__ModuleLoader__.load({
 			}
 			const btnClose = document.createElement("button");
 			btnClose.className = "agy-lightbox-btn agy-lightbox-btn-close";
-			btnClose.textContent = "✕ 关闭";
+			btnClose.innerHTML = `${SVG_CLOSE}<span>关闭</span>`;
 			actions.appendChild(btnClose);
 			header.appendChild(actions);
 			overlay.appendChild(header);
@@ -1716,7 +1729,7 @@ window.__ModuleLoader__.load({
 				if (!link.querySelector(".agy-image-link-icon")) {
 					const badge = document.createElement("span");
 					badge.className = "agy-image-link-chip agy-image-link-icon";
-					badge.textContent = "🖼️ 预览";
+					badge.innerHTML = `${SVG_IMAGE}<span>预览</span>`;
 					link.appendChild(badge);
 				}
 			}
@@ -1973,6 +1986,25 @@ window.__ModuleLoader__.load({
 				d: "M11.5635 4.58984L7.61426 9.07715C7.35154 9.37561 7.11346 9.64812 6.89453 9.84668C6.66593 10.054 6.38519 10.2506 6.01465 10.3164C5.82079 10.3508 5.62207 10.3529 5.42773 10.3213C5.0561 10.2609 4.77266 10.0674 4.54102 9.86328C4.31926 9.66791 4.07752 9.39911 3.81055 9.10449L2.44531 7.59863L3.55664 6.59082L4.92188 8.09766C5.21256 8.41844 5.38878 8.61191 5.53223 8.73828C5.61022 8.80699 5.65253 8.83192 5.66895 8.83984C5.69648 8.84429 5.72449 8.84467 5.75195 8.83984C5.72657 8.84451 5.75564 8.85422 5.88672 8.73535C6.02833 8.60692 6.20225 8.41088 6.48828 8.08594L10.4385 3.59961L11.5635 4.58984Z",
 				fill: "currentColor"
 			}));
+		}
+		function IconChatOutline14(size = 12, className = "") {
+			return hx("svg", {
+				width: size,
+				height: size,
+				className: className || void 0,
+				viewBox: "0 0 24 24",
+				fill: "none",
+				stroke: "currentColor",
+				strokeWidth: 2,
+				strokeLinecap: "round",
+				strokeLinejoin: "round",
+				style: {
+					display: "inline-block",
+					verticalAlign: "-1.5px",
+					flexShrink: 0
+				},
+				"aria-hidden": true
+			}, hx("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" }));
 		}
 		function IconQuestionOutline16(size = 14, className = "") {
 			return hx("svg", {
@@ -2544,7 +2576,7 @@ window.__ModuleLoader__.load({
 					e.stopPropagation();
 					onInsert();
 				}
-			}, inserted ? "✓ 已填入对话框" : "💬 填入对话框 / Insert into Chat"), model.output ? h("div", { className: "agy-tv-q-answered" }, `已记录: ${model.output}`) : null));
+			}, inserted ? [IconCheckOutline14(11), " 已填入对话框"] : [IconChatOutline14(11), " 填入对话框 / Insert into Chat"]), model.output ? h("div", { className: "agy-tv-q-answered" }, `已记录: ${model.output}`) : null));
 		}
 		function ImageCardBody({ model }) {
 			const h = hx;
@@ -3783,7 +3815,7 @@ body > [id^="iagy-mmd"] .error-icon {
 						block.setAttribute("data-agy-mermaid", "fallback");
 					} else {
 						block.setAttribute("data-agy-mermaid", "error");
-						mount.innerHTML = "<div class=\"agy-mermaid-warn\">⚠️ Mermaid 图表解析失败，已保留原始代码呈现</div>";
+						mount.innerHTML = "<div class=\"agy-mermaid-warn\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align: -1.5px; margin-right: 4px; flex-shrink: 0;\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"/><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"/></svg>Mermaid 图表解析失败，已保留原始代码呈现</div>";
 					}
 				} finally {
 					cleanupTempElements(id);
@@ -7942,7 +7974,7 @@ body.dark .agy-tsl-card,
 			const cWeekly = getColors(pctWeekly);
 			const renderLine = (windowName, percent, c, resetStr, rawFraction, rawReset) => {
 				const isShimmer = percent < 0 || isRefreshing;
-				const tooltipText = typeof rawFraction === "number" ? `${(rawFraction * 100).toFixed(1)}% (raw: ${rawFraction})${rawReset ? ` · reset: ${rawReset}` : ""}` : resetStr ? `↻ ${resetStr}` : void 0;
+				const tooltipText = typeof rawFraction === "number" ? `${(rawFraction * 100).toFixed(1)}% (raw: ${rawFraction})${rawReset ? ` · reset: ${rawReset}` : ""}` : resetStr ? resetStr : void 0;
 				return h("div", {
 					className: "agy-quota-line",
 					style: {
@@ -7994,8 +8026,11 @@ body.dark .agy-tsl-card,
 				}, percent < 0 ? "—" : `${percent}%`), resetStr ? h("span", { style: {
 					color: "var(--agy-text-tertiary)",
 					fontSize: "11px",
-					fontWeight: 400
-				} }, `↻ ${resetStr}`) : null));
+					fontWeight: 400,
+					display: "inline-flex",
+					alignItems: "center",
+					gap: "3px"
+				} }, uiIcon("refresh", 9, "var(--agy-text-tertiary)"), resetStr) : null));
 			};
 			return h("div", {
 				className: "agy-family-quota",
@@ -9883,7 +9918,7 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						key: "agy-body",
 						className: "agy-account-quota",
 						style: S.quotaBox
-					}, renderQuotaBar("Gemini", "google", acc), h("div", { className: "agy-account-quota-summary" }, h("span", { className: "agy-quota-summary-text" }, hasCooldown ? "⚠️ 冷却保护期中（轮询将暂缓使用）" : googleQuota ? "Google Gemini 官方额度实时监控" : t("account.quotaPending")), h("button", {
+					}, renderQuotaBar("Gemini", "google", acc), h("div", { className: "agy-account-quota-summary" }, h("span", { className: "agy-quota-summary-text" }, hasCooldown ? [uiIcon("alert", 11, "var(--agy-warn-text)"), " 冷却保护期中（轮询将暂缓使用）"] : googleQuota ? "Google Gemini 官方额度实时监控" : t("account.quotaPending")), h("button", {
 						type: "button",
 						className: "agy-btn agy-account-expand",
 						"aria-expanded": isExpanded,
@@ -9925,8 +9960,11 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 							fontWeight: 700
 						} }, `${pct}%`), w.resetText ? h("span", { style: {
 							color: "var(--agy-text-tertiary)",
-							fontSize: "10.5px"
-						} }, `↻ ${w.resetText}`) : null));
+							fontSize: "10.5px",
+							display: "inline-flex",
+							alignItems: "center",
+							gap: "3px"
+						} }, uiIcon("refresh", 9, "var(--agy-text-tertiary)"), w.resetText) : null));
 					})) : null) : h("div", {
 						id: `agy-quota-${acc.id}`,
 						hidden: true

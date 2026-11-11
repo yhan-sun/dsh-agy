@@ -9,7 +9,7 @@ import { formatTokenCount, calcTokenReduction, formatCompactionSummary } from '.
 //   "上下文已压缩 · xxx k → yyy k tokens (-zz%)"
 //
 // Supports:
-// 1. Modern Markdown anchor markers: `> [✂️ **上下文已压缩**...](#agy-compaction?before=...&after=...&items=...&summary=...)`
+// 1. Modern Markdown anchor markers: `> [**上下文已压缩**...](#agy-compaction?before=...&after=...&items=...&summary=...)`
 // 2. Raw HTML elements: `<div class="agy-compaction-card" data-before=...>`
 // 3. Legacy escaped HTML in plain text: `<p>&lt;div class="agy-compaction-card"...&gt;</p>`
 //

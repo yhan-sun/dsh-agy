@@ -17,6 +17,13 @@ let isDraggingLightbox = false;
 let dragStartX = 0;
 let dragStartY = 0;
 
+const SVG_ZOOM_IN = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>';
+const SVG_ZOOM_OUT = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>';
+const SVG_COPY = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1.5px;margin-right:4px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const SVG_CHECK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1.5px;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>';
+const SVG_CLOSE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1.5px;margin-right:4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+const SVG_IMAGE = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1.5px;margin-right:3px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+
 const IMAGE_CSS = `
 .agy-image-card {
   display: inline-flex;
@@ -257,13 +264,15 @@ export function openLightbox(src: string, title = 'Image Preview', rawPath?: str
 
   const btnZoomIn = document.createElement('button');
   btnZoomIn.className = 'agy-lightbox-btn';
-  btnZoomIn.textContent = '🔍+';
+  btnZoomIn.innerHTML = SVG_ZOOM_IN;
   btnZoomIn.title = '放大 / Zoom In';
+  btnZoomIn.setAttribute('aria-label', '放大');
 
   const btnZoomOut = document.createElement('button');
   btnZoomOut.className = 'agy-lightbox-btn';
-  btnZoomOut.textContent = '🔍-';
+  btnZoomOut.innerHTML = SVG_ZOOM_OUT;
   btnZoomOut.title = '缩小 / Zoom Out';
+  btnZoomOut.setAttribute('aria-label', '缩小');
 
   const btnReset = document.createElement('button');
   btnReset.className = 'agy-lightbox-btn';
@@ -277,13 +286,13 @@ export function openLightbox(src: string, title = 'Image Preview', rawPath?: str
   if (rawPath) {
     const btnCopyPath = document.createElement('button');
     btnCopyPath.className = 'agy-lightbox-btn';
-    btnCopyPath.textContent = '📋 复制路径';
+    btnCopyPath.innerHTML = `${SVG_COPY}<span>复制路径</span>`;
     btnCopyPath.onclick = (e) => {
       e.stopPropagation();
       if (navigator.clipboard) {
         navigator.clipboard.writeText(rawPath).then(() => {
-          btnCopyPath.textContent = '✓ 已复制';
-          setTimeout(() => { btnCopyPath.textContent = '📋 复制路径'; }, 1500);
+          btnCopyPath.innerHTML = `${SVG_CHECK}<span>已复制</span>`;
+          setTimeout(() => { btnCopyPath.innerHTML = `${SVG_COPY}<span>复制路径</span>`; }, 1500);
         }).catch(() => {});
       }
     };
@@ -292,7 +301,7 @@ export function openLightbox(src: string, title = 'Image Preview', rawPath?: str
 
   const btnClose = document.createElement('button');
   btnClose.className = 'agy-lightbox-btn agy-lightbox-btn-close';
-  btnClose.textContent = '✕ 关闭';
+  btnClose.innerHTML = `${SVG_CLOSE}<span>关闭</span>`;
   actions.appendChild(btnClose);
 
   header.appendChild(actions);
@@ -535,7 +544,7 @@ export function scanAndEnhanceImages(): void {
     if (!link.querySelector('.agy-image-link-icon')) {
       const badge = document.createElement('span');
       badge.className = 'agy-image-link-chip agy-image-link-icon';
-      badge.textContent = '🖼️ 预览';
+      badge.innerHTML = `${SVG_IMAGE}<span>预览</span>`;
       link.appendChild(badge);
     }
   }

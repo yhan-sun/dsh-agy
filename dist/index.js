@@ -975,7 +975,7 @@ function stepLabel(toolName, input) {
 */
 function recordingUnavailable(step, toolName, input, reason) {
 	const label = stepLabel(toolName, input);
-	return "⚠ [agy bridge] This agy tool step executed, but its recorded output is no longer resident in the bridge (" + (reason !== void 0 && reason !== "" ? reason : "the step ran for a long time and the in-memory recording was recycled") + "). Nothing is wrong with the tool or the workspace, and there is nothing to debug here — do NOT investigate the bridge, its logs or this message; continue the user's task. If the output is needed, re-run the same operation as a new step. Step #" + step + (label !== "" ? ": " + label : "");
+	return "[agy bridge] This agy tool step executed, but its recorded output is no longer resident in the bridge (" + (reason !== void 0 && reason !== "" ? reason : "the step ran for a long time and the in-memory recording was recycled") + "). Nothing is wrong with the tool or the workspace, and there is nothing to debug here — do NOT investigate the bridge, its logs or this message; continue the user's task. If the output is needed, re-run the same operation as a new step. Step #" + step + (label !== "" ? ": " + label : "");
 }
 function defineAgyMirrorTool(deps) {
 	const enrichArgs = (args) => {
@@ -1325,7 +1325,7 @@ function formatCompactionSummary(before, after) {
 /**
 * Render standard compaction marker for the stream.
 * In raw markdown (and DSH markdown which escapes raw HTML), this surfaces as an elegant blockquote:
-* > [✂️ **上下文已压缩** · 128.5k → 14.2k tokens (-89%)](#agy-compaction-card?before=128500&after=14200&items=18&summary=...)
+* > [**上下文已压缩** · 128.5k → 14.2k tokens (-89%)](#agy-compaction-card?before=128500&after=14200&items=18&summary=...)
 * In browser DSH, the client enhancer transforms it into the interactive native Compaction Card.
 */
 /** Percent-encode a value for use inside a markdown link destination.
@@ -1337,7 +1337,7 @@ function encodeForMarkdownUrl(value) {
 function renderCompactionMarker(notice) {
 	const summaryText = formatCompactionSummary(notice.beforeTokens, notice.afterTokens);
 	const encodedSummary = notice.summary ? encodeForMarkdownUrl(notice.summary) : "";
-	return `> [✂️ **上下文已压缩** · ${summaryText}](#agy-compaction-card?before=${notice.beforeTokens}&after=${notice.afterTokens}&items=${notice.items}&summary=${encodedSummary})\n\n`;
+	return `> [**上下文已压缩** · ${summaryText}](#agy-compaction-card?before=${notice.beforeTokens}&after=${notice.afterTokens}&items=${notice.items}&summary=${encodedSummary})\n\n`;
 }
 //#endregion
 //#region src/host/mapper.ts
@@ -4862,7 +4862,7 @@ function formatLocalIso(ms) {
 }
 const CALLBACK_SUCCESS_HTML = `<!doctype html><html><head><meta charset="utf-8"><title>登录成功</title></head>
 <body style="font-family:system-ui;text-align:center;padding:3rem">
-<h2>✓ 授权成功</h2>
+<h2><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><polyline points="20 6 9 17 4 12"/></svg>授权成功</h2>
 <p>可以关闭此标签页，返回 DeepSeek Harness。</p>
 </body></html>`;
 /**
@@ -9234,11 +9234,11 @@ async function handle$1(deps, raw, invocation) {
 					const sec = Math.ceil((cd.cooldownUntil - Date.now()) / 1e3);
 					cds.push(`${fam} cooldown: ${sec}s left (${cd.reason})`);
 				}
-				let statusText = "   - Status: 🟢 Ready";
-				if (!a.enabled) statusText = "   - Status: ⏸️ Disabled";
-				else if (a.authRequired) statusText = `   - Status: 🔴 Auth required (${a.authError || "sign in again"})`;
-				else if (cds.length > 0) statusText = `   - ⚠️ ${cds.join("; ")}`;
-				lines.push(`${i + 1}. **${a.alias}** (${a.email || a.id})${isPrimary ? " ⭐ primary" : ""}`, `   - Proxy: ${a.proxyUrl ? redactProxyUrl(a.proxyUrl) : deps.cfg().proxyUrl ? redactProxyUrl(deps.cfg().proxyUrl) : "system default"}`, quotaLine, statusText);
+				let statusText = "   - Status: Ready";
+				if (!a.enabled) statusText = "   - Status: Disabled";
+				else if (a.authRequired) statusText = `   - Status: Auth required (${a.authError || "sign in again"})`;
+				else if (cds.length > 0) statusText = `   - [Cooldown] ${cds.join("; ")}`;
+				lines.push(`${i + 1}. **${a.alias}** (${a.email || a.id})${isPrimary ? " [primary]" : ""}`, `   - Proxy: ${a.proxyUrl ? redactProxyUrl(a.proxyUrl) : deps.cfg().proxyUrl ? redactProxyUrl(deps.cfg().proxyUrl) : "system default"}`, quotaLine, statusText);
 			}
 			return ok$1(lines.join("\n"));
 		}
@@ -9259,7 +9259,7 @@ async function handle$1(deps, raw, invocation) {
 				`- Isolated directory: \`${acc.dir}\``,
 				`- Run in terminal: \`HOME="${acc.dir}" agy\` to authenticate this Google account.`,
 				`- The slot stays OUT of rotation (authRequired) until the login completes and a quota refresh verifies it.`,
-				`- Once logged in, run: \`/agy pool\` or click 🔄 刷新额度 in WebUI.`
+				`- Once logged in, run: \`/agy pool\` or click 刷新额度 in WebUI.`
 			].join("\n"));
 		}
 		if (sub === "refresh-quota") {
@@ -9300,12 +9300,7 @@ async function handle$1(deps, raw, invocation) {
 			if (action === "status") {
 				if (!activeGoal || !latestGoalChange) return ok$1("**DSH Goal Status**: No active goal in this session.");
 				return ok$1([
-					`**DSH Goal Status** (${{
-						active: "🟢",
-						paused: "⏸️",
-						blocked: "🚫",
-						complete: "✅"
-					}[activeGoal.phase] ?? "⚪"} \`${activeGoal.phase}\`)`,
+					`**DSH Goal Status** (\`${activeGoal.phase}\`)`,
 					`- **Goal ID**: \`${activeGoal.id}\` (rev ${activeGoal.revision})`,
 					`- **Objective**: ${activeGoal.objective}`,
 					`- **Rounds**: ${latestGoalChange.roundsStarted ?? 1} / ${activeGoal.maxGoalRounds ?? 256}`,
@@ -9330,7 +9325,7 @@ async function handle$1(deps, raw, invocation) {
 						createdAt: latestGoalChange.createdAt ?? Date.now(),
 						updatedAt: Date.now()
 					});
-					return ok$1(`✅ Marked goal \`${activeGoal.id}\` as complete. Automatic continuation rounds stopped.`);
+					return ok$1(`Marked goal \`${activeGoal.id}\` as complete. Automatic continuation rounds stopped.`);
 				}
 				return err$1("Session cannot append events.");
 			}
@@ -9352,7 +9347,7 @@ async function handle$1(deps, raw, invocation) {
 						createdAt: latestGoalChange.createdAt ?? Date.now(),
 						updatedAt: Date.now()
 					});
-					return ok$1(`⏸️ Paused goal \`${activeGoal.id}\`.`);
+					return ok$1(`Paused goal \`${activeGoal.id}\`.`);
 				}
 				return err$1("Session cannot append events.");
 			}
@@ -9374,7 +9369,7 @@ async function handle$1(deps, raw, invocation) {
 						createdAt: latestGoalChange.createdAt ?? Date.now(),
 						updatedAt: Date.now()
 					});
-					return ok$1(`▶️ Resumed goal \`${activeGoal.id}\`.`);
+					return ok$1(`Resumed goal \`${activeGoal.id}\`.`);
 				}
 				return err$1("Session cannot append events.");
 			}
@@ -10485,8 +10480,8 @@ function headerFor(res) {
 	bits.push(seconds(res.durationMs));
 	if (res.cached) bits.push("缓存命中");
 	const turn = res.turn;
-	const where = turn !== void 0 && res.recordSeq !== null && res.recordSeq !== void 0 ? "\n位置：第 " + turn + " 回合最后回复下方（💠 Gemini 译文）" : "";
-	return "✅ 已生成译文 · " + bits.join(" · ") + where;
+	const where = turn !== void 0 && res.recordSeq !== null && res.recordSeq !== void 0 ? "\n位置：第 " + turn + " 回合最后回复下方（Gemini 译文）" : "";
+	return "已生成译文 · " + bits.join(" · ") + where;
 }
 function tslCommandDefinition(deps) {
 	return {
@@ -10520,7 +10515,7 @@ async function handle(deps, invocation) {
 		if (sessionId === void 0) return err("无法识别当前会话，`/tsl auto` 需要在会话内使用。");
 		if (args.auto === "status") {
 			const override = deps.sessionAuto.get(sessionId);
-			return ok("**自动翻译（本会话）**：" + (override ?? deps.cfg().autoTranslate ? "开 🟢" : "关 ⚪") + (override === void 0 ? "（跟随插件设置）" : "（本会话覆盖）") + "\n调整：`/tsl auto on` / `/tsl auto off`；插件默认开关在设置 → Antigravity。");
+			return ok("**自动翻译（本会话）**：" + (override ?? deps.cfg().autoTranslate ? "开" : "关") + (override === void 0 ? "（跟随插件设置）" : "（本会话覆盖）") + "\n调整：`/tsl auto on` / `/tsl auto off`；插件默认开关在设置 → Antigravity。");
 		}
 		deps.sessionAuto.set(sessionId, args.auto === "on");
 		if (args.auto === "on") {

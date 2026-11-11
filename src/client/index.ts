@@ -692,7 +692,7 @@ function renderFamilyQuotaBar(
 		const isShimmer = percent < 0 || isRefreshing;
 		const tooltipText = typeof rawFraction === 'number'
 			? `${(rawFraction * 100).toFixed(1)}% (raw: ${rawFraction})${rawReset ? ` · reset: ${rawReset}` : ''}`
-			: resetStr ? `↻ ${resetStr}` : undefined;
+			: resetStr ? resetStr : undefined;
 		return h('div', { className: 'agy-quota-line', style: { display: 'flex', alignItems: 'center', fontSize: '12px', margin: '4px 0' } },
 			h('span', { style: { width: '72px', color: 'var(--agy-text-secondary)', fontSize: '12px', fontWeight: 500, flexShrink: 0, whiteSpace: 'nowrap' } }, windowName),
 			h('div', {
@@ -725,7 +725,7 @@ function renderFamilyQuotaBar(
 						fontVariantNumeric: 'tabular-nums',
 					},
 				}, percent < 0 ? '—' : `${percent}%`),
-				resetStr ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '11px', fontWeight: 400 } }, `↻ ${resetStr}`) : null,
+				resetStr ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '11px', fontWeight: 400, display: 'inline-flex', alignItems: 'center', gap: '3px' } }, uiIcon('refresh', 9, 'var(--agy-text-tertiary)'), resetStr) : null,
 			),
 		);
 	};
@@ -2612,7 +2612,11 @@ export function apply(ctx: ClientContext): void {
 					renderQuotaBar('Gemini', 'google', acc),
 					h('div', { className: 'agy-account-quota-summary' },
 						h('span', { className: 'agy-quota-summary-text' },
-							hasCooldown ? '⚠️ 冷却保护期中（轮询将暂缓使用）' : googleQuota ? 'Google Gemini 官方额度实时监控' : t('account.quotaPending')
+							hasCooldown
+								? [uiIcon('alert', 11, 'var(--agy-warn-text)'), ' 冷却保护期中（轮询将暂缓使用）']
+								: googleQuota
+									? 'Google Gemini 官方额度实时监控'
+									: t('account.quotaPending')
 						),
 						h('button', {
 							type: 'button',
@@ -2643,7 +2647,7 @@ export function apply(ctx: ClientContext): void {
 									h('span', { style: { fontWeight: 500, color: 'var(--agy-text-primary)' } }, `[${family}] ${model.displayName || model.modelId}`),
 									h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
 										h('span', { style: { color: pColor, fontWeight: 700 } }, `${pct}%`),
-										w.resetText ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '10.5px' } }, `↻ ${w.resetText}`) : null,
+										w.resetText ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '10.5px', display: 'inline-flex', alignItems: 'center', gap: '3px' } }, uiIcon('refresh', 9, 'var(--agy-text-tertiary)'), w.resetText) : null,
 									),
 								);
 							}),

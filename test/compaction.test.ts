@@ -215,7 +215,7 @@ test('client scanAndEnhanceCompactionCards transforms modern markdown anchor int
   const p = makeTestEl('p')
   const anchor = makeTestEl('a')
   anchor.setAttribute('href', '#agy-compaction?before=243500&after=200&items=18&summary=' + encodeURIComponent('Decisions retained.'))
-  anchor.textContent = '✂️ 上下文已压缩 · 243.5k → 200 tokens (-100%)'
+  anchor.textContent = '上下文已压缩 · 243.5k → 200 tokens (-100%)'
   p.appendChild(anchor)
   blockquote.appendChild(p)
   root.appendChild(blockquote)
@@ -306,7 +306,7 @@ test('client scanAndEnhanceCompactionCards transforms legacy escaped <p> block i
   const p1 = makeTestEl('p')
   p1.textContent = '<div class="agy-compaction-card" data-before="4641" data-after="205" data-items="2118" data-summary="%23%23%20summary">'
   const bq = makeTestEl('blockquote')
-  bq.textContent = '✂️ 上下文已压缩 · 4.6k → 205 tokens (-96%)'
+  bq.textContent = '上下文已压缩 · 4.6k → 205 tokens (-96%)'
   const p2 = makeTestEl('p')
   p2.textContent = '</div>'
 

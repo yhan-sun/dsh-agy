@@ -660,7 +660,7 @@ export function recordingUnavailable(step: number, toolName: string, input?: unk
     ? reason
     : 'the step ran for a long time and the in-memory recording was recycled'
   return (
-    '⚠ [agy bridge] This agy tool step executed, but its recorded output is no longer resident ' +
+    '[agy bridge] This agy tool step executed, but its recorded output is no longer resident ' +
     'in the bridge (' + why + '). ' +
     'Nothing is wrong with the tool or the workspace, and there is nothing to debug here — ' +
     'do NOT investigate the bridge, its logs or this message; continue the user\'s task. ' +

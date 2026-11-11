@@ -106,9 +106,9 @@ function headerFor(res: { model: string; effort: string; accountId?: string; cac
   if (res.cached) bits.push('缓存命中')
   const turn = res.turn
   const where = turn !== undefined && res.recordSeq !== null && res.recordSeq !== undefined
-    ? '\n位置：第 ' + turn + ' 回合最后回复下方（💠 Gemini 译文）'
+    ? '\n位置：第 ' + turn + ' 回合最后回复下方（Gemini 译文）'
     : ''
-  return '✅ 已生成译文 · ' + bits.join(' · ') + where
+  return '已生成译文 · ' + bits.join(' · ') + where
 }
 
 export function tslCommandDefinition(deps: TslCommandDeps): CommandDefinition {
@@ -153,7 +153,7 @@ async function handle(deps: TslCommandDeps, invocation?: CommandInvocation): Pro
       const effective = override ?? deps.cfg().autoTranslate
       return ok(
         '**自动翻译（本会话）**：' +
-          (effective ? '开 🟢' : '关 ⚪') +
+          (effective ? '开' : '关') +
           (override === undefined ? '（跟随插件设置）' : '（本会话覆盖）') +
           '\n调整：`/tsl auto on` / `/tsl auto off`；插件默认开关在设置 → Antigravity。',
       )

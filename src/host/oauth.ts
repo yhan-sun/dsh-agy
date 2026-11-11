@@ -229,7 +229,7 @@ export interface CallbackHandle {
 
 const CALLBACK_SUCCESS_HTML = `<!doctype html><html><head><meta charset="utf-8"><title>登录成功</title></head>
 <body style="font-family:system-ui;text-align:center;padding:3rem">
-<h2>✓ 授权成功</h2>
+<h2><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><polyline points="20 6 9 17 4 12"/></svg>授权成功</h2>
 <p>可以关闭此标签页，返回 DeepSeek Harness。</p>
 </body></html>`
 

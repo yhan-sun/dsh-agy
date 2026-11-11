@@ -3,7 +3,7 @@ import { isInteractionLocked, onScrollSettle } from './scroll-guard.ts';
 // Interactive User Decision & Choice Quick-Actions for dsh-agy-link.
 //
 // Detects decision sections and choice prompts in model responses (e.g.
-// "### 💬 请您拍板：", "### 💬 接下来请您指示：", "### 请选择：")
+// "### 请您拍板：", "### 接下来请您指示：", "### 请选择：")
 // and attaches quick-action chip buttons that insert the user's selected choice
 // straight into DSH's chat composer.
 
@@ -238,7 +238,7 @@ export function scanAndEnhanceDecisions(): void {
 
       const header = document.createElement('div');
       header.className = 'agy-decision-header';
-      header.innerHTML = '<span>💬 点击选项快速填入：</span>';
+      header.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1.5px; margin-right: 4px; flex-shrink: 0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>点击选项快速填入：</span>';
       box.appendChild(header);
 
       const chips = document.createElement('div');
@@ -252,7 +252,7 @@ export function scanAndEnhanceDecisions(): void {
 
         const numSpan = document.createElement('span');
         numSpan.className = 'agy-decision-chip-num';
-        numSpan.textContent = opt.num ?? '👉';
+        numSpan.textContent = opt.num ?? '•';
 
         const textSpan = document.createElement('span');
         textSpan.className = 'agy-decision-chip-text';
