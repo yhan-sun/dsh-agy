@@ -497,6 +497,42 @@ export class AccountPoolManager {
     return newAccount
   }
 
+  /**
+   * Import an existing account (e.g. from the direct account store) into the pool.
+   */
+  importAccount(params: {
+    id: string
+    alias?: string
+    email?: string
+    dir: string
+    proxyUrl?: string
+  }): ManagedAccount {
+    const existing = this.data.accounts.find(
+      (a) => a.id === params.id || (params.email && a.email && a.email.toLowerCase() === params.email.toLowerCase()),
+    )
+    if (existing) {
+      if (params.email && !existing.email) existing.email = params.email
+      if (params.dir && !existing.dir && !existing.systemHome) existing.dir = params.dir
+      this.persist()
+      return existing
+    }
+    const newAccount: ManagedAccount = {
+      id: params.id,
+      alias: params.alias?.trim() || params.email || params.id,
+      dir: params.dir,
+      email: params.email,
+      proxyUrl: params.proxyUrl,
+      enabled: true,
+      createdAt: Date.now(),
+      cooldowns: {},
+      quotas: {},
+    }
+    this.data.accounts.push(newAccount)
+    this.knownIds.add(newAccount.id)
+    this.persist()
+    return newAccount
+  }
+
   deleteAccount(id: string): boolean {
     const idx = this.data.accounts.findIndex((a) => a.id === id)
     if (idx === -1) return false

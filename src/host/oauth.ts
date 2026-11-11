@@ -18,15 +18,25 @@ import { join } from 'node:path'
 import { execFile } from 'node:child_process'
 import { agyFetch } from './net.ts'
 
+/** Public desktop OAuth client configuration from the attributed core source.
+ * It is an application identity, not a user's access or refresh token.
+ * Environment overrides must be supplied as a complete pair.
+ */
+const DEFAULT_CLIENT_ID = '1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com'
+const DEFAULT_CLIENT_SECRET = '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'
+
 export function resolveClientCredentials(): { clientId: string; clientSecret: string } {
   const clientId = process.env.AGY_CLIENT_ID?.trim()
   const clientSecret = process.env.AGY_CLIENT_SECRET?.trim()
-  if (!clientId || !clientSecret) {
-    throw new Error('Set AGY_CLIENT_ID and AGY_CLIENT_SECRET in the DSH host environment to enable Google OAuth. This fork does not bundle OAuth client credentials.')
+  if (clientId || clientSecret) {
+    if (!clientId || !clientSecret) {
+      throw new Error('Set AGY_CLIENT_ID and AGY_CLIENT_SECRET together when overriding built-in OAuth credentials.')
+    }
+    return { clientId, clientSecret }
   }
   return {
-    clientId,
-    clientSecret,
+    clientId: DEFAULT_CLIENT_ID,
+    clientSecret: DEFAULT_CLIENT_SECRET,
   }
 }
 

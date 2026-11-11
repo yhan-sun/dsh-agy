@@ -4097,6 +4097,33 @@ var AccountPoolManager = class {
 		this.persist();
 		return newAccount;
 	}
+	/**
+	* Import an existing account (e.g. from the direct account store) into the pool.
+	*/
+	importAccount(params) {
+		const existing = this.data.accounts.find((a) => a.id === params.id || params.email && a.email && a.email.toLowerCase() === params.email.toLowerCase());
+		if (existing) {
+			if (params.email && !existing.email) existing.email = params.email;
+			if (params.dir && !existing.dir && !existing.systemHome) existing.dir = params.dir;
+			this.persist();
+			return existing;
+		}
+		const newAccount = {
+			id: params.id,
+			alias: params.alias?.trim() || params.email || params.id,
+			dir: params.dir,
+			email: params.email,
+			proxyUrl: params.proxyUrl,
+			enabled: true,
+			createdAt: Date.now(),
+			cooldowns: {},
+			quotas: {}
+		};
+		this.data.accounts.push(newAccount);
+		this.knownIds.add(newAccount.id);
+		this.persist();
+		return newAccount;
+	}
 	deleteAccount(id) {
 		const idx = this.data.accounts.findIndex((a) => a.id === id);
 		if (idx === -1) return false;
@@ -4677,13 +4704,25 @@ function agyFetch(url, init = {}, proxyUrl) {
 }
 //#endregion
 //#region src/host/oauth.ts
+/** Public desktop OAuth client configuration from the attributed core source.
+* It is an application identity, not a user's access or refresh token.
+* Environment overrides must be supplied as a complete pair.
+*/
+const DEFAULT_CLIENT_ID = "1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com";
+const DEFAULT_CLIENT_SECRET = "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";
 function resolveClientCredentials() {
 	const clientId = process.env.AGY_CLIENT_ID?.trim();
 	const clientSecret = process.env.AGY_CLIENT_SECRET?.trim();
-	if (!clientId || !clientSecret) throw new Error("Set AGY_CLIENT_ID and AGY_CLIENT_SECRET in the DSH host environment to enable Google OAuth. This fork does not bundle OAuth client credentials.");
+	if (clientId || clientSecret) {
+		if (!clientId || !clientSecret) throw new Error("Set AGY_CLIENT_ID and AGY_CLIENT_SECRET together when overriding built-in OAuth credentials.");
+		return {
+			clientId,
+			clientSecret
+		};
+	}
 	return {
-		clientId,
-		clientSecret
+		clientId: DEFAULT_CLIENT_ID,
+		clientSecret: DEFAULT_CLIENT_SECRET
 	};
 }
 /**
@@ -11047,9 +11086,9 @@ function normalizeStoredToken(raw) {
 	const accessToken = stringField(source, "access_token", "accessToken");
 	const refreshToken = stringField(source, "refresh_token", "refreshToken") ?? (source === raw ? void 0 : stringField(raw, "refresh_token", "refreshToken"));
 	const expiryMs = parseExpiryMs(source.expiry) ?? parseExpiryMs(source.expiresAt) ?? parseExpiryMs(source.expires_in ? Date.now() / 1e3 + Number(source.expires_in) : void 0) ?? parseExpiryMs(raw.expiry);
-	if (!accessToken) return null;
+	if (!accessToken && !refreshToken) return null;
 	return {
-		accessToken,
+		accessToken: accessToken || "",
 		refreshToken,
 		expiryMs
 	};
@@ -11835,6 +11874,190 @@ var QuotaService = class {
 		await Promise.allSettled(accounts.map((acc) => this.refreshAccountQuota(acc, force)));
 	}
 };
+//#endregion
+//#region src/host/account-sync.ts
+function directStoreDir() {
+	return join(stateDir(), "direct");
+}
+function readDirectAccounts(dir = directStoreDir()) {
+	const file = join(dir, "accounts.json");
+	try {
+		if (existsSync(file)) {
+			const data = JSON.parse(readFileSync(file, "utf8"));
+			if (data && Array.isArray(data.accounts)) return data;
+		}
+	} catch {}
+	return {
+		version: 1,
+		accounts: []
+	};
+}
+function writeDirectAccounts(data, dir = directStoreDir()) {
+	try {
+		mkdirSync(dir, {
+			recursive: true,
+			mode: 448
+		});
+		writeFileSync(join(dir, "accounts.json"), JSON.stringify(data, null, 2), {
+			encoding: "utf8",
+			mode: 384
+		});
+	} catch (err) {
+		console.error("[dsh-agy-link] failed to write direct accounts.json:", err);
+	}
+}
+function writeDirectAuth(record, dir = directStoreDir()) {
+	try {
+		mkdirSync(dir, {
+			recursive: true,
+			mode: 448
+		});
+		writeFileSync(join(dir, "auth.json"), JSON.stringify(record, null, 2), {
+			encoding: "utf8",
+			mode: 384
+		});
+	} catch (err) {
+		console.error("[dsh-agy-link] failed to write direct auth.json:", err);
+	}
+}
+function writeTokenFile(accountDir, refreshToken) {
+	try {
+		const geminiDir = join(accountDir, ".gemini", "antigravity-cli");
+		mkdirSync(geminiDir, {
+			recursive: true,
+			mode: 448
+		});
+		const tokenFile = join(geminiDir, "antigravity-oauth-token");
+		let existingDoc = {};
+		if (existsSync(tokenFile)) try {
+			existingDoc = JSON.parse(readFileSync(tokenFile, "utf8"));
+		} catch {}
+		const existingToken = existingDoc.token && typeof existingDoc.token === "object" ? existingDoc.token : {};
+		const doc = {
+			token: {
+				access_token: typeof existingToken.access_token === "string" ? existingToken.access_token : "",
+				token_type: "Bearer",
+				refresh_token: refreshToken,
+				...existingToken.expiry ? { expiry: existingToken.expiry } : {}
+			},
+			auth_method: "consumer"
+		};
+		writeFileSync(tokenFile, JSON.stringify(doc, null, 2), {
+			encoding: "utf8",
+			mode: 384
+		});
+	} catch (err) {
+		console.error("[dsh-agy-link] failed to write token file in account dir:", err);
+	}
+}
+function readRefreshTokenFromAccountDir(accountDir) {
+	try {
+		const tokenFile = join(accountDir, ".gemini", "antigravity-cli", "antigravity-oauth-token");
+		if (!existsSync(tokenFile)) return void 0;
+		const raw = JSON.parse(readFileSync(tokenFile, "utf8"));
+		const tokenObj = raw.token && typeof raw.token === "object" ? raw.token : raw;
+		return typeof tokenObj.refresh_token === "string" ? tokenObj.refresh_token : typeof tokenObj.refreshToken === "string" ? tokenObj.refreshToken : void 0;
+	} catch {
+		return;
+	}
+}
+/**
+* Bi-directionally synchronize accounts between the AccountPoolManager and
+* the direct transport accounts store.
+*/
+function syncAccounts(pool, directDir = directStoreDir()) {
+	const directData = readDirectAccounts(directDir);
+	let importedToPool = 0;
+	let importedToDirect = 0;
+	for (const dAcc of directData.accounts) {
+		if (!dAcc.refreshToken) continue;
+		const match = pool.getAccounts().find((a) => a.id === dAcc.id || dAcc.email && a.email && a.email.toLowerCase() === dAcc.email.toLowerCase());
+		if (!match) {
+			const dir = join(pool.dir, dAcc.id);
+			writeTokenFile(dir, dAcc.refreshToken);
+			if (process.platform === "darwin") try {
+				ensureIsolatedKeychain(dir);
+			} catch {}
+			pool.importAccount({
+				id: dAcc.id,
+				alias: dAcc.email || dAcc.id,
+				email: dAcc.email,
+				dir
+			});
+			importedToPool++;
+		} else {
+			if (dAcc.email && !match.email) match.email = dAcc.email;
+			if (match.dir && !match.systemHome) {
+				if (!readRefreshTokenFromAccountDir(match.dir) && dAcc.refreshToken) writeTokenFile(match.dir, dAcc.refreshToken);
+			}
+		}
+	}
+	let directChanged = false;
+	for (const pAcc of pool.getAccounts()) if (pAcc.dir && !pAcc.systemHome) {
+		const rt = readRefreshTokenFromAccountDir(pAcc.dir);
+		if (rt) {
+			if (!directData.accounts.some((a) => a.id === pAcc.id || pAcc.email && a.email && a.email.toLowerCase() === pAcc.email.toLowerCase())) {
+				directData.accounts.push({
+					id: pAcc.id,
+					email: pAcc.email,
+					maskedEmail: pAcc.email,
+					projectId: "antigravity",
+					refreshToken: rt,
+					updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+				});
+				directChanged = true;
+				importedToDirect++;
+			}
+		}
+	}
+	if (directChanged) writeDirectAccounts(directData, directDir);
+	return {
+		importedToPool,
+		importedToDirect
+	};
+}
+/**
+* Set active account in both the AGY pool and the Direct mode store.
+*/
+function setActiveAccountUnified(pool, accountId, directDir = directStoreDir()) {
+	if (!pool.setActiveAccount(accountId)) return false;
+	const target = pool.getAccount(accountId);
+	const directData = readDirectAccounts(directDir);
+	directData.activeId = accountId;
+	writeDirectAccounts(directData, directDir);
+	let rt;
+	if (target?.dir && !target.systemHome) rt = readRefreshTokenFromAccountDir(target.dir);
+	if (!rt) rt = directData.accounts.find((a) => a.id === accountId || target?.email && a.email && a.email.toLowerCase() === target.email.toLowerCase())?.refreshToken;
+	if (rt) writeDirectAuth({
+		refreshToken: rt,
+		projectId: "antigravity",
+		email: target?.email
+	}, directDir);
+	return true;
+}
+/**
+* Remove an account from both the AGY pool and the Direct mode store.
+*/
+function removeAccountUnified(pool, accountId, directDir = directStoreDir()) {
+	const target = pool.getAccount(accountId);
+	const ok = pool.deleteAccount(accountId);
+	const directData = readDirectAccounts(directDir);
+	const initialLen = directData.accounts.length;
+	directData.accounts = directData.accounts.filter((a) => a.id !== accountId && (!target?.email || !a.email || a.email.toLowerCase() !== target.email.toLowerCase()));
+	if (directData.accounts.length !== initialLen) {
+		if (directData.activeId === accountId) {
+			directData.activeId = directData.accounts[0]?.id;
+			const next = directData.accounts[0];
+			if (directData.activeId && next) writeDirectAuth({
+				refreshToken: next.refreshToken,
+				projectId: next.projectId || "antigravity",
+				email: next.email
+			}, directDir);
+		}
+		writeDirectAccounts(directData, directDir);
+	}
+	return ok;
+}
 //#endregion
 //#region src/host/warmup.ts
 /** Canonical model route resolution for upstream Google Cloud Code PA endpoints. */
@@ -12987,12 +13210,17 @@ function apply(ctx, entryConfig = {}) {
 	const version = () => versionCache;
 	const store = new SessionStore(join(stateDir(), "sessions.json"));
 	const pool = new AccountPoolManager();
-	const quota = new QuotaService(pool, () => getConfig().proxyUrl || detectSystemProxy() || "", version, {
+	try {
+		syncAccounts(pool);
+	} catch (err) {
+		log("initial account sync failed: " + String(err));
+	}
+	const quota = new QuotaService(pool, () => getConfig().proxyUrl || getConfig().directProxyUrl || detectSystemProxy() || "", version, {
 		bin: () => bin(),
 		viaCli: () => getConfig().quotaViaCli,
 		preemptAutoUpdate: () => getConfig().suppressAgyAutoUpdate
 	});
-	const warmup = new WarmupService(pool, quota, () => getConfig().proxyUrl || detectSystemProxy() || "", version, getConfig, log);
+	const warmup = new WarmupService(pool, quota, () => getConfig().proxyUrl || getConfig().directProxyUrl || detectSystemProxy() || "", version, getConfig, log);
 	const semaphore = new Semaphore(() => getConfig().maxConcurrent);
 	const getDiscoveryEnv = (account) => {
 		const cfg = getConfig();
@@ -13669,6 +13897,9 @@ function apply(ctx, entryConfig = {}) {
 			kind: "exact",
 			path: "/plugins/agy-link/pool",
 			handler: (_req, res) => {
+				try {
+					syncAccounts(pool);
+				} catch {}
 				sendJson(res, 200, pool.getPoolData(getConfig().proxyUrl.trim() || void 0));
 			}
 		});
@@ -13716,6 +13947,9 @@ function apply(ctx, entryConfig = {}) {
 						return;
 					}
 					const st = await poolAuth.submitCode(code);
+					if (st.ok) try {
+						syncAccounts(pool);
+					} catch {}
 					sendJson(res, st.ok ? 200 : 400, {
 						ok: st.ok,
 						phase: st.phase,
@@ -13807,7 +14041,7 @@ function apply(ctx, entryConfig = {}) {
 					}
 					const body = await readBody(req);
 					const id = typeof body.id === "string" ? body.id : "";
-					pool.deleteAccount(id);
+					removeAccountUnified(pool, id);
 					notifyPicker();
 					sendJson(res, 200, {
 						ok: true,
@@ -14008,7 +14242,7 @@ function apply(ctx, entryConfig = {}) {
 					}
 					const body = await readBody(req);
 					const id = typeof body.id === "string" ? body.id : "";
-					const ok = id !== "" && pool.setActiveAccount(id);
+					const ok = id !== "" && setActiveAccountUnified(pool, id);
 					if (ok) {
 						notifyPicker();
 						catalog.forceRefreshAndNotify(id).catch(() => void 0);

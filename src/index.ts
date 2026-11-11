@@ -27,6 +27,7 @@ import { SessionStore } from './host/sessions.ts'
 import { AccountPoolManager } from './host/pool.ts'
 import { PoolAuthFlow } from './host/pool-auth.ts'
 import { QuotaService } from './host/quota.ts'
+import { syncAccounts, setActiveAccountUnified, removeAccountUnified } from './host/account-sync.ts'
 import { WarmupService, type WarmupResult } from './host/warmup.ts'
 import { detectSystemProxy } from './host/wincred.ts'
 import { resolvePrimaryCredential, findDuplicateCredentialIdentities } from './host/credential-slot.ts'
@@ -205,9 +206,14 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
   const version = () => versionCache
   const store = new SessionStore(join(stateDir(), 'sessions.json'))
   const pool = new AccountPoolManager()
+  try {
+    syncAccounts(pool)
+  } catch (err) {
+    log('initial account sync failed: ' + String(err))
+  }
   const quota = new QuotaService(
     pool,
-    () => getConfig().proxyUrl || detectSystemProxy() || '',
+    () => getConfig().proxyUrl || getConfig().directProxyUrl || detectSystemProxy() || '',
     version,
     {
       bin: () => bin(),
@@ -218,7 +224,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
   const warmup = new WarmupService(
     pool,
     quota,
-    () => getConfig().proxyUrl || detectSystemProxy() || '',
+    () => getConfig().proxyUrl || getConfig().directProxyUrl || detectSystemProxy() || '',
     version,
     getConfig,
     log,
@@ -1080,6 +1086,9 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
       }
     }})
     reg({ kind: 'exact', path: '/plugins/agy-link/pool', handler: (_req, res) => {
+      try {
+        syncAccounts(pool)
+      } catch {}
       sendJson(res as RawRes, 200, pool.getPoolData(getConfig().proxyUrl.trim() || undefined))
     }})
     reg({ kind: 'exact', path: '/plugins/agy-link/pool/begin-add', handler: (req, res) => {
@@ -1114,6 +1123,11 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
           return
         }
         const st = await poolAuth.submitCode(code)
+        if (st.ok) {
+          try {
+            syncAccounts(pool)
+          } catch {}
+        }
         sendJson(res as RawRes, st.ok ? 200 : 400, {
           ok: st.ok,
           phase: st.phase,
@@ -1185,7 +1199,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
         }
         const body = await readBody(req)
         const id = typeof body.id === 'string' ? body.id : ''
-        pool.deleteAccount(id)
+        removeAccountUnified(pool, id)
         // Deleting the active/primary account changes the effective account.
         notifyPicker()
         sendJson(res as RawRes, 200, { ok: true, pool: pool.getPoolData() })
@@ -1340,7 +1354,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
         }
         const body = await readBody(req)
         const id = typeof body.id === 'string' ? body.id : ''
-        const ok = id !== '' && pool.setActiveAccount(id)
+        const ok = id !== '' && setActiveAccountUnified(pool, id)
         if (ok) {
           // Switching the active account changes BOTH the discovered catalog
           // (per-account plans differ, e.g. Gemini 4 Argon) AND the Argon

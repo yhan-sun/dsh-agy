@@ -5915,7 +5915,7 @@ body.dark .agy-tsl-card,
 			return (0, react.useCallback)(() => controller.current.signal, []);
 		}
 		/** One navigable settings section; credentials remain Host-only and actions use typed RPC. */
-		function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageScope, videoScope, capabilityControls }) {
+		function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageScope, videoScope, hideAuthCard, capabilityControls }) {
 			const [status, setStatus] = (0, react.useState)(null);
 			const searchSettings = useCapabilitySettings(searchScope);
 			const imageSettings = useCapabilitySettings(imageScope);
@@ -6168,7 +6168,7 @@ body.dark .agy-tsl-card,
 				className: "agy-direct-settings",
 				"data-plugin": "dsh-antigravity-auth",
 				"aria-labelledby": "antigravity-auth-title",
-				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("header", {
+				children: [hideAuthCard ? null : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("header", {
 					className: "agy-direct-bundle-header",
 					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 						className: "agy-direct-title-line",
@@ -6188,7 +6188,7 @@ body.dark .agy-tsl-card,
 				}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 					className: "agy-direct-cards",
 					children: [
-						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("article", {
+						hideAuthCard ? null : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("article", {
 							className: "agy-direct-card",
 							"aria-labelledby": "antigravity-auth-card-title",
 							children: [
@@ -9228,6 +9228,7 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					}
 				}, t("direct.proxySave")))), h(AntigravityAuthSettings, {
 					...client,
+					hideAuthCard: true,
 					t: locale.bind("settings.antigravityAuth"),
 					capabilityControls: {
 						search: status.directSearch === true,
@@ -10158,7 +10159,10 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					},
 					disabled: isBusy,
 					onClick: () => void refreshQuota()
-				}, loadingAction === "refresh:all" ? [renderSpinner(), t("header.refreshing")] : [uiIcon("refresh", 12, "var(--agy-text-btn)"), ` ${t("header.refreshQuota")}`]))), renderToastBanner(), h("div", { className: "agy-setting-row agy-direct-mode-row" }, h("div", { className: "agy-direct-mode-copy" }, h("span", {
+				}, loadingAction === "refresh:all" ? [renderSpinner(), t("header.refreshing")] : [uiIcon("refresh", 12, "var(--agy-text-btn)"), ` ${t("header.refreshQuota")}`]))), renderToastBanner(), addAccountSection, h("div", {
+					className: "agy-setting-row agy-direct-mode-row",
+					style: { marginBottom: "12px" }
+				}, h("div", { className: "agy-direct-mode-copy" }, h("span", {
 					id: "agy-direct-mode-label",
 					className: "agy-setting-label"
 				}, t("direct.title")), h("span", {
@@ -10177,19 +10181,13 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 				}, h("span", {
 					className: "agy-direct-mode-switch-knob",
 					"aria-hidden": true
-				}))), status.directRuntime === "starting" ? h("p", {
-					style: S.muted,
-					role: "status"
-				}, t("direct.loading")) : null, status.directRuntime === "error" ? h("p", { role: "alert" }, t("direct.error")) : null, status.directRuntime === "loaded" ? h(DirectSettingsPane, {
-					status,
-					setConfig: setCfg
-				}) : null, addAccountSection, h("div", {
+				}))), h("div", {
 					className: "agy-section-heading",
 					style: {
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "space-between",
-						marginBottom: "4px",
+						marginBottom: "8px",
 						padding: "0 2px"
 					}
 				}, h("div", { style: {
@@ -10197,9 +10195,19 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					alignItems: "center",
 					gap: "6px"
 				} }, h("span", { style: {
-					fontWeight: 600,
+					fontWeight: 700,
+					fontSize: "13.5px",
 					color: "var(--agy-text-primary)"
-				} }, `账号池 (${accounts.length})`))), renderedAccountCards, h("div", {
+				} }, `统一账号池 (${accounts.length})`), h("span", { style: {
+					fontSize: "11px",
+					color: "var(--agy-text-tertiary)"
+				} }, status.experimentalDirect ? "· 当前请求走直连" : "· 当前请求走 AGY CLI"))), renderedAccountCards, status.directRuntime === "starting" ? h("p", {
+					style: S.muted,
+					role: "status"
+				}, t("direct.loading")) : null, status.directRuntime === "error" ? h("p", { role: "alert" }, t("direct.error")) : null, status.directRuntime === "loaded" ? h(DirectSettingsPane, {
+					status,
+					setConfig: setCfg
+				}) : null, h("div", {
 					className: "agy-settings-section",
 					style: {
 						marginTop: "18px",

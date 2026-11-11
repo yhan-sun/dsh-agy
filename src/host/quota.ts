@@ -240,8 +240,8 @@ export function normalizeStoredToken(raw: Record<string, unknown>): StoredToken 
     parseExpiryMs(source.expiresAt) ??
     parseExpiryMs(source.expires_in ? Date.now() / 1000 + Number(source.expires_in) : undefined) ??
     parseExpiryMs(raw.expiry)
-  if (!accessToken) return null
-  return { accessToken, refreshToken, expiryMs }
+  if (!accessToken && !refreshToken) return null
+  return { accessToken: accessToken || '', refreshToken, expiryMs }
 }
 
 interface DiscoveredModelEntry {

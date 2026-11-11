@@ -24,6 +24,7 @@ export interface AntigravityAuthSettingsProps {
   searchScope?: ConfigForm<AntigravitySearchSettings>
   imageScope?: ConfigForm<AntigravityImageSettings>
   videoScope?: ConfigForm<AntigravityVideoSettings>
+  hideAuthCard?: boolean
   capabilityControls?: {
     search: boolean
     image: boolean
@@ -54,7 +55,7 @@ function useUnmountSignal(): () => AbortSignal {
 }
 
 /** One navigable settings section; credentials remain Host-only and actions use typed RPC. */
-export function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageScope, videoScope, capabilityControls }: AntigravityAuthSettingsProps): ReactNode {
+export function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageScope, videoScope, hideAuthCard, capabilityControls }: AntigravityAuthSettingsProps): ReactNode {
   const [status, setStatus] = useState<AntigravityStatusView | null>(null)
   const searchSettings = useCapabilitySettings(searchScope)
   const imageSettings = useCapabilitySettings(imageScope)
@@ -286,20 +287,23 @@ export function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageS
 
   return (
     <section className="agy-direct-settings" data-plugin="dsh-antigravity-auth" aria-labelledby="antigravity-auth-title">
-      <header className="agy-direct-bundle-header">
-        <div>
-          <div className="agy-direct-title-line">
-            <h1 id="antigravity-auth-title" className="agy-direct-bundle-title">{t('title')}</h1>
-            {isConfigured ? (
-              <span className="agy-direct-status-dot" role="status" aria-label={t('ready')} />
-            ) : null}
+      {hideAuthCard ? null : (
+        <header className="agy-direct-bundle-header">
+          <div>
+            <div className="agy-direct-title-line">
+              <h1 id="antigravity-auth-title" className="agy-direct-bundle-title">{t('title')}</h1>
+              {isConfigured ? (
+                <span className="agy-direct-status-dot" role="status" aria-label={t('ready')} />
+              ) : null}
+            </div>
+            <p className="agy-direct-bundle-intro">{t('intro')}</p>
           </div>
-          <p className="agy-direct-bundle-intro">{t('intro')}</p>
-        </div>
-      </header>
+        </header>
+      )}
 
       <div className="agy-direct-cards">
         {/* Card 1: Auth & Quota */}
+        {hideAuthCard ? null : (
         <article className="agy-direct-card" aria-labelledby="antigravity-auth-card-title">
           <div className="agy-direct-card-header">
             <div className="agy-direct-card-identity">
@@ -391,6 +395,7 @@ export function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageS
             <p className="agy-direct-card-subtext" role="status">{revokeStatusText(status.revoke.state, t)}</p>
           )}
         </article>
+        )}
 
         {/* Card 2: Web Search */}
         <article className="agy-direct-card">

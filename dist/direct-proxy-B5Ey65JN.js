@@ -15289,7 +15289,7 @@ var require_cache$2 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	/**
 	* @see https://www.rfc-editor.org/rfc/rfc9111.html#name-cache-control
 	* @see https://www.iana.org/assignments/http-cache-directives/http-cache-directives.xhtml
-
+	
 	* @param {string | string[]} header
 	* @returns {import('../../types/cache-interceptor.d.ts').default.CacheControlDirectives}
 	*/
@@ -20912,7 +20912,7 @@ var require_util$2 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	IMF-fixdate  = day-name "," SP date1 SP time-of-day SP GMT
 	; fixed length/zone/capitalization subset of the format
 	; see Section 3.3 of [RFC5322]
-
+	
 	day-name     = %x4D.6F.6E ; "Mon", case-sensitive
 	/ %x54.75.65 ; "Tue", case-sensitive
 	/ %x57.65.64 ; "Wed", case-sensitive
@@ -20922,7 +20922,7 @@ var require_util$2 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	/ %x53.75.6E ; "Sun", case-sensitive
 	date1        = day SP month SP year
 	; e.g., 02 Jun 1982
-
+	
 	day          = 2DIGIT
 	month        = %x4A.61.6E ; "Jan", case-sensitive
 	/ %x46.65.62 ; "Feb", case-sensitive
@@ -20937,12 +20937,12 @@ var require_util$2 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	/ %x4E.6F.76 ; "Nov", case-sensitive
 	/ %x44.65.63 ; "Dec", case-sensitive
 	year         = 4DIGIT
-
+	
 	GMT          = %x47.4D.54 ; "GMT", case-sensitive
-
+	
 	time-of-day  = hour ":" minute ":" second
 	; 00:00:00 - 23:59:60 (leap second)
-
+	
 	hour         = 2DIGIT
 	minute       = 2DIGIT
 	second       = 2DIGIT
