@@ -9,7 +9,7 @@
 // it never calls DSH's external host tools directly. Without this bridge,
 // agy would report "Goal achieved" and exit, but DSH would consider the goal
 // still active and drive Round 2, Round 3... in an infinite loop.
-import type { Message, StreamChunk, ToolCallId } from '@deepseek-ai/dsh-llm'
+import type { RequestMessage as Message, StreamChunk, ToolCallId } from '@deepseek-ai/dsh-llm'
 import * as dshLlm from '@deepseek-ai/dsh-llm'
 
 export const toToolCallId: (id: string) => ToolCallId =

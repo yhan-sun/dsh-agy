@@ -146,6 +146,7 @@ function loadPlugin(fetchImpl?: (url: string, init?: unknown) => Promise<unknown
   const plugin = loaded.factory((id) => {
     if (id === 'react') return react
     if (id === 'react-dom') return {}
+    if (id === 'react/jsx-runtime') return { jsx() {}, jsxs() {}, Fragment: Symbol.for('react.fragment') }
     throw new Error('unexpected browser dependency: ' + id)
   }) as { apply: (ctx: unknown) => void; inject: string[] }
   return { plugin, dom: { bodyChildren: bodyChildren as unknown as Array<Record<string, unknown>> }, stateLog }

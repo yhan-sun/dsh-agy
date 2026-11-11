@@ -40,6 +40,7 @@ function loadClient(options: { open?: boolean } = {}): {
       }
     }
     if (id === 'react-dom') return {}
+    if (id === 'react/jsx-runtime') return { jsx() {}, jsxs() {}, Fragment: Symbol.for('react.fragment') }
     throw new Error(`unexpected browser dependency: ${id}`)
   }) as { apply: (ctx: unknown) => void }
   plugin.apply({

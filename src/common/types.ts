@@ -17,6 +17,13 @@ export interface FallbackModelDef {
 
 export interface PluginConfig {
   enabled: boolean
+  /** Enables the independently authenticated direct transport after restart. */
+  experimentalDirect: boolean
+  directSearch: boolean
+  directImage: boolean
+  directVideo: boolean
+  /** Direct-mode HTTP CONNECT proxy; empty means a direct connection. */
+  directProxyUrl: string
   /** Absolute path to the agy binary; empty string = resolve from PATH. */
   agyBin: string
   /** Extra argv appended to every spawn (escape hatch). */
@@ -211,6 +218,11 @@ export const DEFAULT_FALLBACK_MODELS: readonly FallbackModelDef[] = [
 export function defaultConfig(): PluginConfig {
   return {
     enabled: true,
+    experimentalDirect: false,
+    directSearch: false,
+    directImage: false,
+    directVideo: false,
+    directProxyUrl: '',
     agyBin: '',
     extraArgs: [],
     permissionMode: 'accept-edits',

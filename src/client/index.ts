@@ -13,6 +13,10 @@ import { installDecisionChips } from './decisions.ts';
 import { installTranslationUi } from './translate.ts';
 import { installCompactionCard } from './compaction.ts';
 import { ensureScrollListener, disposeScrollListener, setOverlaySuspended } from './scroll-guard.ts';
+import { AntigravityAuthSettings, type AntigravityAuthSettingsProps } from '../../direct/legacy/src/client/AntigravityAuthSettings.tsx';
+import { createAntigravityAuthRpcClient } from '../../direct/legacy/src/rpc-contract.ts';
+import { en as directEn, zh as directZh } from '../../direct/legacy/src/client/locales.ts';
+import type { ConnectionHandle } from '@deepseek-ai/dsh-client-connection/client';
 
 
 type ReactApi = {
@@ -69,6 +73,14 @@ export interface ClientContext extends Context {
 }
 
 interface StatusPayload {
+	experimentalDirect?: boolean;
+	directRuntime?: 'disabled' | 'starting' | 'loaded' | 'error';
+	directRestartRequired?: boolean;
+	directSearch?: boolean;
+	directImage?: boolean;
+	directVideo?: boolean;
+	directProxyUrl?: string;
+	directProxyInvalid?: boolean;
 	bin?: string | null;
 	version?: string | null;
 	dormantReason?: string | null;
@@ -1827,12 +1839,60 @@ export function apply(ctx: ClientContext): void {
 		const disposeEn = safeRegister(NS, 'en', en);
 		const disposePtBRDictionary = safeRegister(NS, 'pt-BR', ptBR);
 		const disposeEsDictionary = safeRegister(NS, 'es', es);
-		return () => { disposeEsDictionary(); disposePtBRDictionary(); disposeEn(); disposeZh(); disposeEs(); disposePtBR(); };
+		const disposeDirectZh = safeRegister('settings.antigravityAuth', 'zh', directZh);
+		const disposeDirectEn = safeRegister('settings.antigravityAuth', 'en', directEn);
+		return () => { disposeDirectEn(); disposeDirectZh(); disposeEsDictionary(); disposePtBRDictionary(); disposeEn(); disposeZh(); disposeEs(); disposePtBR(); };
 	}, 'agy-link: locale dictionaries');
 	const useAgyTranslation = () => {
 		const [, rerender] = useState(0);
 		useEffect(() => locale.subscribe(() => rerender((revision) => revision + 1)), []);
 		return locale.bind(NS) as (key: AgyLocaleKey, params?: Record<string, unknown>) => string;
+	};
+	const DirectSettingsPane = ({ status, setConfig }: { status: StatusPayload; setConfig: (key: string, value: unknown) => Promise<boolean> }): unknown => {
+		const t = useAgyTranslation();
+		const [proxyDraft, setProxyDraft] = useState(status.directProxyUrl ?? '');
+		useEffect(() => { setProxyDraft(status.directProxyUrl ?? ''); }, [status.directProxyUrl]);
+		const [client, setClient] = useState<Pick<AntigravityAuthSettingsProps, 'rpc' | 'subscribe'> | null>(null);
+		useEffect(() => {
+			let live = true;
+			const fiber = ctx.inject(['connection'], (child) => {
+				const connection = child.get('connection') as unknown as ConnectionHandle;
+				if (!connection.isLoopback) return;
+				const listeners = new Set<() => void>();
+				const unbind = child.on('connection/reset', () => { for (const listener of listeners) listener(); });
+				if (live) setClient({
+					rpc: createAntigravityAuthRpcClient(connection.rpc),
+					subscribe: (listener) => { listeners.add(listener); return () => { listeners.delete(listener); }; },
+				});
+				return () => { unbind(); if (live) setClient(null); };
+			});
+			return () => { live = false; void fiber.dispose(); };
+		}, []);
+		if (client === null) return h('p', { style: S.muted, role: 'status' }, t('direct.unavailable'));
+		return h('div', { className: 'agy-direct-panel' },
+			status.directProxyInvalid ? h('p', { role: 'alert' }, t('direct.proxyInvalid')) : null,
+			h('div', { className: 'agy-setting-row' },
+				h('div', { className: 'agy-setting-copy' }, h('label', { htmlFor: 'agy-direct-proxy', className: 'agy-setting-label' }, t('direct.proxy')),
+					h('span', { className: 'agy-setting-help', style: S.muted }, t('direct.proxyHelp'))),
+				h('div', { style: { display: 'flex', gap: '6px', minWidth: 0, flexWrap: 'wrap' } },
+					h('input', { id: 'agy-direct-proxy', style: S.input, value: proxyDraft, placeholder: t('direct.proxyPlaceholder'), onChange: (e: { target?: { value?: string } }) => setProxyDraft(e.target?.value ?? '') }),
+					h('button', { type: 'button', className: 'agy-btn', style: S.btn, onClick: () => { void setConfig('directProxyUrl', proxyDraft.trim()); } }, t('direct.proxySave')),
+				),
+			),
+			h(AntigravityAuthSettings, {
+			...client,
+			t: (locale as any).bind('settings.antigravityAuth'),
+			capabilityControls: {
+				search: status.directSearch === true,
+				image: status.directImage === true,
+				video: status.directVideo === true,
+				set: (capability: 'search' | 'image' | 'video', enabled: boolean) => {
+					const keys = { search: 'directSearch', image: 'directImage', video: 'directVideo' };
+					void setConfig(keys[capability], enabled);
+				},
+			},
+			}),
+		);
 	};
 	const AgySettingsSection = (props?: any): unknown => {
 		const t = useAgyTranslation();
@@ -1974,16 +2034,17 @@ export function apply(ctx: ClientContext): void {
 			await reorderAccounts(ids);
 		};
 
-		const setCfg = async (key: string, value: unknown): Promise<void> => {
+		const setCfg = async (key: string, value: unknown): Promise<boolean> => {
 			setLoadingAction(`config:${key}`);
 			const res = await postJson('/plugins/agy-link/config', { key, value });
 			if (res === null || res?.ok === false) {
 				setLoadingAction(null);
 				actionFailed();
-				return;
+				return false;
 			}
 			await refresh();
 			setLoadingAction(null);
+			return true;
 		};
 
 		const hiddenPendingRef = useRef<Set<string> | null>(null);
@@ -2696,6 +2757,22 @@ export function apply(ctx: ClientContext): void {
 				),
 			),
 			renderToastBanner(),
+			h('div', { className: 'agy-setting-row' },
+				h('div', { className: 'agy-setting-copy' },
+					h('span', { className: 'agy-setting-label' }, t('direct.title')),
+					h('span', { className: 'agy-setting-help', style: S.muted }, t('direct.description')),
+					status.directRestartRequired ? h('span', { role: 'status' }, t('direct.restart')) : null,
+				),
+				h('button', {
+					type: 'button', className: 'agy-btn', style: S.btn,
+					'aria-pressed': status.experimentalDirect === true,
+					disabled: loadingAction === 'config:experimentalDirect',
+					onClick: () => { void setCfg('experimentalDirect', status.experimentalDirect !== true); },
+				}, status.experimentalDirect ? t('config.on') : t('config.off')),
+			),
+			status.directRuntime === 'starting' ? h('p', { style: S.muted, role: 'status' }, t('direct.loading')) : null,
+			status.directRuntime === 'error' ? h('p', { role: 'alert' }, t('direct.error')) : null,
+			status.directRuntime === 'loaded' ? h(DirectSettingsPane, { status, setConfig: setCfg }) : null,
 			addAccountSection,
 				h('div', { className: 'agy-section-heading', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px', padding: '0 2px' } },
 				h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },

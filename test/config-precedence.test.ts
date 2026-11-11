@@ -17,6 +17,18 @@ test('runtime configurable fields override entries; entries supply missing field
   assert.equal(cfg.askTool, false)
 })
 
+test('experimental direct transport is off unless explicitly enabled', () => {
+  assert.equal(defaultConfig().experimentalDirect, false)
+  assert.equal(resolveConfig({}, {}, {}).experimentalDirect, false)
+  assert.equal(resolveConfig({}, {}, { experimentalDirect: true }).experimentalDirect, true)
+  assert.equal(resolveConfig({}, { DSH_AGY_DIRECT: 'false' }, { experimentalDirect: true }).experimentalDirect, false)
+  assert.equal(resolveConfig({}, { DSH_AGY_DIRECT: 'invalid' }, {}).experimentalDirect, false)
+})
+
+test('clearing the direct proxy overrides an older configured proxy', () => {
+  assert.equal(resolveConfig({ directProxyUrl: 'http://localhost:7890' }, {}, { directProxyUrl: '' }).directProxyUrl, '')
+})
+
 test('boolean env vars are case-insensitive and accept yes/on/off', () => {
   assert.equal(resolveConfig({}, { DSH_AGY_MCP_BRIDGE: 'TRUE' }, {}).mcpBridge, true)
   assert.equal(resolveConfig({}, { DSH_AGY_MCP_BRIDGE: 'Yes' }, {}).mcpBridge, true)

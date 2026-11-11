@@ -18,6 +18,7 @@ function loadClient(react: Record<string, unknown> = {}): { apply: (ctx: unknown
   return loaded.factory((id) => {
     if (id === 'react') return { createElement() {}, useState() { return [0, () => {}] }, useEffect() {}, useRef() { return { current: false } }, ...react }
     if (id === 'react-dom') return {}
+    if (id === 'react/jsx-runtime') return { jsx() {}, jsxs() {}, Fragment: Symbol.for('react.fragment') }
     throw new Error(`unexpected browser dependency: ${id}`)
   }) as { apply: (ctx: unknown) => void; inject: string[] }
 }
@@ -74,7 +75,7 @@ test('native-contract locale lifecycle registers, publishes switches, falls back
   assert.deepEqual(Array.from(plugin.inject), ['slots', 'locale'])
   plugin.apply(ctx)
   assert.deepEqual([...catalog.keys()], ['zh', 'en', 'pt-BR', 'es'])
-  assert.equal(dictionaries.size, 4)
+  assert.equal(dictionaries.size, 6)
   // conversation.session.header.actions + settings.section + plugins.bundle.config
   // + plugins.row.config + agy_tool + run_code toolviews
   // + conversation.chat.node(agy-translation) + conversation.chat.assistant-actions

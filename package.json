@@ -2,7 +2,7 @@
   "name": "dsh-agy-link",
   "version": "0.6.15",
   "private": true,
-  "description": "Community DSH plugin for Google Antigravity (agy CLI), with account management, proxy settings, quotas, streaming, and native tool activity cards.",
+  "description": "DSH plugin for Antigravity with AGY CLI and an optional experimental direct transport.",
   "type": "module",
   "license": "MIT",
   "icon": "./assets/icon.svg",
@@ -33,11 +33,14 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*",
-    "@deepseek-ai/dsh-commands": "*",
     "@deepseek-ai/dsh-client-locale": "*",
+    "@deepseek-ai/dsh-commands": "*",
     "@deepseek-ai/dsh-llm": "*",
     "@deepseek-ai/dsh-tools": "*",
-    "react": "^18.0.0"
+    "react": "^18.0.0",
+    "@deepseek-ai/dsh-client-connection": "*",
+    "@deepseek-ai/schemastery": "*",
+    "@deepseek-ai/dsh-web": "*"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -57,19 +60,66 @@
     },
     "@deepseek-ai/dsh-tools": {
       "optional": true
+    },
+    "@deepseek-ai/dsh-client-connection": {
+      "optional": true
+    },
+    "@deepseek-ai/schemastery": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-web": {
+      "optional": true
     }
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-client-locale": "^0.1.2-rc.1",
-    "@deepseek-ai/dsh-commands": "0.1.2-rc.1",
-    "@deepseek-ai/dsh-llm": "0.1.2-rc.1",
-    "@deepseek-ai/dsh-tools": "0.1.2-rc.1",
+    "@deepseek-ai/cordis": "4.0.5",
+    "@deepseek-ai/cordis-plugin-group": "1.0.5",
+    "@deepseek-ai/cordis-plugin-include": "1.0.10",
+    "@deepseek-ai/cordis-plugin-loader": "1.0.6",
+    "@deepseek-ai/dsh-agent": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-agent-loop": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-api-remotes": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-attachment": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-brand": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-client-connection": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-client-locale": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-client-ui-primitives": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-client-ui-renderer": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-client-ui-settings": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-client-ui-slots": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-commands": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-credentials": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-deque": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-fs": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-host-webserver": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-llm": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-sandbox": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-scope": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-session": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-session-persistence": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-session-projection": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-settings": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-system-prompt": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-timeout": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-typert-protocol": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-user-approval": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-util-crypto": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-util-values": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-web": "0.2.1-rc.5",
+    "@deepseek-ai/schemastery": "3.18.5",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^24.3.0",
     "@types/qrcode": "^1.5.5",
+    "@types/react": "~18.3.31",
+    "@types/react-dom": "~18.3.7",
+    "jsdom": "^29.1.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "tsdown": "^0.22.14",
     "typescript": "^5.9.2",
-    "undici": "^8.10.0"
+    "undici": "^8.10.0",
+    "vitest": "^4.1.11"
   },
   "dsh": {
     "bundle": {
@@ -85,6 +135,7 @@
   },
   "files": [
     "dist",
+    "direct",
     "assets",
     "locale",
     "icon.svg",
@@ -97,11 +148,10 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "check": "tsc --noEmit",
+    "check": "tsc --noEmit && tsc -p tsconfig.direct.json",
     "test": "node --experimental-transform-types --test --test-concurrency=1 \"test/**/*.test.ts\"",
-    "test:fast": "node scripts/fast-test.mjs",
-    "prepare": "npm run build",
-    "prepack": "npm run build"
+    "test:direct": "vitest run --config vitest.direct.config.ts",
+    "test:fast": "node scripts/fast-test.mjs"
   },
   "engines": {
     "node": ">=24.0.0"

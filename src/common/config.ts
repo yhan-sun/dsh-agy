@@ -101,6 +101,12 @@ export function resolveConfig(
   const cfg: PluginConfig = {
     ...base,
     enabled: asBool(get('enabled')) ?? base.enabled,
+    experimentalDirect: asBool(get('experimentalDirect')) ?? base.experimentalDirect,
+    directSearch: asBool(get('directSearch')) ?? base.directSearch,
+    directImage: asBool(get('directImage')) ?? base.directImage,
+    directVideo: asBool(get('directVideo')) ?? base.directVideo,
+    // Empty is an explicit direct-connection override, not a missing value.
+    directProxyUrl: asString(overrides.directProxyUrl) ?? asString(e.directProxyUrl) ?? base.directProxyUrl,
     agyBin: asString(get('agyBin')) ?? base.agyBin,
     extraArgs: Array.isArray(get('extraArgs'))
       ? (get('extraArgs') as unknown[]).filter((x): x is string => typeof x === 'string')
@@ -164,6 +170,7 @@ export function resolveConfig(
   }
   // Env wins last (spec ADR-13).
   if (env.DSH_AGY_ENABLED !== undefined) cfg.enabled = asBool(env.DSH_AGY_ENABLED) ?? cfg.enabled
+  if (env.DSH_AGY_DIRECT !== undefined) cfg.experimentalDirect = asBool(env.DSH_AGY_DIRECT) ?? cfg.experimentalDirect
   if (env.DSH_AGY_BIN) cfg.agyBin = env.DSH_AGY_BIN
   if (env.DSH_AGY_MODE) {
     const m = asMode(env.DSH_AGY_MODE)

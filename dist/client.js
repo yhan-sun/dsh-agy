@@ -4,7 +4,9 @@ window.__ModuleLoader__.load({
 		var module = { exports: {} };
 		var exports = module.exports;
 		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-		//#region src/client/brand-icons.ts
+		let react = require("react");
+		let react_jsx_runtime = require("react/jsx-runtime");
+		// src/client/brand-icons.ts
 		const BRAND_PATHS = {
 			gemini: "M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81",
 			claude: "m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z",
@@ -39,8 +41,7 @@ window.__ModuleLoader__.load({
 			power: "M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10",
 			flame: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"
 		};
-		//#endregion
-		//#region src/client/config-options.ts
+		// src/client/config-options.ts
 		/** Thinking levels the translation call accepts, in ascending order. */
 		const EFFORT_LEVELS = [
 			"low",
@@ -103,12 +104,11 @@ window.__ModuleLoader__.load({
 			});
 			return options;
 		}
-		//#endregion
-		//#region src/client/locales.ts
+		// src/client/locales.ts
 		/** Native DSH locale dictionaries for the Antigravity UI. */
 		const NS = "agy-link";
 		/** Simplified Chinese is preserved as the original UI language and key source. */
-		const zh = {
+		const zh$1 = {
 			"section.label": "Antigravity",
 			"code.title": "代码",
 			"code.inspect": "检查",
@@ -275,6 +275,17 @@ window.__ModuleLoader__.load({
 			"config.off": "关闭",
 			"config.runtimeTitle": "运行方式",
 			"config.runtimeDesc": "选择账号切换方式和 AGY 工具权限。",
+			"direct.title": "实验性直连",
+			"direct.description": "开启后重启 DSH，在模型选择器中选择 Google Antigravity 直连。直连使用独立账号，不会自动切换或作为 AGY 的后备。",
+			"direct.restart": "设置已更改，请重启 DSH。",
+			"direct.loading": "正在加载直连模块…",
+			"direct.error": "直连模块加载失败，请查看 DSH 日志。",
+			"direct.unavailable": "直连账号管理需要本机 DSH 连接。",
+			"direct.proxy": "直连代理",
+			"direct.proxyHelp": "仅支持不含账号密码的 HTTP 代理；留空为直接连接。浏览器授权使用浏览器自己的网络设置。",
+			"direct.proxyPlaceholder": "例如 http://127.0.0.1:7890",
+			"direct.proxySave": "保存代理",
+			"direct.proxyInvalid": "直连代理配置无效，请重新保存；请求不会自动切换为直连。",
 			"config.permissionMode": "AGY 工具权限",
 			"config.permissionPlan": "计划模式",
 			"config.permissionEdits": "自动接受文件编辑",
@@ -301,7 +312,7 @@ window.__ModuleLoader__.load({
 			"tsl.collapse": "收起",
 			"tsl.expand": "展开"
 		};
-		const en = {
+		const en$1 = {
 			"section.label": "Antigravity",
 			"console.title": "Antigravity",
 			"code.title": "Code",
@@ -468,6 +479,17 @@ window.__ModuleLoader__.load({
 			"config.off": "Off",
 			"config.runtimeTitle": "Runtime",
 			"config.runtimeDesc": "Choose account switching and AGY tool permissions.",
+			"direct.title": "Experimental direct transport",
+			"direct.description": "Restart DSH after enabling, then choose Google Antigravity direct in the model picker. Direct uses a separate account and is never an automatic AGY fallback.",
+			"direct.restart": "Setting changed. Restart DSH.",
+			"direct.loading": "Loading direct transport…",
+			"direct.error": "Direct transport failed to load. Check DSH logs.",
+			"direct.unavailable": "Direct account management requires a local DSH connection.",
+			"direct.proxy": "Direct proxy",
+			"direct.proxyHelp": "HTTP proxy without credentials only; empty connects directly. Browser authorization uses the browser’s network settings.",
+			"direct.proxyPlaceholder": "For example http://127.0.0.1:7890",
+			"direct.proxySave": "Save proxy",
+			"direct.proxyInvalid": "The direct proxy is invalid. Save a valid proxy; requests will not fall back to direct access.",
 			"config.permissionMode": "AGY tool permissions",
 			"config.permissionPlan": "Plan mode",
 			"config.permissionEdits": "Accept file edits",
@@ -661,6 +683,17 @@ window.__ModuleLoader__.load({
 			"config.off": "Desativado",
 			"config.runtimeTitle": "Execução",
 			"config.runtimeDesc": "Escolha a troca de conta e as permissões das ferramentas do AGY.",
+			"direct.title": "Conexão direta experimental",
+			"direct.description": "Reinicie o DSH após ativar e selecione o provedor direto. A conta é separada e não há troca automática do AGY.",
+			"direct.restart": "Configuração alterada. Reinicie o DSH.",
+			"direct.loading": "Carregando conexão direta…",
+			"direct.error": "Falha ao carregar a conexão direta. Consulte os registros do DSH.",
+			"direct.unavailable": "O gerenciamento de conta direta requer uma conexão local do DSH.",
+			"direct.proxy": "Proxy direto",
+			"direct.proxyHelp": "Somente proxy HTTP sem credenciais; vazio conecta diretamente. A autorização usa a rede do navegador.",
+			"direct.proxyPlaceholder": "Por exemplo http://127.0.0.1:7890",
+			"direct.proxySave": "Salvar proxy",
+			"direct.proxyInvalid": "O proxy direto é inválido. Salve um proxy válido; não haverá conexão direta automática.",
 			"config.permissionMode": "Permissões do AGY",
 			"config.permissionPlan": "Modo de planejamento",
 			"config.permissionEdits": "Aceitar edições de arquivos",
@@ -854,6 +887,17 @@ window.__ModuleLoader__.load({
 			"config.off": "Desactivado",
 			"config.runtimeTitle": "Ejecución",
 			"config.runtimeDesc": "Elige el cambio de cuenta y los permisos de herramientas de AGY.",
+			"direct.title": "Conexión directa experimental",
+			"direct.description": "Reinicia DSH después de activarla y elige el proveedor directo. Usa otra cuenta y no cambia automáticamente desde AGY.",
+			"direct.restart": "Ajuste modificado. Reinicia DSH.",
+			"direct.loading": "Cargando conexión directa…",
+			"direct.error": "No se pudo cargar la conexión directa. Consulta los registros de DSH.",
+			"direct.unavailable": "La gestión de cuentas directas requiere una conexión local de DSH.",
+			"direct.proxy": "Proxy directo",
+			"direct.proxyHelp": "Solo proxy HTTP sin credenciales; vacío conecta directamente. La autorización usa la red del navegador.",
+			"direct.proxyPlaceholder": "Por ejemplo http://127.0.0.1:7890",
+			"direct.proxySave": "Guardar proxy",
+			"direct.proxyInvalid": "El proxy directo no es válido. Guarda uno válido; no se conectará directamente de forma automática.",
 			"config.permissionMode": "Permisos de AGY",
 			"config.permissionPlan": "Modo de planificación",
 			"config.permissionEdits": "Aceptar ediciones de archivos",
@@ -880,8 +924,7 @@ window.__ModuleLoader__.load({
 			"tsl.collapse": "Contraer",
 			"tsl.expand": "Expandir"
 		};
-		//#endregion
-		//#region src/client/scroll-guard.ts
+		// src/client/scroll-guard.ts
 		let isScrolling = false;
 		let scrollTimer = null;
 		let listenerAttached = false;
@@ -955,8 +998,7 @@ window.__ModuleLoader__.load({
 			isScrolling = false;
 			overlaySuspended = false;
 		}
-		//#endregion
-		//#region src/client/decisions.ts
+		// src/client/decisions.ts
 		const DECISION_CSS = `
 .agy-decision-container {
   margin: 10px 0 6px 0;
@@ -1224,8 +1266,7 @@ window.__ModuleLoader__.load({
 			decisionChipsDispose = dispose;
 			return dispose;
 		}
-		//#endregion
-		//#region src/client/images.ts
+		// src/client/images.ts
 		let lightboxOverlay = null;
 		let lightboxScale = 1;
 		let lightboxTranslateX = 0;
@@ -1728,9 +1769,8 @@ window.__ModuleLoader__.load({
 			imageEnhancerDispose = dispose;
 			return dispose;
 		}
-		//#endregion
-		//#region src/client/toolview.ts
-		function react() {
+		// src/client/toolview.ts
+		function react$1() {
 			const mod = require("react");
 			if (mod === void 0 || mod === null) throw new Error("dsh-agy-link toolview requires react at render time (browser host)");
 			return mod;
@@ -1738,7 +1778,7 @@ window.__ModuleLoader__.load({
 		/** Cache user-expanded tool cards across TanStack Virtualizer remount cycles */
 		const expandedToolBlockKeys = /* @__PURE__ */ new Set();
 		function useToggle(initial = false, key) {
-			const R2 = react();
+			const R2 = react$1();
 			const init = key ? expandedToolBlockKeys.has(key) : initial;
 			const [value, setValue] = R2.useState(init);
 			const toggle = () => {
@@ -1754,7 +1794,7 @@ window.__ModuleLoader__.load({
 			return [value, toggle];
 		}
 		function hx(type, props, ...children) {
-			return react().createElement(type, props, ...children);
+			return react$1().createElement(type, props, ...children);
 		}
 		function IconChevronDownOutline14(size = 14, className = "") {
 			return hx("svg", {
@@ -2374,7 +2414,7 @@ window.__ModuleLoader__.load({
 			return `+${newLines} -${oldLines}`;
 		}
 		function CopyButton({ text, labels, t }) {
-			const [copied, setCopied] = react().useState(false);
+			const [copied, setCopied] = react$1().useState(false);
 			const copyLabel = labels?.[0] ?? tr(t, "code.copy", "Copy");
 			const copiedLabel = labels?.[1] ?? tr(t, "code.copied", "Copied");
 			const onCopy = (e) => {
@@ -2440,8 +2480,8 @@ window.__ModuleLoader__.load({
 		function QuestionCardBody({ model }) {
 			const h = hx;
 			const questions = model.questions ?? [];
-			const [selectedMap, setSelectedMap] = react().useState({});
-			const [inserted, setInserted] = react().useState(false);
+			const [selectedMap, setSelectedMap] = react$1().useState({});
+			const [inserted, setInserted] = react$1().useState(false);
 			const toggleOption = (qIdx, opt, isMulti) => {
 				setSelectedMap((prev) => {
 					const next = { ...prev };
@@ -3376,8 +3416,7 @@ window.__ModuleLoader__.load({
 				if (host) host.appendChild(st);
 			}
 		}
-		//#endregion
-		//#region src/client/mermaid.ts
+		// src/client/mermaid.ts
 		const MERMAID_CSS = `
 div.md-code-block[data-agy-mermaid="done"]:not([data-agy-mermaid-view="source"]) [data-code-block-content] {
 	display: none !important;
@@ -3871,8 +3910,7 @@ body > [id^="iagy-mmd"] .error-icon {
 				scanTimer$1 = null;
 			}
 		}
-		//#endregion
-		//#region src/client/reasoning.ts
+		// src/client/reasoning.ts
 		const REASONING_CSS = `
 /* Hover affordance on thinking disclosure rows */
 div[data-variant="think"] [data-disclosure-row]:hover [class*="iconIdle"],
@@ -4049,9 +4087,8 @@ div[data-variant="think"] [class*="thinkBody"] {
 				scanTimer = null;
 			}
 		}
-		//#endregion
-		//#region src/client/translate.ts
-		const { createElement: h$1, useState: useState$1, useEffect: useEffect$1 } = require("react");
+		// src/client/translate.ts
+		const { createElement: h$1, useState: useState$2, useEffect: useEffect$2 } = require("react");
 		const win$1 = globalThis;
 		const base$1 = win$1.location?.origin ?? "";
 		const STYLE_ID = "dsh-agy-link-tsl-css-v2";
@@ -4373,9 +4410,9 @@ body.dark .agy-tsl-card,
 					return fallback ?? key;
 				}
 			};
-			const [open, setOpen] = useState$1(true);
-			const [showOriginal, setShowOriginal] = useState$1(false);
-			const [copied, setCopied] = useState$1(false);
+			const [open, setOpen] = useState$2(true);
+			const [showOriginal, setShowOriginal] = useState$2(false);
+			const [copied, setCopied] = useState$2(false);
 			const text = typeof data.text === "string" ? data.text : "";
 			const original = typeof data.original === "string" ? data.original : "";
 			if (text.trim() === "") return null;
@@ -4627,9 +4664,9 @@ body.dark .agy-tsl-card,
 			const ctx = props?.ctx;
 			const sessionId = injectedSession !== "" ? injectedSession : ctx === void 0 ? "" : currentSessionId(ctx);
 			const key = actionKey(sessionId, messageId);
-			const [state, setState] = useState$1(() => actionStateOf(key));
-			useEffect$1(() => subscribeActionState(key, (next) => setState(next)), [key]);
-			useEffect$1(() => {
+			const [state, setState] = useState$2(() => actionStateOf(key));
+			useEffect$2(() => subscribeActionState(key, (next) => setState(next)), [key]);
+			useEffect$2(() => {
 				if (messageId === "" || sessionId === "") return;
 				let alive = true;
 				getMessageState(sessionId, messageId).then((res) => {
@@ -4787,8 +4824,7 @@ body.dark .agy-tsl-card,
 				} catch {}
 			};
 		}
-		//#endregion
-		//#region src/common/compaction.ts
+		// src/common/compaction.ts
 		/** Format a raw token count into human-friendly string like 128.5k, 14.2k, 1.2M, 500. */
 		function formatTokenCount(tokens) {
 			if (typeof tokens !== "number" || !Number.isFinite(tokens) || tokens <= 0) return "0";
@@ -4805,8 +4841,7 @@ body.dark .agy-tsl-card,
 		function formatCompactionSummary(before, after) {
 			return `${formatTokenCount(before)} → ${formatTokenCount(after)} tokens (${calcTokenReduction(before, after)})`;
 		}
-		//#endregion
-		//#region src/client/compaction.ts
+		// src/client/compaction.ts
 		const COMPACTION_CSS = `
 .agy-compaction-row {
   --dsh-compaction-header-height: calc(24px + var(--dsh-content-font-delta, 0px));
@@ -5178,8 +5213,2199 @@ body.dark .agy-tsl-card,
 			compactionDispose = dispose;
 			return dispose;
 		}
-		//#endregion
-		//#region src/client/index.ts
+		// direct/legacy/src/client/styles.ts
+		/** Embedded CSS stylesheet for value-safe Antigravity settings UI. */
+		const SETTINGS_CSS = `
+.agy-direct-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 4px 0 32px;
+  color: var(--dsw-alias-label-primary, #e6edf3);
+  font-family: var(--dsw-font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif);
+  font-size: 13px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+.agy-direct-settings *,
+.agy-direct-settings *::before,
+.agy-direct-settings *::after {
+  box-sizing: border-box;
+}
+
+.agy-direct-bundle-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.agy-direct-title-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agy-direct-bundle-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--dsw-alias-label-primary, #e6edf3);
+}
+
+.agy-direct-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  flex: none;
+}
+
+.agy-direct-bundle-intro,
+.agy-direct-card-intro {
+  margin: 4px 0 0;
+  color: var(--dsw-alias-label-tertiary, #8b949e);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.agy-direct-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.agy-direct-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: var(--dsw-alias-bg-layer-2, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.agy-direct-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.agy-direct-card-identity {
+  min-width: 0;
+  flex: 1;
+}
+
+.agy-direct-card-title-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agy-direct-card-title {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary, #e6edf3);
+}
+
+.agy-direct-card-action {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+
+.agy-direct-risk-card {
+  background: rgba(234, 179, 8, 0.04);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agy-direct-risk-text {
+  color: var(--dsw-alias-label-secondary, #9ca3af);
+  font-size: 13px;
+  line-height: 19px;
+  margin: 0;
+}
+
+.agy-direct-link-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.agy-direct-link {
+  color: var(--dsw-alias-interactive-text, #38bdf8);
+  font-size: 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agy-direct-link:hover {
+  text-decoration: underline;
+  color: #7dd3fc;
+}
+
+.agy-direct-ack-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--dsw-alias-bg-layer-1, rgba(0, 0, 0, 0.2));
+  border: 1px solid var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.06));
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary, #e6edf3);
+}
+
+.agy-direct-checkbox {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--dsw-alias-button-primary-fill, #3b82f6);
+  cursor: pointer;
+}
+
+.agy-direct-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.agy-direct-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 16px;
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--dsw-alias-bg-layer-3, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.05));
+}
+
+.agy-direct-fact {
+  min-width: 0;
+}
+
+.agy-direct-fact dt {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary, #8b949e);
+}
+
+.agy-direct-fact dd {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary, #e6edf3);
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quota Section */
+.agy-direct-quota-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.agy-direct-quota-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--dsw-alias-bg-layer-1, rgba(0, 0, 0, 0.15));
+  border: 1px solid var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.05));
+  box-shadow: inset 0 0 0 1px var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.03));
+}
+
+.agy-direct-quota-group-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agy-direct-quota-group-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dsw-alias-label-secondary, #a1a1aa);
+}
+
+.agy-direct-quota-group-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--dsw-alias-label-tertiary, #71717a);
+}
+
+.agy-direct-quota-buckets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.agy-direct-quota-bucket {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agy-direct-quota-bucket-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.agy-direct-quota-bucket-name {
+  font-weight: 500;
+  color: var(--dsw-alias-label-secondary, #d4d4d8);
+}
+
+.agy-direct-quota-bucket-val {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  color: var(--dsw-alias-label-primary, #ffffff);
+  animation: agy-direct-fade-in 250ms ease;
+}
+
+.agy-direct-quota-bucket-val[data-tone='normal'] {
+  color: var(--dsw-alias-state-success-label, #10b981);
+}
+
+.agy-direct-quota-bucket-val[data-tone='warning'] {
+  color: var(--dsw-alias-state-warn-label, #f59e0b);
+}
+
+.agy-direct-quota-bucket-val[data-tone='error'] {
+  color: var(--dsw-alias-state-error-label, #ef4444);
+}
+
+.agy-direct-quota-querying {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dsw-alias-label-tertiary, #71717a);
+  font-size: 12px;
+  line-height: 18px;
+  animation: agy-direct-fade-in 200ms ease;
+}
+
+.agy-direct-querying-spinner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.15));
+  border-top-color: var(--dsw-alias-brand-primary, #4f6ef7);
+  animation: agy-direct-spin 0.8s linear infinite;
+  display: inline-block;
+  flex: none;
+}
+
+.agy-direct-progress-track {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--dsw-alias-bg-layer-1, rgba(0, 0, 0, 0.2));
+  box-shadow: inset 0 0 0 1px var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.08));
+  overflow: hidden;
+}
+
+@keyframes agy-direct-fill-progress {
+  from {
+    transform: scaleX(0);
+    opacity: 0.7;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.agy-direct-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  transform-origin: left center;
+  animation: agy-direct-fill-progress 650ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: width 400ms cubic-bezier(0.16, 1, 0.3, 1), background 400ms ease;
+}
+
+.agy-direct-progress-bar[data-tone='normal'] {
+  background: linear-gradient(90deg, #f59e0b 0%, #10b981 35%, #059669 100%);
+}
+
+.agy-direct-progress-bar[data-tone='warning'] {
+  background: linear-gradient(90deg, #ef4444 0%, #f97316 40%, #f59e0b 100%);
+}
+
+.agy-direct-progress-bar[data-tone='error'] {
+  background: linear-gradient(90deg, #f87171 0%, #ef4444 50%, #dc2626 100%);
+}
+
+.agy-direct-shimmer-track {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--dsw-alias-fill-tertiary, rgba(255, 255, 255, 0.06)) 25%,
+    var(--dsw-alias-fill-secondary, rgba(255, 255, 255, 0.14)) 50%,
+    var(--dsw-alias-fill-tertiary, rgba(255, 255, 255, 0.06)) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: agy-direct-shimmer-stream 1.6s ease-in-out infinite;
+}
+
+@keyframes agy-direct-shimmer-stream {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes agy-direct-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.agy-direct-quota-subtext {
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary, #71717a);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Actions */
+.agy-direct-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.agy-direct-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: var(--dsw-alias-bg-layer-3, rgba(255, 255, 255, 0.08));
+  color: var(--dsw-alias-label-primary, #e6edf3);
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.agy-direct-btn:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover, rgba(255, 255, 255, 0.12));
+}
+
+.agy-direct-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.agy-direct-btn-primary {
+  background: var(--dsw-alias-button-primary-fill, #18181b);
+  color: var(--dsw-alias-label-primary-foreground, #ffffff);
+  border: 1px solid var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.15));
+}
+
+.agy-direct-btn-primary:hover:not(:disabled) {
+  background: var(--dsw-alias-button-primary-hover, #27272a);
+}
+
+.agy-direct-btn-outline {
+  background: transparent;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.15));
+  color: var(--dsw-alias-label-primary, #e6edf3);
+}
+
+.agy-direct-btn-outline:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover, rgba(255, 255, 255, 0.08));
+}
+
+.agy-direct-btn-ghost {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--dsw-alias-label-secondary, #a1a1aa) !important;
+  padding: 0 10px !important;
+  border-radius: 6px !important;
+}
+
+.agy-direct-btn-ghost:hover:not(:disabled) {
+  background: var(--dsw-alias-fill-tertiary, rgba(255, 255, 255, 0.06)) !important;
+  color: var(--dsw-alias-label-primary, #ffffff) !important;
+}
+
+.agy-direct-refresh-btn {
+  margin-left: auto;
+}
+
+.agy-direct-footer-notice {
+  margin: 6px 0 0;
+  color: var(--dsw-alias-label-tertiary, #71717a);
+  font-size: 11px;
+  line-height: 17px;
+}
+
+.agy-direct-privacy {
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary, #6e7681);
+  margin: 4px 0 0;
+}
+
+.agy-direct-alert {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
+.agy-direct-item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agy-direct-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--dsw-alias-bg-layer-1, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.05));
+  border-radius: 8px;
+}
+
+.agy-direct-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary, #e6edf3);
+}
+
+.agy-direct-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  flex: none;
+}
+
+.agy-direct-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.agy-direct-badge-available {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.agy-direct-badge-available .agy-direct-badge-dot {
+  background: #22c55e;
+}
+
+.agy-direct-badge-disabled {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.agy-direct-badge-disabled .agy-direct-badge-dot {
+  background: #64748b;
+}
+
+.agy-direct-badge-warning {
+  background: rgba(234, 179, 8, 0.12);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+.agy-direct-badge-warning .agy-direct-badge-dot {
+  background: #eab308;
+}
+
+.agy-direct-badge-error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.agy-direct-badge-error .agy-direct-badge-dot {
+  background: #ef4444;
+}
+
+/* Switch Component */
+.agy-direct-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.agy-direct-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.agy-direct-switch-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--dsw-alias-bg-layer-4, rgba(255, 255, 255, 0.15));
+  border-radius: 20px;
+  transition: 0.2s ease;
+}
+
+.agy-direct-switch-slider::before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.agy-direct-switch input:checked + .agy-direct-switch-slider {
+  background-color: var(--dsw-alias-button-primary-fill, #2563eb);
+}
+
+.agy-direct-switch input:checked + .agy-direct-switch-slider::before {
+  transform: translateX(16px);
+}
+
+.agy-direct-switch input:disabled + .agy-direct-switch-slider {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.agy-direct-spin-icon {
+  display: inline-flex;
+  animation: agy-direct-spin 1s linear infinite;
+}
+
+@keyframes agy-direct-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+`;
+		const STYLE_ELEMENT_ID = "dsh-antigravity-auth-styles";
+		function ensureSettingsStyles() {
+			if (typeof document === "undefined") return;
+			if (document.getElementById(STYLE_ELEMENT_ID)) return;
+			const style = document.createElement("style");
+			style.id = STYLE_ELEMENT_ID;
+			style.textContent = SETTINGS_CSS;
+			document.head.appendChild(style);
+		}
+		// direct/legacy/src/client/AntigravityAuthSettings.tsx
+		/** Settings shell for value-safe Antigravity login status. */
+		const EMPTY_SETTINGS_SNAPSHOT = {
+			status: "unavailable",
+			value: void 0,
+			base: void 0,
+			user: void 0,
+			revision: void 0,
+			writable: false
+		};
+		function useCapabilitySettings(scope) {
+			const subscribe = (0, react.useCallback)((listener) => scope?.subscribe(listener) ?? (() => {}), [scope]);
+			const getSnapshot = (0, react.useCallback)(() => scope?.getSnapshot() ?? EMPTY_SETTINGS_SNAPSHOT, [scope]);
+			return (0, react.useSyncExternalStore)(subscribe, getSnapshot, () => EMPTY_SETTINGS_SNAPSHOT);
+		}
+		function useUnmountSignal() {
+			const controller = (0, react.useRef)(new AbortController());
+			(0, react.useEffect)(() => {
+				const active = new AbortController();
+				controller.current = active;
+				return () => active.abort();
+			}, []);
+			return (0, react.useCallback)(() => controller.current.signal, []);
+		}
+		/** One navigable settings section; credentials remain Host-only and actions use typed RPC. */
+		function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageScope, videoScope, capabilityControls }) {
+			const [status, setStatus] = (0, react.useState)(null);
+			const searchSettings = useCapabilitySettings(searchScope);
+			const imageSettings = useCapabilitySettings(imageScope);
+			const videoSettings = useCapabilitySettings(videoScope);
+			const [quota, setQuota] = (0, react.useState)(null);
+			const [quotaBusy, setQuotaBusy] = (0, react.useState)(false);
+			const [quotaError, setQuotaError] = (0, react.useState)(null);
+			const [loadState, setLoadState] = (0, react.useState)("loading");
+			const [statusError, setStatusError] = (0, react.useState)(null);
+			const [actionError, setActionError] = (0, react.useState)(null);
+			const [loginBusy, setLoginBusy] = (0, react.useState)(false);
+			const [actionBusy, setActionBusy] = (0, react.useState)(false);
+			const [accounts, setAccounts] = (0, react.useState)([]);
+			const [accountsLoaded, setAccountsLoaded] = (0, react.useState)(false);
+			const [accountsError, setAccountsError] = (0, react.useState)(false);
+			const [riskAccepted, setRiskAccepted] = (0, react.useState)(false);
+			const [resetTick, setResetTick] = (0, react.useState)(0);
+			const statusGeneration = (0, react.useRef)(0);
+			const quotaGeneration = (0, react.useRef)(0);
+			const unmountSignal = useUnmountSignal();
+			const loadAccounts = (0, react.useCallback)(async (signal) => {
+				if (!rpc.accounts) return;
+				try {
+					const result = await rpc.accounts(signal);
+					if (signal?.aborted) return;
+					if (result.ok) {
+						setAccounts(result.value.accounts);
+						setAccountsError(false);
+					} else setAccountsError(true);
+					setAccountsLoaded(true);
+				} catch {
+					if (!signal?.aborted) {
+						setAccountsError(true);
+						setAccountsLoaded(true);
+					}
+				}
+			}, [rpc]);
+			(0, react.useEffect)(() => {
+				const controller = new AbortController();
+				loadAccounts(controller.signal);
+				return () => controller.abort();
+			}, [
+				loadAccounts,
+				status?.login.phase,
+				resetTick
+			]);
+			(0, react.useEffect)(() => {
+				ensureSettingsStyles();
+			}, []);
+			(0, react.useEffect)(() => subscribe(() => {
+				setResetTick((value) => value + 1);
+			}), [subscribe]);
+			const load = (0, react.useCallback)(async (signal, silent = false) => {
+				const generation = ++statusGeneration.current;
+				if (!silent) {
+					setLoadState((prev) => prev === "ready" ? "ready" : "loading");
+					setStatusError(null);
+					setActionError(null);
+				}
+				try {
+					const result = await rpc.status(signal);
+					if (signal?.aborted === true || generation !== statusGeneration.current) return;
+					if (!result.ok) {
+						setLoadState("error");
+						setStatusError(result.error.message || t("statusFailed"));
+						return;
+					}
+					setStatus(result.value.status);
+					setLoadState("ready");
+					setStatusError(null);
+				} catch (cause) {
+					if (signal?.aborted === true || generation !== statusGeneration.current) return;
+					setLoadState("error");
+					setStatusError(messageOf(cause, t("statusFailed")));
+				}
+			}, [rpc, t]);
+			const loadQuota = (0, react.useCallback)(async (force = false, signal) => {
+				if (rpc.usage === void 0) return;
+				const generation = ++quotaGeneration.current;
+				setQuotaBusy(true);
+				setQuotaError(null);
+				try {
+					const result = await rpc.usage(signal, force);
+					if (signal?.aborted === true || generation !== quotaGeneration.current) return;
+					if (!result.ok) {
+						setQuotaError(result.error.message || t("quotaFailed"));
+						return;
+					}
+					setQuota(result.value);
+				} catch (cause) {
+					if (signal?.aborted === true || generation !== quotaGeneration.current) return;
+					setQuotaError(messageOf(cause, t("quotaFailed")));
+				} finally {
+					if (signal?.aborted !== true && generation === quotaGeneration.current) setQuotaBusy(false);
+				}
+			}, [rpc, t]);
+			(0, react.useEffect)(() => {
+				if (status?.login.projectAvailable !== true) setQuota(null);
+			}, [status?.login.projectAvailable]);
+			(0, react.useEffect)(() => {
+				const controller = new AbortController();
+				load(controller.signal);
+				return () => controller.abort();
+			}, [load, resetTick]);
+			(0, react.useEffect)(() => {
+				if (status?.login.phase !== "pending") return;
+				const controller = new AbortController();
+				const timer = globalThis.setInterval(() => {
+					load(controller.signal, true);
+				}, 1e3);
+				return () => {
+					globalThis.clearInterval(timer);
+					controller.abort();
+				};
+			}, [load, status?.login.phase]);
+			const startLogin = (0, react.useCallback)(async () => {
+				const signal = unmountSignal();
+				setLoginBusy(true);
+				setStatusError(null);
+				setActionError(null);
+				try {
+					if (status?.riskAcknowledged !== true) {
+						if (!riskAccepted) return;
+						const acknowledgement = await rpc.acknowledgeRisk(signal);
+						if (!acknowledgement.ok) {
+							if (!signal.aborted) setActionError(acknowledgement.error.message || t("acknowledgeFailed"));
+							return;
+						}
+					}
+					const result = await rpc.login(signal);
+					if (signal.aborted) return;
+					if (!result.ok) {
+						await load(signal);
+						if (!signal.aborted) setActionError(result.error.code === "client-not-configured" ? t("clientNotConfigured") : result.error.message || t("loginFailed"));
+						return;
+					}
+					try {
+						if (typeof window !== "undefined" && typeof window.open === "function" && result.value?.authorizationUrl && !window.navigator?.userAgent?.includes("jsdom")) window.open(result.value.authorizationUrl, "_blank");
+					} catch {}
+					setStatus((previous) => {
+						if (previous === null) return previous;
+						const { errorCode: _ignoredErrorCode, ...login } = previous.login;
+						return {
+							...previous,
+							riskAcknowledged: true,
+							login: {
+								...login,
+								phase: "pending",
+								authorizationUrl: result.value.authorizationUrl,
+								expiresAt: result.value.expiresAt
+							}
+						};
+					});
+				} catch (cause) {
+					if (!signal.aborted) setActionError(messageOf(cause, t("loginFailed")));
+				} finally {
+					if (!signal.aborted) setLoginBusy(false);
+				}
+			}, [
+				load,
+				rpc,
+				riskAccepted,
+				status?.riskAcknowledged,
+				t,
+				unmountSignal
+			]);
+			const cancelLogin = (0, react.useCallback)(async () => {
+				const signal = unmountSignal();
+				setLoginBusy(true);
+				setStatusError(null);
+				setActionError(null);
+				try {
+					const result = await rpc.cancelLogin(signal);
+					if (signal.aborted) return;
+					if (!result.ok) {
+						setActionError(result.error.message || t("cancelLoginFailed"));
+						return;
+					}
+					setStatus((previous) => {
+						if (previous === null) return previous;
+						const { errorCode: _ignoredErrorCode, ...login } = previous.login;
+						return {
+							...previous,
+							login: result.value.errorCode === void 0 ? {
+								...login,
+								phase: result.value.phase
+							} : {
+								...login,
+								phase: result.value.phase,
+								errorCode: result.value.errorCode
+							}
+						};
+					});
+				} catch (cause) {
+					if (!signal.aborted) setActionError(messageOf(cause, t("cancelLoginFailed")));
+				} finally {
+					if (!signal.aborted) setLoginBusy(false);
+				}
+			}, [
+				rpc,
+				t,
+				unmountSignal
+			]);
+			const logout = (0, react.useCallback)(async () => {
+				const signal = unmountSignal();
+				setActionBusy(true);
+				setStatusError(null);
+				setActionError(null);
+				try {
+					const result = await rpc.logout(signal);
+					if (signal.aborted) return;
+					if (!result.ok) {
+						setActionError(result.error.message || t("logoutFailed"));
+						return;
+					}
+					await load(signal);
+				} catch (cause) {
+					if (!signal.aborted) setActionError(messageOf(cause, t("logoutFailed")));
+				} finally {
+					if (!signal.aborted) setActionBusy(false);
+				}
+			}, [
+				load,
+				rpc,
+				t,
+				unmountSignal
+			]);
+			const projectError = projectErrorText(status?.login.errorCode, t);
+			const isConfigured = status?.login.configured === true;
+			const accountAction = async (account, action) => {
+				const operation = action === "switch" ? rpc.switchAccount : rpc.removeAccount;
+				if (!operation) return;
+				if (action === "remove" && typeof window !== "undefined" && !window.confirm(t("accountRemoveConfirm"))) return;
+				const signal = unmountSignal();
+				setActionBusy(true);
+				setActionError(null);
+				try {
+					if (!(await operation(account.id, signal)).ok) {
+						if (!signal.aborted) setActionError(t("accountActionFailed"));
+						return;
+					}
+					await Promise.all([load(signal), loadAccounts(signal)]);
+				} catch {
+					if (!signal.aborted) setActionError(t("accountActionFailed"));
+				} finally {
+					if (!signal.aborted) setActionBusy(false);
+				}
+			};
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("section", {
+				className: "agy-direct-settings",
+				"data-plugin": "dsh-antigravity-auth",
+				"aria-labelledby": "antigravity-auth-title",
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("header", {
+					className: "agy-direct-bundle-header",
+					children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: "agy-direct-title-line",
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h1", {
+							id: "antigravity-auth-title",
+							className: "agy-direct-bundle-title",
+							children: t("title")
+						}), isConfigured ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: "agy-direct-status-dot",
+							role: "status",
+							"aria-label": t("ready")
+						}) : null]
+					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+						className: "agy-direct-bundle-intro",
+						children: t("intro")
+					})] })
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+					className: "agy-direct-cards",
+					children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("article", {
+							className: "agy-direct-card",
+							"aria-labelledby": "antigravity-auth-card-title",
+							children: [
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+									className: "agy-direct-card-header",
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+										className: "agy-direct-card-identity",
+										children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h2", {
+											id: "antigravity-auth-card-title",
+											className: "agy-direct-card-title",
+											children: t("authCardTitle")
+										}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+											className: "agy-direct-card-intro",
+											children: t("authCardIntro")
+										})]
+									})
+								}),
+								rpc.accounts ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "agy-direct-card-subtext",
+									"aria-label": t("accountsTitle"),
+									children: [
+										/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("strong", { children: [
+											t("accountsTitle"),
+											" (",
+											accounts.length,
+											")"
+										] }),
+										accountsError ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+											role: "alert",
+											children: t("accountActionFailed")
+										}) : null,
+										accountsLoaded && !accountsError && accounts.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", { children: t("accountsEmpty") }) : null,
+										accounts.map((account) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+											className: "agy-direct-action-row",
+											children: [
+												/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", { children: [account.maskedEmail ?? account.id, account.isActive ? ` · ${t("accountCurrent")}` : ""] }),
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+													className: "agy-direct-btn agy-direct-btn-outline",
+													type: "button",
+													disabled: actionBusy || account.isActive,
+													onClick: () => {
+														accountAction(account, "switch");
+													},
+													children: t("accountSwitch")
+												}),
+												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+													className: "agy-direct-btn agy-direct-btn-ghost",
+													type: "button",
+													disabled: actionBusy,
+													onClick: () => {
+														accountAction(account, "remove");
+													},
+													children: t("accountRemove")
+												})
+											]
+										}, account.id)),
+										accounts.length > 1 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", { children: t("accountSwitchHelp") }) : null
+									]
+								}) : null,
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)(QuotaVisualDashboard, {
+									quota,
+									busy: quotaBusy,
+									error: quotaError,
+									onRefresh: () => {
+										loadQuota(true, unmountSignal());
+									},
+									t
+								}),
+								status !== null && !status.riskAcknowledged ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+									className: "agy-direct-card-subtext",
+									children: [
+										/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+											type: "checkbox",
+											checked: riskAccepted,
+											onChange: (event) => setRiskAccepted(event.target.checked)
+										}),
+										" ",
+										t("riskAcknowledgement"),
+										" ",
+										t("risk")
+									]
+								}) : null,
+								/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "agy-direct-action-row",
+									children: [
+										status?.login.phase === "pending" && typeof status.login.authorizationUrl === "string" ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("a", {
+											className: "agy-direct-btn agy-direct-btn-primary",
+											href: status.login.authorizationUrl,
+											target: "_blank",
+											rel: "noreferrer",
+											children: t("openAuthorization")
+										}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											className: "agy-direct-btn agy-direct-btn-outline",
+											type: "button",
+											disabled: loginBusy,
+											onClick: () => {
+												cancelLogin();
+											},
+											children: t("cancelLogin")
+										})] }) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											className: "agy-direct-btn agy-direct-btn-primary",
+											type: "button",
+											disabled: status === null || loginBusy || !status.riskAcknowledged && !riskAccepted,
+											onClick: () => {
+												startLogin();
+											},
+											children: loginBusy ? t("startingLogin") : isConfigured ? t("relogin") : t("login")
+										}),
+										isConfigured ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+											className: "agy-direct-btn agy-direct-btn-outline",
+											type: "button",
+											disabled: actionBusy,
+											onClick: () => {
+												logout();
+											},
+											children: t("logout")
+										}) : null,
+										/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+											className: "agy-direct-btn agy-direct-btn-ghost agy-direct-refresh-btn",
+											type: "button",
+											disabled: loadState === "loading" || quotaBusy,
+											onClick: () => {
+												const minDelay = new Promise((resolve) => setTimeout(resolve, 500));
+												Promise.all([
+													load(unmountSignal()),
+													loadQuota(true, unmountSignal()),
+													minDelay
+												]);
+											},
+											children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: quotaBusy || loadState === "loading" ? "agy-direct-spin-icon" : "",
+												children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("svg", {
+													width: "15",
+													height: "15",
+													viewBox: "0 0 24 24",
+													fill: "none",
+													stroke: "currentColor",
+													strokeWidth: "2",
+													children: [
+														/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", { d: "M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }),
+														/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", { d: "M3 3v5h5" }),
+														/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", { d: "M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" }),
+														/* @__PURE__ */ (0, react_jsx_runtime.jsx)("path", { d: "M16 21h5v-5" })
+													]
+												})
+											}), quotaBusy || loadState === "loading" ? t("queryingQuota") : t("refreshStatus")]
+										})
+									]
+								}),
+								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: "agy-direct-footer-notice",
+									children: t("quotaFooterNotice")
+								}),
+								statusError === null ? null : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: "agy-direct-alert",
+									role: "alert",
+									children: statusError
+								}),
+								actionError === null ? null : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: "agy-direct-alert",
+									role: "alert",
+									children: actionError
+								}),
+								status?.login.phase === "expired" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: "agy-direct-alert",
+									role: "alert",
+									children: t("loginExpired")
+								}) : null,
+								status?.login.phase === "port-conflict" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: "agy-direct-alert",
+									role: "alert",
+									children: t("loginPortConflict")
+								}) : null,
+								status?.login.phase === "failed" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: "agy-direct-alert",
+									role: "alert",
+									children: t("loginFailed")
+								}) : null,
+								projectError === void 0 ? null : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: "agy-direct-alert",
+									role: "alert",
+									children: projectError
+								}),
+								status?.login.phase === "pending" && status.login.expiresAt !== void 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("p", {
+									className: "agy-direct-card-subtext",
+									children: [
+										t("expiresAt"),
+										": ",
+										/* @__PURE__ */ (0, react_jsx_runtime.jsx)("time", {
+											dateTime: status.login.expiresAt,
+											children: status.login.expiresAt
+										})
+									]
+								}) : null,
+								status?.revoke === void 0 || status.revoke.state === "idle" ? null : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+									className: "agy-direct-card-subtext",
+									role: "status",
+									children: revokeStatusText(status.revoke.state, t)
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("article", {
+							className: "agy-direct-card",
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "agy-direct-card-header",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "agy-direct-card-identity",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h2", {
+										className: "agy-direct-card-title",
+										children: t("search")
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+										className: "agy-direct-card-intro",
+										children: t("searchCardIntro")
+									})]
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+									className: "agy-direct-card-action",
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Switch, {
+										label: t("toggleSearch"),
+										checked: capabilityControls?.search ?? searchSettings.value?.enabled ?? false,
+										disabled: !capabilityAvailable(status, "search") || capabilityControls === void 0 && (searchSettings.status !== "ready" || !searchSettings.writable),
+										onChange: (next) => {
+											if (capabilityControls) capabilityControls.set("search", next);
+											else searchScope?.set("enabled", next);
+										}
+									})
+								})]
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("article", {
+							className: "agy-direct-card",
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "agy-direct-card-header",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "agy-direct-card-identity",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h2", {
+										className: "agy-direct-card-title",
+										children: t("image")
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+										className: "agy-direct-card-intro",
+										children: t("imageCardIntro")
+									})]
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+									className: "agy-direct-card-action",
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Switch, {
+										label: t("toggleImage"),
+										checked: capabilityControls?.image ?? imageSettings.value?.enabled ?? false,
+										disabled: !capabilityAvailable(status, "image") || capabilityControls === void 0 && (imageSettings.status !== "ready" || !imageSettings.writable),
+										onChange: (next) => {
+											if (capabilityControls) capabilityControls.set("image", next);
+											else imageScope?.set("enabled", next);
+										}
+									})
+								})]
+							})
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("article", {
+							className: "agy-direct-card",
+							children: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "agy-direct-card-header",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+									className: "agy-direct-card-identity",
+									children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h2", {
+										className: "agy-direct-card-title",
+										children: t("video")
+									}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+										className: "agy-direct-card-intro",
+										children: t("videoCardIntro")
+									})]
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+									className: "agy-direct-card-action",
+									children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(Switch, {
+										label: t("toggleVideo"),
+										checked: capabilityControls?.video ?? videoSettings.value?.enabled ?? false,
+										disabled: !capabilityAvailable(status, "video") || capabilityControls === void 0 && (videoSettings.status !== "ready" || !videoSettings.writable),
+										onChange: (next) => {
+											if (capabilityControls) capabilityControls.set("video", next);
+											else videoScope?.set("enabled", next);
+										}
+									})
+								})]
+							})
+						})
+					]
+				})]
+			});
+		}
+		function capabilityAvailable(status, id) {
+			return status?.login.projectAvailable === true && status.capabilities.some((capability) => capability.id === id && capability.state === "available");
+		}
+		function Switch({ label, checked, disabled, onChange }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("label", {
+				className: "agy-direct-switch",
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+					type: "checkbox",
+					"aria-label": label,
+					checked,
+					disabled,
+					onChange: (e) => {
+						onChange(e.target.checked);
+					}
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: "agy-direct-switch-slider" })]
+			});
+		}
+		function formatRefreshTime(resetTime, dayUnit, now = Date.now()) {
+			const target = new Date(resetTime).getTime();
+			if (Number.isNaN(target)) return resetTime;
+			const diffMs = target - now;
+			if (diffMs <= 0) return "0m";
+			const diffMinutes = Math.floor(diffMs / 6e4);
+			const hours = Math.floor(diffMinutes / 60);
+			const remMinutes = diffMinutes % 60;
+			if (hours >= 24) return `${Math.floor(hours / 24)}${dayUnit} ${hours % 24}h ${remMinutes}m`;
+			if (hours > 0) return `${hours}h ${remMinutes}m`;
+			return `${remMinutes}m`;
+		}
+		function quotaTone(fraction) {
+			if (fraction < .3) return "error";
+			if (fraction <= .6) return "warning";
+			return "normal";
+		}
+		function QuotaVisualDashboard({ quota, busy, error, t }) {
+			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+				className: "agy-direct-quota-section",
+				children: [quota?.state === "available" && quota.groups !== void 0 && quota.groups.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: "agy-direct-quota-groups",
+					children: quota.groups.map((group) => {
+						const groupTitle = group.group === "gemini" ? t("geminiGroupTitle") : t("claudeGptGroupTitle");
+						const groupDesc = group.group === "gemini" ? t("geminiGroupDesc") : t("claudeGptGroupDesc");
+						return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							className: "agy-direct-quota-group",
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+								className: "agy-direct-quota-group-header",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "agy-direct-quota-group-title",
+									children: groupTitle
+								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+									className: "agy-direct-quota-group-desc",
+									children: groupDesc
+								})]
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+								className: "agy-direct-quota-buckets",
+								children: group.windows.map((window) => {
+									const windowName = window.window === "5h" ? t("window5hTitle") : t("windowWeeklyTitle");
+									const pctFormatted = (window.remainingFraction * 100).toFixed(2) + "%";
+									const pctRounded = Math.round(window.remainingFraction * 100);
+									const refreshStr = formatRefreshTime(window.resetTime, t("quotaDayUnit"));
+									const subtext = `${pctRounded}% ${t("remaining")} · ${t("refreshesIn").replace("{time}", refreshStr)}`;
+									const widthPct = Math.max(0, Math.min(100, window.remainingFraction * 100));
+									const tone = quotaTone(window.remainingFraction);
+									return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+										className: "agy-direct-quota-bucket",
+										children: [
+											/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+												className: "agy-direct-quota-bucket-head",
+												children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+													className: "agy-direct-quota-bucket-name",
+													children: windowName
+												}), busy ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+													className: "agy-direct-quota-querying",
+													children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+														className: "agy-direct-querying-spinner",
+														"aria-hidden": "true"
+													}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: t("queryingQuota") })]
+												}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+													className: "agy-direct-quota-bucket-val",
+													"data-tone": tone,
+													children: pctFormatted
+												})]
+											}),
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+												className: "agy-direct-progress-track",
+												children: busy ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+													className: "agy-direct-shimmer-track",
+													"aria-hidden": "true"
+												}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+													className: "agy-direct-progress-bar",
+													"data-tone": tone,
+													style: { width: `${widthPct}%` }
+												})
+											}),
+											/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+												className: "agy-direct-quota-subtext",
+												children: subtext
+											})
+										]
+									}, window.window);
+								})
+							})]
+						}, group.group);
+					})
+				}) : null, error === null ? null : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+					className: "agy-direct-alert",
+					role: "alert",
+					children: error
+				})]
+			});
+		}
+		const PROJECT_ERROR_KEYS = {
+			"client-not-configured": "clientNotConfigured",
+			"project-unavailable": "projectUnavailable",
+			"project-authentication-failed": "projectAuthenticationFailed",
+			"project-forbidden": "projectForbidden",
+			"project-rate-limited": "projectRateLimited",
+			"project-offline": "projectOffline",
+			"project-malformed": "projectMalformed",
+			"project-protocol-drift": "projectProtocolDrift"
+		};
+		const REVOKE_STATE_KEYS = {
+			idle: "credentialLoggedOut",
+			"logged-out": "credentialLoggedOut",
+			pending: "revokePending",
+			revoked: "revokeSuccess",
+			failed: "revokeFailed",
+			superseded: "revokeSuperseded",
+			"confirmation-required": "revokeConfirmationRequired"
+		};
+		function projectErrorText(errorCode, t) {
+			if (errorCode === void 0) return void 0;
+			const key = PROJECT_ERROR_KEYS[errorCode];
+			return key === void 0 ? void 0 : t(key);
+		}
+		function revokeStatusText(state, t) {
+			return t(REVOKE_STATE_KEYS[state]);
+		}
+		function messageOf(_error, fallback) {
+			return fallback;
+		}
+		// direct/legacy/src/status.ts
+		const CAPABILITY_ROW_IDS = [
+			"auth-llm",
+			"search",
+			"image",
+			"video"
+		];
+		Object.freeze(CAPABILITY_ROW_IDS.map((id) => Object.freeze({
+			id,
+			state: "disabled",
+			reasonCode: "unauthenticated"
+		})));
+		// direct/legacy/src/login-types.ts
+		/** Browser-safe login state shared by the Host OAuth flow and settings RPC. */
+		const LOGIN_PHASES = [
+			"idle",
+			"pending",
+			"success",
+			"cancelled",
+			"expired",
+			"port-conflict",
+			"failed"
+		];
+		const LOGIN_ERROR_CODES = [
+			"client-not-configured",
+			"invalid-method",
+			"invalid-path",
+			"invalid-host",
+			"duplicate-parameter",
+			"invalid-parameters",
+			"missing-state",
+			"state-mismatch",
+			"missing-code",
+			"oauth-error",
+			"no-pending-flow",
+			"expired",
+			"cancelled",
+			"port-conflict",
+			"token-exchange-failed",
+			"project-unavailable",
+			"project-authentication-failed",
+			"project-forbidden",
+			"project-rate-limited",
+			"project-offline",
+			"project-malformed",
+			"project-protocol-drift",
+			"project-validation-failed",
+			"persistence-failed",
+			"credential-conflict",
+			"invalid-callback-url",
+			"risk-acknowledgement-required",
+			"internal"
+		];
+		function isLoginPhase(value) {
+			return typeof value === "string" && LOGIN_PHASES.includes(value);
+		}
+		function isLoginErrorCode(value) {
+			return typeof value === "string" && LOGIN_ERROR_CODES.includes(value);
+		}
+		// direct/legacy/src/model-catalog.ts
+		/** Browser-safe advisory model-catalog state shared by Host RPC and settings. */
+		const ANTIGRAVITY_MODEL_CATALOG_STATES = [
+			"snapshot",
+			"live-available",
+			"refresh-failed",
+			"protocol-drift"
+		];
+		// direct/legacy/src/rpc-vocabulary.ts
+		/** Closed, browser-safe RPC error vocabulary shared by Host and client. */
+		const OPERATION_ERROR_CODES = [
+			"loopback-required",
+			"invalid-grant",
+			"network",
+			"timeout",
+			"rate-limited",
+			"server-error",
+			"http-error",
+			"invalid-response",
+			"conflict",
+			"storage"
+		];
+		const SAFE_RPC_ERROR_CODES = [
+			"bad-request",
+			...LOGIN_ERROR_CODES,
+			...OPERATION_ERROR_CODES
+		];
+		const SAFE_RPC_ERROR_MESSAGES = Object.freeze({
+			"bad-request": "antigravity-auth: invalid request",
+			"client-not-configured": "Set AGY_CLIENT_ID and AGY_CLIENT_SECRET in the DSH host environment",
+			"loopback-required": "Antigravity account controls require a loopback-bound DSH Host",
+			cancelled: "The operation was cancelled",
+			"risk-acknowledgement-required": "Risk acknowledgement is required before login",
+			"port-conflict": "The fixed OAuth callback port is already in use",
+			"invalid-method": "The OAuth callback method is not accepted",
+			"invalid-path": "The OAuth callback path is not accepted",
+			"invalid-host": "The OAuth callback host is not accepted",
+			"duplicate-parameter": "The OAuth callback contains duplicate parameters",
+			"invalid-parameters": "The OAuth callback parameters are not accepted",
+			"missing-state": "The OAuth callback state is missing",
+			"state-mismatch": "The OAuth callback state was not accepted",
+			"missing-code": "The OAuth callback code is missing",
+			"oauth-error": "The OAuth provider rejected authorization",
+			expired: "The OAuth login expired",
+			"no-pending-flow": "There is no pending OAuth login",
+			"project-unavailable": "No usable project is available for this account",
+			"project-authentication-failed": "The Antigravity project probe requires authentication",
+			"project-forbidden": "The Antigravity project probe was forbidden",
+			"project-rate-limited": "The Antigravity project probe is rate-limited",
+			"project-offline": "The Antigravity project probe is offline",
+			"project-malformed": "The Antigravity project response was malformed",
+			"project-protocol-drift": "The Antigravity project protocol changed",
+			"project-validation-failed": "Project validation failed",
+			"credential-conflict": "The login changed while it was completing",
+			"persistence-failed": "The login could not be saved",
+			"token-exchange-failed": "The authorization code could not be exchanged",
+			"invalid-callback-url": "The callback URL is invalid",
+			"invalid-grant": "The account must be authenticated again",
+			network: "The operation could not reach the provider",
+			timeout: "The operation timed out",
+			"rate-limited": "The operation is rate-limited",
+			"server-error": "The provider is unavailable",
+			"http-error": "The provider rejected the operation",
+			"invalid-response": "The provider response was not accepted",
+			conflict: "The account changed while the operation was running",
+			storage: "The local account state could not be updated"
+		});
+		function isSafeRpcErrorCode(value) {
+			return typeof value === "string" && SAFE_RPC_ERROR_CODES.includes(value);
+		}
+		function safeRpcErrorMessage(code) {
+			return SAFE_RPC_ERROR_MESSAGES[code] ?? "antigravity-auth: operation failed";
+		}
+		// direct/legacy/src/safe-text.ts
+		/** Shared bounded text predicate for Host trust-boundary values. */
+		function isBoundedSafeText(value, maxLength, minLength = 1) {
+			if (typeof value !== "string" || !Number.isSafeInteger(maxLength) || !Number.isSafeInteger(minLength) || minLength < 0 || maxLength < minLength || value.length < minLength || value.length > maxLength) return false;
+			for (let index = 0; index < value.length; index += 1) {
+				const codePoint = value.charCodeAt(index);
+				if (codePoint < 32 || codePoint === 127) return false;
+			}
+			return true;
+		}
+		// direct/legacy/src/rpc-contract.ts
+		const ANTIGRAVITY_AUTH_RPC_CHANNEL = "/api";
+		const ANTIGRAVITY_AUTH_RPC_NAMESPACE = "antigravity-auth";
+		/** Build the browser face over the plugin-owned guarded account channel. */
+		function createAntigravityAuthRpcClient(rpc) {
+			return {
+				status: (signal) => callValidated(rpc, "status", {}, signal, (value) => {
+					const status = parseStatusResult(value);
+					return status === void 0 ? void 0 : { status };
+				}),
+				acknowledgeRisk: (signal) => callValidated(rpc, "acknowledge-risk", { acknowledge: true }, signal, parseAcknowledgementResult),
+				login: (signal) => callValidated(rpc, "login", {}, signal, parseLoginResult),
+				cancelLogin: (signal) => callValidated(rpc, "cancel", {}, signal, parseActionResult),
+				logout: (signal) => callValidated(rpc, "logout", {}, signal, parseLogoutResult),
+				revoke: (signal) => callValidated(rpc, "revoke", { confirmed: true }, signal, parseRevokeResult),
+				models: (signal, force = false) => callValidated(rpc, "models", { force }, signal, parseModelCatalogResult),
+				usage: (signal, force = false) => callValidated(rpc, "usage", { force }, signal, parseUsageResult),
+				accounts: (signal) => callValidated(rpc, "accounts", {}, signal, parseDirectAccounts),
+				switchAccount: (id, signal) => callValidated(rpc, "switch-account", { id }, signal, parseAccountAction),
+				removeAccount: (id, signal) => callValidated(rpc, "remove-account", { id }, signal, parseAccountAction)
+			};
+		}
+		function parseDirectAccounts(value) {
+			if (!isRecord(value) || !hasExactKeys(value, ["accounts"]) || !Array.isArray(value.accounts) || value.accounts.length > 100) return void 0;
+			const accounts = [];
+			const ids = /* @__PURE__ */ new Set();
+			for (const account of value.accounts) {
+				if (!isRecord(account) || !Object.keys(account).every((key) => [
+					"id",
+					"index",
+					"isActive",
+					"maskedEmail"
+				].includes(key)) || typeof account.id !== "string" || !/^acc_[1-9][0-9]{0,11}$/.test(account.id) || ids.has(account.id) || !Number.isSafeInteger(account.index) || account.index < 1 || typeof account.isActive !== "boolean" || account.maskedEmail !== void 0 && (typeof account.maskedEmail !== "string" || !isMaskedEmail(account.maskedEmail))) return void 0;
+				ids.add(account.id);
+				accounts.push({
+					id: account.id,
+					index: account.index,
+					isActive: account.isActive,
+					...typeof account.maskedEmail === "string" ? { maskedEmail: account.maskedEmail } : {}
+				});
+			}
+			if (accounts.filter((account) => account.isActive).length > 1) return void 0;
+			return { accounts };
+		}
+		function parseAccountAction(value) {
+			return isRecord(value) && hasExactKeys(value, ["success"]) && value.success === true ? { success: true } : void 0;
+		}
+		async function callValidated(rpc, endpoint, payload, signal, parse) {
+			let result;
+			try {
+				result = await rpc.call(ANTIGRAVITY_AUTH_RPC_CHANNEL, `${ANTIGRAVITY_AUTH_RPC_NAMESPACE}/${endpoint}`, payload, signal);
+			} catch {
+				return invalidResponse(endpoint);
+			}
+			if (!result.ok) return sanitizeFailure(result, endpoint);
+			const value = parse(result.value);
+			return value === void 0 ? invalidResponse(endpoint) : {
+				ok: true,
+				value
+			};
+		}
+		function sanitizeFailure(result, endpoint) {
+			const error = result.error;
+			if (!isRecord(error) || !hasExactKeys(error, [
+				"code",
+				"message",
+				"details"
+			]) || !isSafeRpcErrorCode(error.code) || typeof error.message !== "string" || !isBoundedSafeText(error.message, 512) || !isSafeErrorDetails(error.details)) return invalidResponse(endpoint);
+			return {
+				ok: false,
+				error: {
+					code: error.code,
+					message: safeRpcErrorMessage(error.code),
+					details: {}
+				}
+			};
+		}
+		function isSafeErrorDetails(value) {
+			if (!isRecord(value)) return false;
+			if (Object.keys(value).length === 0) return true;
+			return hasExactKeys(value, ["issues"]) && Array.isArray(value.issues) && value.issues.length === 0;
+		}
+		/** Parse a closed, value-safe advisory model catalog received by the browser. */
+		function parseModelCatalogResult(value) {
+			if (!isRecord(value) || !hasExactKeys(value, [
+				"state",
+				"models",
+				...value.checkedAt === void 0 ? [] : ["checkedAt"]
+			]) || !ANTIGRAVITY_MODEL_CATALOG_STATES.includes(value.state) || !Array.isArray(value.models) || value.models.length === 0 || value.models.length > 64 || value.checkedAt !== void 0 && !isIsoTime(value.checkedAt)) return void 0;
+			const models = [];
+			const ids = /* @__PURE__ */ new Set();
+			for (const model of value.models) {
+				if (!isRecord(model) || !hasExactKeys(model, [
+					"id",
+					"name",
+					"state"
+				]) || !isBoundedSafeText(model.id, 256) || !isBoundedSafeText(model.name, 256) || model.state !== "snapshot" && model.state !== "live-available" && model.state !== "unavailable" || ids.has(model.id)) return void 0;
+				if (value.state === "live-available" ? model.state === "snapshot" : model.state !== "snapshot") return void 0;
+				ids.add(model.id);
+				models.push({
+					id: model.id,
+					name: model.name,
+					state: model.state
+				});
+			}
+			return {
+				state: value.state,
+				models,
+				...typeof value.checkedAt === "string" ? { checkedAt: value.checkedAt } : {}
+			};
+		}
+		/** Parse a value-safe, normalized quota envelope received by the browser. */
+		function parseUsageResult(value) {
+			if (!isRecord(value) || !hasExactKeys(value, [
+				"state",
+				...value.checkedAt === void 0 ? [] : ["checkedAt"],
+				...value.groups === void 0 ? [] : ["groups"]
+			])) return void 0;
+			if (!isQuotaState(value.state)) return void 0;
+			if (value.checkedAt !== void 0 && !isIsoTime(value.checkedAt)) return void 0;
+			if (value.state === "available" && value.groups === void 0) return void 0;
+			if (value.groups !== void 0) {
+				if (!Array.isArray(value.groups) || value.groups.length === 0 || value.groups.length > 2) return void 0;
+				const groups = [];
+				const groupNames = /* @__PURE__ */ new Set();
+				for (const rawGroup of value.groups) {
+					if (!isRecord(rawGroup) || !hasExactKeys(rawGroup, [
+						"group",
+						"modelCount",
+						"windows"
+					]) || rawGroup.group !== "gemini" && rawGroup.group !== "non-gemini" || !Number.isSafeInteger(rawGroup.modelCount) || rawGroup.modelCount < 0 || !Array.isArray(rawGroup.windows)) return void 0;
+					if (groupNames.has(rawGroup.group)) return void 0;
+					groupNames.add(rawGroup.group);
+					const modelCount = rawGroup.modelCount;
+					if (rawGroup.windows.length === 0 || rawGroup.windows.length > 2) return void 0;
+					const windows = [];
+					const windowKinds = /* @__PURE__ */ new Set();
+					for (const rawWindow of rawGroup.windows) {
+						if (!isRecord(rawWindow) || !hasExactKeys(rawWindow, [
+							"window",
+							"remainingFraction",
+							"resetTime"
+						]) || rawWindow.window !== "5h" && rawWindow.window !== "weekly" || windowKinds.has(rawWindow.window) || typeof rawWindow.remainingFraction !== "number" || !Number.isFinite(rawWindow.remainingFraction) || rawWindow.remainingFraction < 0 || rawWindow.remainingFraction > 1 || !isIsoTime(rawWindow.resetTime)) return void 0;
+						windowKinds.add(rawWindow.window);
+						windows.push({
+							window: rawWindow.window,
+							remainingFraction: rawWindow.remainingFraction,
+							resetTime: rawWindow.resetTime
+						});
+					}
+					groups.push({
+						group: rawGroup.group,
+						modelCount,
+						windows
+					});
+				}
+				return {
+					state: value.state,
+					...typeof value.checkedAt === "string" ? { checkedAt: value.checkedAt } : {},
+					groups
+				};
+			}
+			return {
+				state: value.state,
+				...typeof value.checkedAt === "string" ? { checkedAt: value.checkedAt } : {}
+			};
+		}
+		/** Parse the closed status envelope received by the browser. */
+		function parseStatusResult(value) {
+			if (!isRecord(value) || !hasExactKeys(value, ["status"])) return void 0;
+			return parseStatus(value.status);
+		}
+		function parseStatus(value) {
+			if (!isRecord(value) || !hasAllowedKeys(value, [
+				"pluginId",
+				"phase",
+				"privateSelfUse",
+				"singleAccount",
+				"riskAcknowledgementRequired",
+				"riskAcknowledged",
+				"login",
+				"credential",
+				"revoke",
+				"capabilities"
+			]) || value.pluginId !== "dsh-antigravity-auth" || value.phase !== "bootstrap" || value.privateSelfUse !== true || value.singleAccount !== true || value.riskAcknowledgementRequired !== true || typeof value.riskAcknowledged !== "boolean" || !Array.isArray(value.capabilities)) return void 0;
+			const login = parseLoginStatus(value.login);
+			if (login === void 0) return void 0;
+			const credential = value.credential === void 0 ? void 0 : parseCredentialStatus(value.credential);
+			if (value.credential !== void 0 && credential === void 0) return void 0;
+			const revoke = value.revoke === void 0 ? void 0 : parseRevokeStatus(value.revoke);
+			if (value.revoke !== void 0 && revoke === void 0) return void 0;
+			const seen = /* @__PURE__ */ new Set();
+			const capabilities = [];
+			for (const capability of value.capabilities) {
+				const parsed = parseCapability(capability);
+				if (parsed === void 0 || seen.has(parsed.id)) return void 0;
+				seen.add(parsed.id);
+				capabilities.push(parsed);
+			}
+			if (seen.size !== CAPABILITY_ROW_IDS.length || CAPABILITY_ROW_IDS.some((id) => !seen.has(id))) return void 0;
+			return {
+				pluginId: "dsh-antigravity-auth",
+				phase: "bootstrap",
+				privateSelfUse: true,
+				singleAccount: true,
+				riskAcknowledgementRequired: true,
+				riskAcknowledged: value.riskAcknowledged,
+				login,
+				...credential === void 0 ? {} : { credential },
+				...revoke === void 0 ? {} : { revoke },
+				capabilities
+			};
+		}
+		function parseCredentialStatus(value) {
+			if (!isRecord(value) || typeof value.state !== "string" || !isCredentialState(value.state) || typeof value.configured !== "boolean" || !hasAllowedKeys(value, [
+				"state",
+				"configured",
+				"expiresAt",
+				"lastRefreshAt",
+				"errorCode"
+			])) return void 0;
+			if (value.expiresAt !== void 0 && !isIsoTime(value.expiresAt)) return void 0;
+			if (value.lastRefreshAt !== void 0 && !isIsoTime(value.lastRefreshAt)) return void 0;
+			if (value.errorCode !== void 0 && (typeof value.errorCode !== "string" || !isCredentialErrorCode(value.errorCode))) return void 0;
+			return {
+				state: value.state,
+				configured: value.configured,
+				...typeof value.expiresAt === "string" ? { expiresAt: value.expiresAt } : {},
+				...typeof value.lastRefreshAt === "string" ? { lastRefreshAt: value.lastRefreshAt } : {},
+				...typeof value.errorCode === "string" ? { errorCode: value.errorCode } : {}
+			};
+		}
+		function parseRevokeStatus(value) {
+			if (!isRecord(value) || typeof value.state !== "string" || !isRevokeState(value.state) || !hasAllowedKeys(value, ["state", "errorCode"])) return void 0;
+			if (value.errorCode !== void 0 && (typeof value.errorCode !== "string" || !isRevokeErrorCode(value.errorCode))) return void 0;
+			return {
+				state: value.state,
+				...typeof value.errorCode === "string" ? { errorCode: value.errorCode } : {}
+			};
+		}
+		function parseLoginStatus(value) {
+			if (!isRecord(value) || typeof value.phase !== "string" || !isLoginPhase(value.phase) || typeof value.configured !== "boolean" || typeof value.projectAvailable !== "boolean") return void 0;
+			const allowed = [
+				"phase",
+				"configured",
+				"projectAvailable",
+				"authorizationUrl",
+				"expiresAt",
+				"maskedEmail",
+				"errorCode"
+			];
+			if (Object.keys(value).some((key) => !allowed.includes(key))) return void 0;
+			if (value.authorizationUrl !== void 0 && !isSafeAuthorizationUrl(value.authorizationUrl)) return void 0;
+			if (value.expiresAt !== void 0 && !isIsoTime(value.expiresAt)) return void 0;
+			if (value.maskedEmail !== void 0 && (typeof value.maskedEmail !== "string" || !isMaskedEmail(value.maskedEmail))) return void 0;
+			if (value.errorCode !== void 0 && !isLoginErrorCode(value.errorCode)) return void 0;
+			if (isErrorPhase(value.phase) ? typeof value.errorCode !== "string" : value.errorCode !== void 0) return void 0;
+			if (value.phase === "pending" ? typeof value.authorizationUrl !== "string" || typeof value.expiresAt !== "string" : value.authorizationUrl !== void 0) return void 0;
+			return {
+				phase: value.phase,
+				configured: value.configured,
+				projectAvailable: value.projectAvailable,
+				...typeof value.authorizationUrl === "string" ? { authorizationUrl: value.authorizationUrl } : {},
+				...typeof value.expiresAt === "string" ? { expiresAt: value.expiresAt } : {},
+				...typeof value.maskedEmail === "string" ? { maskedEmail: value.maskedEmail } : {},
+				...typeof value.errorCode === "string" ? { errorCode: value.errorCode } : {}
+			};
+		}
+		function parseCapability(value) {
+			if (!isRecord(value) || !hasExactKeys(value, [
+				"id",
+				"state",
+				"reasonCode"
+			])) return void 0;
+			if (!isCapabilityRowId(value.id) || !isCapabilityGateState(value.state) || !isCapabilityReasonCode(value.reasonCode)) return;
+			return {
+				id: value.id,
+				state: value.state,
+				reasonCode: value.reasonCode
+			};
+		}
+		function parseAcknowledgementResult(value) {
+			return isRecord(value) && hasExactKeys(value, ["acknowledged"]) && value.acknowledged === true ? { acknowledged: true } : void 0;
+		}
+		function parseLoginResult(value) {
+			return isRecord(value) && hasExactKeys(value, [
+				"started",
+				"phase",
+				"authorizationUrl",
+				"expiresAt"
+			]) && value.started === true && value.phase === "pending" && isSafeAuthorizationUrl(value.authorizationUrl) && isIsoTime(value.expiresAt) ? {
+				started: true,
+				phase: "pending",
+				authorizationUrl: value.authorizationUrl,
+				expiresAt: value.expiresAt
+			} : void 0;
+		}
+		function parseActionResult(value) {
+			if (!isRecord(value) || typeof value.phase !== "string" || !isLoginPhase(value.phase)) return void 0;
+			if (Object.keys(value).some((key) => key !== "phase" && key !== "errorCode")) return void 0;
+			if (value.errorCode !== void 0 && !isLoginErrorCode(value.errorCode)) return void 0;
+			return {
+				phase: value.phase,
+				...typeof value.errorCode === "string" ? { errorCode: value.errorCode } : {}
+			};
+		}
+		function parseLogoutResult(value) {
+			return isRecord(value) && hasExactKeys(value, ["state"]) && value.state === "logged-out" ? { state: "logged-out" } : void 0;
+		}
+		function parseRevokeResult(value) {
+			if (!isRecord(value) || typeof value.state !== "string") return void 0;
+			if (value.state === "confirmation-required" || value.state === "revoked" || value.state === "logged-out" || value.state === "superseded") return hasExactKeys(value, ["state"]) ? { state: value.state } : void 0;
+			if (value.state === "failed" && hasExactKeys(value, ["state", "errorCode"]) && typeof value.errorCode === "string" && isRevokeErrorCode(value.errorCode)) return {
+				state: "failed",
+				errorCode: value.errorCode
+			};
+		}
+		function isSafeAuthorizationUrl(value) {
+			if (typeof value !== "string" || value.length === 0 || value.length > 8192) return false;
+			try {
+				const parsed = new URL(value);
+				const allowed = /* @__PURE__ */ new Set([
+					"client_id",
+					"response_type",
+					"redirect_uri",
+					"scope",
+					"code_challenge",
+					"code_challenge_method",
+					"state",
+					"access_type",
+					"prompt"
+				]);
+				for (const [key, parameter] of parsed.searchParams) if (!allowed.has(key) || parsed.searchParams.getAll(key).length !== 1 || !isBoundedSafeText(parameter, 4096)) return false;
+				const state = parsed.searchParams.get("state");
+				const clientId = parsed.searchParams.get("client_id");
+				const challenge = parsed.searchParams.get("code_challenge");
+				const prompt = parsed.searchParams.get("prompt");
+				return parsed.protocol === "https:" && parsed.hostname === "accounts.google.com" && parsed.port === "" && parsed.username === "" && parsed.password === "" && parsed.pathname === "/o/oauth2/v2/auth" && parsed.hash.length === 0 && typeof state === "string" && /^[A-Za-z0-9_-]{43}$/u.test(state) && (clientId === null || clientId.length <= 256 && clientId.endsWith(".apps.googleusercontent.com")) && (challenge === null || /^[A-Za-z0-9_-]{43}$/u.test(challenge)) && (parsed.searchParams.get("response_type") === null || parsed.searchParams.get("response_type") === "code") && (parsed.searchParams.get("redirect_uri") === null || parsed.searchParams.get("redirect_uri") === "http://localhost:51121/oauth-callback") && (parsed.searchParams.get("code_challenge_method") === null || parsed.searchParams.get("code_challenge_method") === "S256") && (parsed.searchParams.get("access_type") === null || parsed.searchParams.get("access_type") === "offline") && (prompt === null || prompt === "consent" || prompt === "select_account consent");
+			} catch {
+				return false;
+			}
+		}
+		function isMaskedEmail(value) {
+			return isBoundedSafeText(value, 256) && /^.[*]{3}[^@]*@[^@\s]+$/u.test(value);
+		}
+		function isErrorPhase(value) {
+			return value === "cancelled" || value === "expired" || value === "port-conflict" || value === "failed";
+		}
+		function isQuotaState(value) {
+			return value === "available" || value === "unauthenticated" || value === "forbidden" || value === "rate-limited" || value === "offline" || value === "timeout" || value === "protocol-drift";
+		}
+		function isIsoTime(value) {
+			if (typeof value !== "string" || value.length > 64) return false;
+			const timestamp = Date.parse(value);
+			return Number.isFinite(timestamp) && new Date(timestamp).toISOString() === value;
+		}
+		function isCapabilityRowId(value) {
+			return typeof value === "string" && CAPABILITY_ROW_IDS.includes(value);
+		}
+		function isCapabilityGateState(value) {
+			return value === "available" || value === "disabled" || value === "poc-pending" || value === "protocol-drift";
+		}
+		function isCapabilityReasonCode(value) {
+			return value === "gate-not-run" || value === "project-unavailable" || value === "capability-ready" || value === "unauthenticated" || value === "rate-limited" || value === "cancelled" || value === "gate-0-failed" || value === "gate-failed" || value === "unsupported-video" || value === "protocol-drift";
+		}
+		function isCredentialState(value) {
+			return value === "logged-out" || value === "logged-in" || value === "refreshing" || value === "refresh-failed" || value === "re-login-required";
+		}
+		function isCredentialErrorCode(value) {
+			return value === "client-not-configured" || value === "invalid-grant" || value === "network" || value === "timeout" || value === "rate-limited" || value === "server-error" || value === "http-error" || value === "invalid-response" || value === "conflict" || value === "storage" || value === "cancelled";
+		}
+		function isRevokeState(value) {
+			return value === "idle" || value === "pending" || value === "confirmation-required" || value === "revoked" || value === "logged-out" || value === "failed" || value === "superseded";
+		}
+		function isRevokeErrorCode(value) {
+			return value === "client-not-configured" || value === "network" || value === "timeout" || value === "rate-limited" || value === "server-error" || value === "http-error" || value === "invalid-response" || value === "storage";
+		}
+		function hasAllowedKeys(value, allowed) {
+			return Object.keys(value).every((key) => allowed.includes(key));
+		}
+		function hasExactKeys(value, expected) {
+			const keys = Object.keys(value).sort();
+			const sortedExpected = [...expected].sort();
+			return keys.length === sortedExpected.length && keys.every((key, index) => key === sortedExpected[index]);
+		}
+		function invalidResponse(endpoint) {
+			return {
+				ok: false,
+				error: {
+					code: "internal",
+					message: `antigravity-auth: invalid ${endpoint} response from Host`,
+					details: {}
+				}
+			};
+		}
+		function isRecord(value) {
+			return typeof value === "object" && value !== null && !Array.isArray(value);
+		}
+		// direct/legacy/src/client/locales.ts
+		/** English and Chinese copy for the private bootstrap settings section. */
+		const en = {
+			nav: "Antigravity",
+			title: "Antigravity Auth",
+			intro: "Sign in with Antigravity Auth to access language models, image generation, web search, and video understanding.",
+			riskTitle: "Before you continue",
+			risk: "Google does not support third-party Antigravity login tools. Your account may be suspended or terminated.",
+			terms: "Review the Google FAQ before continuing.",
+			additionalTerms: "Review the Additional Terms.",
+			singleAccount: "One active account at a time. This bundle does not provide an account pool or quota rotation.",
+			riskAcknowledgement: "I understand the unofficial third-party login risk and want to continue.",
+			acknowledgeBusy: "Saving acknowledgement…",
+			acknowledgeFailed: "The risk acknowledgement could not be recorded.",
+			login: "Start Antigravity login",
+			startingLogin: "Starting login…",
+			cancelLogin: "Cancel login",
+			cancelLoginFailed: "The login cancellation failed.",
+			openAuthorization: "Open the Google authorization page",
+			loginReady: "Login is ready to start.",
+			loginRequiresAck: "Acknowledge the risk before login can begin.",
+			loginPending: "Login is waiting for the browser authorization callback.",
+			loginSuccess: "Login completed successfully.",
+			loginCancelled: "Login was cancelled.",
+			loginExpired: "The login expired. Start again to receive a new authorization link.",
+			loginPortConflict: "The fixed callback port is already in use. Close the conflicting process and try again.",
+			loginFailed: "The login could not be completed safely.",
+			clientNotConfigured: "Set AGY_CLIENT_ID and AGY_CLIENT_SECRET in the DSH host environment and restart DSH.",
+			credentialLoggedIn: "The Antigravity account is ready.",
+			credentialRefreshing: "Refreshing the Antigravity access token…",
+			credentialRefreshFailed: "The access token could not be refreshed. No fallback account or endpoint was used.",
+			credentialReloginRequired: "The Antigravity grant requires login again.",
+			credentialLoggedOut: "The Antigravity account is logged out on this Host.",
+			logout: "Log out locally",
+			logoutFailed: "The local logout could not be completed.",
+			revoke: "Revoke Google grant",
+			revokeConfirm: "Revoke this Google grant? This is separate from local logout.",
+			revokePending: "Revoking the Google grant…",
+			revokeSuccess: "The Google grant was revoked and local state was cleared.",
+			revokeFailed: "The Google grant could not be revoked. Local state was retained.",
+			revokeSuperseded: "The account changed before revocation completed. No newer account was cleared.",
+			revokeConfirmationRequired: "Confirm revocation before contacting Google.",
+			account: "Account",
+			accountsTitle: "Direct accounts",
+			accountsEmpty: "No direct accounts yet.",
+			accountCurrent: "Current",
+			accountSwitch: "Select",
+			accountRemove: "Remove",
+			accountRemoveConfirm: "Remove this saved direct account from this device?",
+			accountActionFailed: "The account operation failed.",
+			accountSwitchHelp: "A request already in progress continues with the account it started with.",
+			projectAvailable: "Read-only project validation is available.",
+			projectUnavailable: "No usable project is available.",
+			projectAuthenticationFailed: "Project discovery requires a fresh authenticated grant.",
+			projectForbidden: "This account is not allowed to use the discovered project.",
+			projectRateLimited: "Project discovery was rate-limited. No fallback project was used.",
+			projectOffline: "Project discovery is temporarily offline. No fallback project was used.",
+			projectMalformed: "Project discovery returned a malformed response.",
+			projectProtocolDrift: "Project discovery no longer matches the audited protocol.",
+			expiresAt: "Authorization link expires",
+			statusLoading: "Loading capability status…",
+			statusFailed: "Capability status is unavailable.",
+			retry: "Retry",
+			capabilityTitle: "Capability gates",
+			authLlm: "Auth / LLM",
+			search: "Web Search",
+			image: "Image",
+			video: "Video",
+			available: "Available",
+			ready: "Ready",
+			disabled: "Disabled",
+			pocPending: "POC pending",
+			protocolDrift: "Protocol drift",
+			gateNotRun: "This capability gate has not been run.",
+			gateUnauthenticated: "This gate requires a fresh authenticated grant.",
+			gateRateLimited: "This gate was rate-limited; no fallback was attempted.",
+			gateCancelled: "This gate run was cancelled.",
+			gate0Failed: "The fixed Wire Identity was rejected by Gate 0.",
+			gateFailed: "This capability gate failed safely.",
+			unsupportedVideo: "The private endpoint rejected native video input.",
+			acknowledged: "Risk acknowledged for this Host session.",
+			settingsTitle: "Capability settings",
+			toggleSearch: "Enable grounded Web Search",
+			toggleImage: "Enable image generation and editing",
+			toggleVideo: "Enable video understanding POC",
+			settingsUnavailable: "Unavailable until login, project validation, the live gate, and a writable Host settings scope are ready.",
+			modelsTitle: "Models",
+			modelsSnapshot: "Showing the pinned audited snapshot; live availability has not been refreshed.",
+			modelsLiveAvailable: "Live account availability was intersected with the pinned snapshot.",
+			modelsRefreshFailed: "Live availability refresh failed safely; the pinned snapshot remains advisory.",
+			modelsProtocolDrift: "Live model discovery no longer matches the audited protocol.",
+			modelsSnapshotEntry: "Snapshot",
+			modelsAvailableEntry: "Live available",
+			modelsUnavailableEntry: "Unavailable to this account",
+			modelsFailed: "Model availability could not be loaded safely.",
+			modelsLoading: "Refreshing models…",
+			modelsRefresh: "Refresh model availability",
+			quotaTitle: "Usage and quota",
+			quotaAvailable: "Quota is available from the current account.",
+			quotaUnknown: "Quota has not been queried.",
+			quotaUnauthenticated: "Log in to query quota.",
+			quotaForbidden: "This account is not allowed to query quota.",
+			quotaRateLimited: "Quota is rate-limited; try again later.",
+			quotaOffline: "Quota is temporarily unavailable.",
+			quotaProtocolDrift: "Quota protocol drift was detected; raw provider data was discarded.",
+			quotaFailed: "Quota could not be loaded safely.",
+			quotaLoading: "Refreshing quota…",
+			quotaRefresh: "Refresh quota",
+			quotaFiveHour: "Five-hour window",
+			quotaWeekly: "Weekly window",
+			searchCardIntro: "Google Antigravity Search Provider used by the stock web_search tool.",
+			imageCardIntro: "Durable image generation tools for image-capable models (gemini-3.1-flash-image).",
+			videoCardIntro: "Workspace MP4 video understanding tools for multimodal models (gemini-3.7-flash).",
+			privacyNotice: "Share Antigravity login state and model routing.",
+			relogin: "Log in again with Google",
+			authCardTitle: "Login",
+			authCardIntro: "Share Antigravity session and Antigravity model routing.",
+			queryingQuota: "Querying quota…",
+			geminiGroupTitle: "GEMINI MODELS",
+			geminiGroupDesc: "Models within this group: Gemini Flash, Gemini Pro",
+			claudeGptGroupTitle: "CLAUDE AND GPT MODELS",
+			claudeGptGroupDesc: "Models within this group: Claude Opus, Claude Sonnet, GPT-OSS",
+			window5hTitle: "Five Hour Limit Remaining",
+			windowWeeklyTitle: "Weekly Limit Remaining",
+			quotaFooterNotice: "No token value is ever sent to the Web client, settings, logs, events, or tool metadata.",
+			refreshStatus: "Refresh status",
+			remaining: "remaining",
+			refreshesIn: "Refreshes in {time}",
+			quotaDayUnit: "d"
+		};
+		const zh = {
+			nav: "Antigravity",
+			title: "Antigravity Auth",
+			intro: "通过 Antigravity Auth 登录，使用语言模型、图片生成、网页搜索和视频理解能力。",
+			riskTitle: "继续前请确认",
+			risk: "Google 不支持第三方 Antigravity 登录工具，账号可能被暂停或终止。",
+			terms: "继续前请阅读 Google FAQ。",
+			additionalTerms: "请阅读 Additional Terms。",
+			singleAccount: "同一时刻只有一个活动账号。本能力包不提供账号池或额度轮换。",
+			riskAcknowledgement: "我已了解非官方第三方登录风险，并确认继续。",
+			acknowledgeBusy: "正在保存确认…",
+			acknowledgeFailed: "无法记录风险确认。",
+			login: "开始 Antigravity 登录",
+			startingLogin: "正在启动登录…",
+			cancelLogin: "取消登录",
+			cancelLoginFailed: "取消登录失败。",
+			openAuthorization: "打开 Google 授权页面",
+			loginReady: "可以开始登录。",
+			loginRequiresAck: "请先确认风险，才能开始登录。",
+			loginPending: "等待浏览器授权回调。",
+			loginSuccess: "登录已成功完成。",
+			loginCancelled: "登录已取消。",
+			loginExpired: "登录已过期，请重新开始以获取新的授权链接。",
+			loginPortConflict: "固定回调端口已被占用，请关闭冲突进程后重试。",
+			loginFailed: "登录无法安全完成。",
+			clientNotConfigured: "请先在 DSH 主进程环境中配置 AGY_CLIENT_ID 和 AGY_CLIENT_SECRET，然后重启 DSH。",
+			credentialLoggedIn: "Antigravity 账号已就绪。",
+			credentialRefreshing: "正在刷新 Antigravity access token…",
+			credentialRefreshFailed: "无法刷新 access token，未使用备用账号或 endpoint。",
+			credentialReloginRequired: "该 Antigravity grant 需要重新登录。",
+			credentialLoggedOut: "该 Host 上的 Antigravity 账号已登出。",
+			logout: "在本地登出",
+			logoutFailed: "本地登出未完成。",
+			revoke: "撤销 Google grant",
+			revokeConfirm: "确定撤销此 Google grant 吗？这与本地登出是分开的操作。",
+			revokePending: "正在撤销 Google grant…",
+			revokeSuccess: "Google grant 已撤销，本地状态已清除。",
+			revokeFailed: "无法撤销 Google grant，本地状态已保留。",
+			revokeSuperseded: "账号在撤销完成前发生变化，未清除新账号。",
+			revokeConfirmationRequired: "请先确认撤销，再联系 Google。",
+			account: "账号",
+			accountsTitle: "直连账号",
+			accountsEmpty: "还没有直连账号。",
+			accountCurrent: "当前",
+			accountSwitch: "切换",
+			accountRemove: "移除",
+			accountRemoveConfirm: "从本机移除这个已保存的直连账号？",
+			accountActionFailed: "账号操作失败。",
+			accountSwitchHelp: "已在进行中的请求继续使用启动时的账号。",
+			projectAvailable: "只读 project 验证可用。",
+			projectUnavailable: "没有可用的 project。",
+			projectAuthenticationFailed: "project discovery 需要重新认证的 grant。",
+			projectForbidden: "该账号没有权限使用已发现的 project。",
+			projectRateLimited: "project discovery 被限流，未使用备用 project。",
+			projectOffline: "project discovery 暂时离线，未使用备用 project。",
+			projectMalformed: "project discovery 返回了格式错误的响应。",
+			projectProtocolDrift: "project discovery 已偏离经过审计的协议。",
+			expiresAt: "授权链接过期时间",
+			statusLoading: "正在加载能力状态…",
+			statusFailed: "能力状态不可用。",
+			retry: "重试",
+			capabilityTitle: "能力门禁",
+			authLlm: "认证 / LLM",
+			search: "网页搜索",
+			image: "图片",
+			video: "视频",
+			available: "可用",
+			ready: "就绪",
+			disabled: "已禁用",
+			pocPending: "POC 待验证",
+			protocolDrift: "协议漂移",
+			gateNotRun: "该能力门禁尚未运行。",
+			gateUnauthenticated: "该门禁需要新的有效认证 grant。",
+			gateRateLimited: "该门禁运行被限流，未尝试任何 fallback。",
+			gateCancelled: "该门禁运行已取消。",
+			gate0Failed: "固定 Wire Identity 未通过 Gate 0。",
+			gateFailed: "该能力门禁已安全失败。",
+			unsupportedVideo: "私有 endpoint 拒绝了原生视频输入。",
+			acknowledged: "本 Host 会话已确认风险。",
+			settingsTitle: "能力设置",
+			toggleSearch: "启用有依据的网页搜索",
+			toggleImage: "启用图片生成与编辑",
+			toggleVideo: "启用视频理解 POC",
+			settingsUnavailable: "登录、project 验证、对应 live gate 和可写 Host 设置范围就绪后才能使用。",
+			modelsTitle: "模型",
+			modelsSnapshot: "当前显示已审计的固定快照；尚未刷新真实账号可用性。",
+			modelsLiveAvailable: "已将真实账号可用性与固定快照取交集。",
+			modelsRefreshFailed: "真实可用性刷新已安全失败；固定快照仍仅供参考。",
+			modelsProtocolDrift: "真实模型发现已不再符合已审计协议。",
+			modelsSnapshotEntry: "固定快照",
+			modelsAvailableEntry: "真实可用",
+			modelsUnavailableEntry: "当前账号不可用",
+			modelsFailed: "无法安全加载模型可用性。",
+			modelsLoading: "正在刷新模型…",
+			modelsRefresh: "刷新模型可用性",
+			quotaTitle: "用量与配额",
+			quotaAvailable: "当前账号的配额可用。",
+			quotaUnknown: "尚未查询配额。",
+			quotaUnauthenticated: "登录后才能查询配额。",
+			quotaForbidden: "该账号无权查询配额。",
+			quotaRateLimited: "配额查询被限流，请稍后重试。",
+			quotaOffline: "配额暂时不可用。",
+			quotaProtocolDrift: "检测到配额协议漂移，已丢弃原始 provider 数据。",
+			quotaFailed: "无法安全加载配额。",
+			quotaLoading: "正在刷新配额…",
+			quotaRefresh: "刷新配额",
+			quotaFiveHour: "五小时窗口",
+			quotaWeekly: "每周窗口",
+			searchCardIntro: "供内置 web_search 工具使用的 Google Antigravity 全局搜索能力。",
+			imageCardIntro: "面向支持图片模型的持久化 generate_image 工具（gemini-3.1-flash-image）。",
+			videoCardIntro: "面向本地 MP4 视频文件的多模态 analyze_video 理解工具。",
+			privacyNotice: "共享 Antigravity 登录态与模型路由。",
+			relogin: "重新登录 Google",
+			authCardTitle: "登录",
+			authCardIntro: "共享 Antigravity 登录态与 Antigravity 模型路由。",
+			queryingQuota: "正在查询额度…",
+			geminiGroupTitle: "GEMINI 模型",
+			geminiGroupDesc: "包含模型：Gemini Flash, Gemini Pro",
+			claudeGptGroupTitle: "CLAUDE 与 GPT 模型",
+			claudeGptGroupDesc: "包含模型：Claude Opus, Claude Sonnet, GPT-OSS",
+			window5hTitle: "5 小时限额剩余",
+			windowWeeklyTitle: "周限额剩余",
+			quotaFooterNotice: "任何 Token 值都不会发送到 Web 客户端、设置、日志、事件或工具元数据。",
+			refreshStatus: "刷新状态",
+			remaining: "剩余",
+			refreshesIn: "{time} 后刷新",
+			quotaDayUnit: "天"
+		};
+		// src/client/index.ts
 		const { createElement: h, useState, useEffect, useRef } = require("react");
 		const reactDom = require("react-dom");
 		const win = globalThis;
@@ -6850,11 +9076,15 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					label: "Español",
 					fallback: "en"
 				});
-				const disposeZh = safeRegister(NS, "zh", zh);
-				const disposeEn = safeRegister(NS, "en", en);
+				const disposeZh = safeRegister(NS, "zh", zh$1);
+				const disposeEn = safeRegister(NS, "en", en$1);
 				const disposePtBRDictionary = safeRegister(NS, "pt-BR", ptBR);
 				const disposeEsDictionary = safeRegister(NS, "es", es);
+				const disposeDirectZh = safeRegister("settings.antigravityAuth", "zh", zh);
+				const disposeDirectEn = safeRegister("settings.antigravityAuth", "en", en);
 				return () => {
+					disposeDirectEn();
+					disposeDirectZh();
 					disposeEsDictionary();
 					disposePtBRDictionary();
 					disposeEn();
@@ -6867,6 +9097,86 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 				const [, rerender] = useState(0);
 				useEffect(() => locale.subscribe(() => rerender((revision) => revision + 1)), []);
 				return locale.bind(NS);
+			};
+			const DirectSettingsPane = ({ status, setConfig }) => {
+				const t = useAgyTranslation();
+				const [proxyDraft, setProxyDraft] = useState(status.directProxyUrl ?? "");
+				useEffect(() => {
+					setProxyDraft(status.directProxyUrl ?? "");
+				}, [status.directProxyUrl]);
+				const [client, setClient] = useState(null);
+				useEffect(() => {
+					let live = true;
+					const fiber = ctx.inject(["connection"], (child) => {
+						const connection = child.get("connection");
+						if (!connection.isLoopback) return;
+						const listeners = /* @__PURE__ */ new Set();
+						const unbind = child.on("connection/reset", () => {
+							for (const listener of listeners) listener();
+						});
+						if (live) setClient({
+							rpc: createAntigravityAuthRpcClient(connection.rpc),
+							subscribe: (listener) => {
+								listeners.add(listener);
+								return () => {
+									listeners.delete(listener);
+								};
+							}
+						});
+						return () => {
+							unbind();
+							if (live) setClient(null);
+						};
+					});
+					return () => {
+						live = false;
+						fiber.dispose();
+					};
+				}, []);
+				if (client === null) return h("p", {
+					style: S.muted,
+					role: "status"
+				}, t("direct.unavailable"));
+				return h("div", { className: "agy-direct-panel" }, status.directProxyInvalid ? h("p", { role: "alert" }, t("direct.proxyInvalid")) : null, h("div", { className: "agy-setting-row" }, h("div", { className: "agy-setting-copy" }, h("label", {
+					htmlFor: "agy-direct-proxy",
+					className: "agy-setting-label"
+				}, t("direct.proxy")), h("span", {
+					className: "agy-setting-help",
+					style: S.muted
+				}, t("direct.proxyHelp"))), h("div", { style: {
+					display: "flex",
+					gap: "6px",
+					minWidth: 0,
+					flexWrap: "wrap"
+				} }, h("input", {
+					id: "agy-direct-proxy",
+					style: S.input,
+					value: proxyDraft,
+					placeholder: t("direct.proxyPlaceholder"),
+					onChange: (e) => setProxyDraft(e.target?.value ?? "")
+				}), h("button", {
+					type: "button",
+					className: "agy-btn",
+					style: S.btn,
+					onClick: () => {
+						setConfig("directProxyUrl", proxyDraft.trim());
+					}
+				}, t("direct.proxySave")))), h(AntigravityAuthSettings, {
+					...client,
+					t: locale.bind("settings.antigravityAuth"),
+					capabilityControls: {
+						search: status.directSearch === true,
+						image: status.directImage === true,
+						video: status.directVideo === true,
+						set: (capability, enabled) => {
+							setConfig({
+								search: "directSearch",
+								image: "directImage",
+								video: "directVideo"
+							}[capability], enabled);
+						}
+					}
+				}));
 			};
 			const AgySettingsSection = (props) => {
 				const t = useAgyTranslation();
@@ -6889,7 +9199,7 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 				const flowStartedRef = useRef(false);
 				const safeMessage = (code) => {
 					const key = `auth.code.${code ?? ""}`;
-					return code && key in en ? t(key) : t("api.genericError");
+					return code && key in en$1 ? t(key) : t("api.genericError");
 				};
 				useEffect(() => {
 					if (!addingAccount || !flowStartedRef.current) return;
@@ -6998,10 +9308,11 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					if (res === null || res?.ok === false) {
 						setLoadingAction(null);
 						actionFailed();
-						return;
+						return false;
 					}
 					await refresh();
 					setLoadingAction(null);
+					return true;
 				};
 				const hiddenPendingRef = useRef(null);
 				const toggleModelHidden = async (id, hide) => {
@@ -7782,7 +10093,25 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					},
 					disabled: isBusy,
 					onClick: () => void refreshQuota()
-				}, loadingAction === "refresh:all" ? [renderSpinner(), t("header.refreshing")] : [uiIcon("refresh", 12, "var(--agy-text-btn)"), ` ${t("header.refreshQuota")}`]))), renderToastBanner(), addAccountSection, h("div", {
+				}, loadingAction === "refresh:all" ? [renderSpinner(), t("header.refreshing")] : [uiIcon("refresh", 12, "var(--agy-text-btn)"), ` ${t("header.refreshQuota")}`]))), renderToastBanner(), h("div", { className: "agy-setting-row" }, h("div", { className: "agy-setting-copy" }, h("span", { className: "agy-setting-label" }, t("direct.title")), h("span", {
+					className: "agy-setting-help",
+					style: S.muted
+				}, t("direct.description")), status.directRestartRequired ? h("span", { role: "status" }, t("direct.restart")) : null), h("button", {
+					type: "button",
+					className: "agy-btn",
+					style: S.btn,
+					"aria-pressed": status.experimentalDirect === true,
+					disabled: loadingAction === "config:experimentalDirect",
+					onClick: () => {
+						setCfg("experimentalDirect", status.experimentalDirect !== true);
+					}
+				}, status.experimentalDirect ? t("config.on") : t("config.off"))), status.directRuntime === "starting" ? h("p", {
+					style: S.muted,
+					role: "status"
+				}, t("direct.loading")) : null, status.directRuntime === "error" ? h("p", { role: "alert" }, t("direct.error")) : null, status.directRuntime === "loaded" ? h(DirectSettingsPane, {
+					status,
+					setConfig: setCfg
+				}) : null, addAccountSection, h("div", {
 					className: "agy-section-heading",
 					style: {
 						display: "flex",
@@ -8287,7 +10616,6 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 			});
 			ctx.effect(() => installSettingsNavIcon(ctx, () => locale.bind(NS)("section.label")));
 		}
-		//#endregion
 		exports.apply = apply;
 		exports.inject = inject;
 		exports.name = name;

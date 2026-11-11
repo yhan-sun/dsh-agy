@@ -37,6 +37,7 @@ import { agyMcpConfigPath, startMcpBridge, writeMcpConfig, type McpBridge, type 
 import { readJsonBody } from './host/read-json-body.ts'
 import { fileURLToPath } from 'node:url'
 import { handleMediaRequest, handleAssetRequest, type HttpRequestLike, type HttpResponseLike } from './host/media-route.ts'
+import { validDirectProxy } from './common/direct-proxy.ts'
 
 export const name = 'dsh-agy-link'
 // webServer and tools are optional: the plugin loads headless too.
@@ -130,6 +131,29 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
   } | null = null
   let lastParser = new StreamJsonParser()
   const getConfig = (): PluginConfig => resolveConfig(entryConfig)
+  const directConfigListeners = new Set<() => void>()
+  // The direct backend is opt-in and fixed for this process lifetime. This
+  // avoids changing transports or credentials underneath an in-flight turn.
+  const directEnabledAtStartup = getConfig().enabled && getConfig().experimentalDirect
+  let directRuntime: 'disabled' | 'starting' | 'loaded' | 'error' = directEnabledAtStartup ? 'starting' : 'disabled'
+  ctx.effect(() => {
+    let active = true
+    if (directEnabledAtStartup) {
+      void import('../direct/legacy/src/integrated-host.ts').then(async ({ mountDirectBackend }) => {
+        if (!active) return
+        await mountDirectBackend(ctx, getConfig, (listener) => {
+          directConfigListeners.add(listener)
+          return () => { directConfigListeners.delete(listener) }
+        })
+        if (active) directRuntime = 'loaded'
+      }).catch((error: unknown) => {
+        if (!active) return
+        directRuntime = 'error'
+        log('experimental direct backend could not be loaded: ' + String(error))
+      })
+    }
+    return () => { active = false }
+  }, 'agy-link: experimental direct backend')
   // The webview model picker caches its catalog snapshot and only re-reads
   // after the payload-free `llm/adapters-updated` event (consumers re-read
   // the registries instead of receiving state). Emit it whenever picker
@@ -630,7 +654,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
     },
   })
 
-  const setOverride = (key: string, value: unknown): void => {
+  const setOverride = (key: string, value: unknown): boolean => {
     const file = overridesPath()
     const current = readOverrides(file)
     current[key] = value
@@ -638,8 +662,10 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
     try {
       mkdirSync(stateDir(), { recursive: true })
       writeFileSync(file, JSON.stringify(current, null, 2), 'utf8')
+      return true
     } catch (e) {
       log('failed to persist override: ' + String(e))
+      return false
     }
   };
 
@@ -908,6 +934,14 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
           version: versionCache,
           dormantReason,
           enabled: cfg.enabled,
+          experimentalDirect: cfg.experimentalDirect,
+          directRuntime,
+          directRestartRequired: cfg.experimentalDirect !== directEnabledAtStartup,
+          directSearch: cfg.directSearch,
+          directImage: cfg.directImage,
+          directVideo: cfg.directVideo,
+          directProxyUrl: validDirectProxy(cfg.directProxyUrl) ? cfg.directProxyUrl : '',
+          directProxyInvalid: !validDirectProxy(cfg.directProxyUrl),
           permissionMode: cfg.permissionMode,
           workspaceRoot: cfg.workspaceRoot,
           defaultModel: cfg.defaultModel,
@@ -1314,11 +1348,23 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
         const body = await readBody(req)
         const key = typeof body.key === 'string' ? body.key : ''
         const allowed = [
-          'permissionMode', 'defaultModel', 'defaultEffort', 'askTool', 'workspaceRoot', 'hiddenModels', 'autoWarmup', 'warmupModels',
+          'permissionMode', 'defaultModel', 'defaultEffort', 'askTool', 'workspaceRoot', 'hiddenModels', 'autoWarmup', 'warmupModels', 'experimentalDirect', 'directSearch', 'directImage', 'directVideo', 'directProxyUrl',
           'autoTranslate', 'translateModel', 'translateEffort', 'translateTargetLanguage', 'translateMaxChars', 'translateSkipSameModel', 'translateBindConversation', 'translateMinIntervalMs',
         ]
         if (!allowed.includes(key)) {
           sendJson(res as RawRes, 400, { error: 'key not settable' })
+          return
+        }
+        if (['experimentalDirect', 'directSearch', 'directImage', 'directVideo'].includes(key) && typeof body.value !== 'boolean') {
+          sendJson(res as RawRes, 400, { error: 'direct settings must be boolean' })
+          return
+        }
+        if (key === 'experimentalDirect' && process.env.DSH_AGY_DIRECT !== undefined) {
+          sendJson(res as RawRes, 409, { error: 'DSH_AGY_DIRECT overrides this setting' })
+          return
+        }
+        if (key === 'directProxyUrl' && !validDirectProxy(body.value)) {
+          sendJson(res as RawRes, 400, { error: 'direct proxy must be an HTTP URL without credentials or path' })
           return
         }
         if (key === 'hiddenModels' && (!Array.isArray(body.value) || !(body.value as unknown[]).every((x) => typeof x === 'string'))) {
@@ -1329,7 +1375,13 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
           sendJson(res as RawRes, 400, { error: 'warmupModels must be an array of model names' })
           return
         }
-        setOverride(key, body.value)
+        if (!setOverride(key, body.value)) {
+          sendJson(res as RawRes, 500, { error: 'settings could not be saved' })
+          return
+        }
+        if (['directSearch', 'directImage', 'directVideo'].includes(key)) {
+          for (const listener of directConfigListeners) listener()
+        }
         syncAskTool()
         syncMirrorTool()
         // Picker visibility changed — the webview re-reads the catalog only
