@@ -207,6 +207,35 @@ describe('Antigravity OAuth flow', () => {
     expect(commit).not.toHaveBeenCalled()
   })
 
+  it('shares the result of duplicate callbacks without exchanging the code twice', async () => {
+    let handler: LoopbackCallbackHandler | undefined
+    let release!: () => void
+    const wait = new Promise<void>(resolve => { release = resolve })
+    const exchangeCode = vi.fn(async () => { await wait; return { accessToken: 'fixture-access', refreshToken: 'fixture-refresh', expiresAt: 9_000 } })
+    const commit = vi.fn(async () => {})
+    const flow = createOAuthFlow({
+      randomBytes: deterministicRandomBytes,
+      listenerFactory: { listen: vi.fn(async candidate => { handler = candidate; return { close: vi.fn(async () => {}) } }) },
+      exchangeCode, validateProject: vi.fn(async () => ({ projectId: 'fixture-project' })), commit,
+    })
+    const started = await flow.start()
+    const state = new URL(started.authorizationUrl).searchParams.get('state')
+    const request = { method: 'GET', host: 'localhost:51121', url: `/oauth-callback?state=${state}&code=fixture-code` }
+    const first = handler!(request)
+    const other = await handler!({ ...request, url: '/oauth-callback?state=wrong-state&code=other-code' })
+    expect(other.status).toBe(400)
+    const duplicate = handler!(request)
+    release()
+    expect(await first).toMatchObject({ status: 200 })
+    expect(await duplicate).toMatchObject({ status: 200 })
+    expect(await handler!(request)).toMatchObject({ status: 200 })
+    expect(exchangeCode).toHaveBeenCalledOnce()
+    expect(commit).toHaveBeenCalledOnce()
+    await flow.cancel()
+    expect(await handler!(request)).toMatchObject({ status: 400 })
+    await flow.dispose()
+  })
+
   it('returns distinct safe HTTP errors for wrong method, path, and Host without echoing callback values', async () => {
     let handler: LoopbackCallbackHandler | undefined
     const flow = createOAuthFlow({
@@ -230,6 +259,7 @@ describe('Antigravity OAuth flow', () => {
     const wrongHost = await handler?.({ method: 'GET', host: 'example.test', url: callback })
 
     expect(wrongMethod).toMatchObject({ status: 400 })
+    expect(wrongMethod?.body).toContain('invalid-method')
     expect(wrongPath).toMatchObject({ status: 400 })
     expect(wrongHost).toMatchObject({ status: 400 })
     expect(`${wrongMethod?.body}${wrongPath?.body}${wrongHost?.body}`).not.toContain('private-code')

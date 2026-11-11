@@ -188,11 +188,6 @@ export function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageS
         if (!signal.aborted) setActionError(result.error.code === 'client-not-configured' ? t('clientNotConfigured') : result.error.message || t('loginFailed'))
         return
       }
-      try {
-        if (typeof window !== 'undefined' && typeof window.open === 'function' && result.value?.authorizationUrl && !window.navigator?.userAgent?.includes('jsdom')) {
-          window.open(result.value.authorizationUrl, '_blank')
-        }
-      } catch {}
       setStatus(previous => {
         if (previous === null) return previous
         const { errorCode: _ignoredErrorCode, ...login } = previous.login
@@ -207,6 +202,11 @@ export function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageS
           },
         }
       })
+      try {
+        if (typeof window !== 'undefined' && typeof window.open === 'function' && result.value?.authorizationUrl && !window.navigator?.userAgent?.includes('jsdom')) {
+          window.open(result.value.authorizationUrl, '_blank')
+        }
+      } catch {}
     } catch (cause) {
       if (!signal.aborted) setActionError(messageOf(cause, t('loginFailed')))
     } finally {
@@ -382,7 +382,7 @@ export function AntigravityAuthSettings({ rpc, t, subscribe, searchScope, imageS
           {actionError === null ? null : <p className="agy-direct-alert" role="alert">{actionError}</p>}
           {status?.login.phase === 'expired' ? <p className="agy-direct-alert" role="alert">{t('loginExpired')}</p> : null}
           {status?.login.phase === 'port-conflict' ? <p className="agy-direct-alert" role="alert">{t('loginPortConflict')}</p> : null}
-          {status?.login.phase === 'failed' ? <p className="agy-direct-alert" role="alert">{t('loginFailed')}</p> : null}
+          {status?.login.phase === 'failed' ? <p className="agy-direct-alert" role="alert"><span>{t('loginFailed')}</span>{status.login.errorCode ? ` (${status.login.errorCode})` : ''}</p> : null}
           {projectError === undefined ? null : <p className="agy-direct-alert" role="alert">{projectError}</p>}
           {status?.login.phase === 'pending' && status.login.expiresAt !== undefined ? (
             <p className="agy-direct-card-subtext">{t('expiresAt')}: <time dateTime={status.login.expiresAt}>{status.login.expiresAt}</time></p>

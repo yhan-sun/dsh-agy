@@ -1363,7 +1363,7 @@ html.agy-modal-open body {
   gap: 3px;
 }
 .agy-direct-mode-copy .agy-setting-help { display: block; margin: 0; }
-.agy-direct-switch {
+.agy-direct-mode-switch {
   position: relative;
   flex: 0 0 auto;
   width: 36px;
@@ -1375,11 +1375,11 @@ html.agy-modal-open body {
   cursor: pointer;
   transition: background-color .15s ease, border-color .15s ease;
 }
-.agy-direct-switch[aria-checked="true"] {
+.agy-direct-mode-switch[aria-checked="true"] {
   background: var(--agy-seg-btn-active-bg);
   border-color: var(--agy-seg-btn-active-bg);
 }
-.agy-direct-switch-knob {
+.agy-direct-mode-switch-knob {
   position: absolute;
   top: 2px;
   left: 2px;
@@ -1389,12 +1389,12 @@ html.agy-modal-open body {
   background: var(--agy-text-secondary);
   transition: transform .15s ease, background-color .15s ease;
 }
-.agy-direct-switch[aria-checked="true"] .agy-direct-switch-knob {
+.agy-direct-mode-switch[aria-checked="true"] .agy-direct-mode-switch-knob {
   transform: translateX(16px);
   background: var(--agy-seg-btn-active-text);
 }
-.agy-direct-switch:focus-visible { outline: 2px solid var(--dsw-alias-state-business-primary, #2563eb); outline-offset: 3px; }
-.agy-direct-switch:disabled { opacity: .55; cursor: wait; }
+.agy-direct-mode-switch:focus-visible { outline: 2px solid var(--dsw-alias-state-business-primary, #2563eb); outline-offset: 3px; }
+.agy-direct-mode-switch:disabled { opacity: .55; cursor: wait; }
 .agy-permission-row {
 	display: grid !important;
 	grid-template-columns: minmax(0, 1fr) minmax(210px, 260px);
@@ -2810,12 +2810,12 @@ export function apply(ctx: ClientContext): void {
 					h('span', { className: 'agy-setting-help', style: S.muted }, t('direct.description')),
 				),
 				h('button', {
-					type: 'button', className: 'agy-direct-switch', role: 'switch',
+					type: 'button', className: 'agy-direct-mode-switch', role: 'switch',
 					'aria-labelledby': 'agy-direct-mode-label',
 					'aria-checked': status.experimentalDirect === true,
 					disabled: loadingAction === 'config:experimentalDirect',
 					onClick: () => { void setCfg('experimentalDirect', status.experimentalDirect !== true); },
-				}, h('span', { className: 'agy-direct-switch-knob', 'aria-hidden': true })),
+				}, h('span', { className: 'agy-direct-mode-switch-knob', 'aria-hidden': true })),
 			),
 			status.directRuntime === 'starting' ? h('p', { style: S.muted, role: 'status' }, t('direct.loading')) : null,
 			status.directRuntime === 'error' ? h('p', { role: 'alert' }, t('direct.error')) : null,

@@ -12939,7 +12939,7 @@ function apply(ctx, entryConfig = {}) {
 			if (directFiber) return;
 			directRuntime = "starting";
 			try {
-				const { mountDirectBackend } = await import("./integrated-host-CjnKsrO4.js");
+				const { mountDirectBackend } = await import("./integrated-host-DOzvQs77.js");
 				if (!directAlive || !getConfig().enabled || !getConfig().experimentalDirect) {
 					directRuntime = "disabled";
 					return;

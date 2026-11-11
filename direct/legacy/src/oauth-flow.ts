@@ -10,6 +10,7 @@ import {
 import { directOAuthClientCredentials } from './oauth-client-credentials.ts'
 import { ProjectDiscoveryError, normalizeProjectId } from './project-context.ts'
 import type { ProjectDiscoveryErrorCode } from './project-context.ts'
+import { isLoginErrorCode } from './login-types.ts'
 import type { LoginCompletionResult, LoginErrorCode, LoginPhase, LoginStartResult } from './login-types.ts'
 import { isBoundedSafeText } from './safe-text.ts'
 
@@ -159,6 +160,9 @@ export function createOAuthFlow(options: OAuthFlowOptions = {}): OAuthFlow {
   let currentStatus: OAuthFlowStatus = { phase: 'idle' }
   let disposed = false
   let listenerClosing: Promise<void> = Promise.resolve()
+  // A browser may repeat the same callback while the first is still being
+  // committed. Share its outcome without exchanging the one-shot code twice.
+  let callbackInFlight: { state: string; result: Promise<OAuthFlowCompletionResult> } | undefined
 
   const closeListener = (candidate: PendingFlow): Promise<void> => {
     const listener = candidate.listener
@@ -175,6 +179,7 @@ export function createOAuthFlow(options: OAuthFlowOptions = {}): OAuthFlow {
     generation: () => committingGeneration ?? generation,
     start: async () => {
       if (disposed) throw new OAuthFlowError('internal', 'The OAuth flow is unavailable')
+      callbackInFlight = undefined
       if (pending !== undefined) await cancelPending(pending, 'cancelled')
       if (processing !== undefined) {
         if (!processing.commitStarted) {
@@ -262,16 +267,19 @@ export function createOAuthFlow(options: OAuthFlowOptions = {}): OAuthFlow {
       if (processing !== undefined) {
         const active = processing
         if (active.commitStarted) return currentStatus
+        callbackInFlight = undefined
         active.controller.abort(new OAuthFlowError('cancelled', 'The OAuth login was cancelled'))
         updateStatus(active, { phase: 'cancelled', errorCode: 'cancelled' })
         return currentStatus
       }
+      callbackInFlight = undefined
       return currentStatus
     },
 
     dispose: async () => {
       if (disposed) return
       disposed = true
+      callbackInFlight = undefined
       if (pending !== undefined) await cancelPending(pending, 'cancelled')
       if (processing !== undefined) {
         if (!processing.commitStarted) processing.controller.abort(new OAuthFlowError('cancelled', 'The OAuth login was cancelled'))
@@ -360,11 +368,22 @@ export function createOAuthFlow(options: OAuthFlowOptions = {}): OAuthFlow {
   }
 
   async function handleLoopbackRequest(request: LoopbackCallbackRequest): Promise<LoopbackCallbackResponse> {
+    let current: typeof callbackInFlight
     try {
-      const result = await completeCallback(request)
+      assertCallbackRequest(request)
+      const callback = parseCallback(request.url)
+      if (callbackInFlight?.state === callback.state) {
+        current = callbackInFlight
+      } else if (pending?.active && pending.state === callback.state) {
+        current = { state: callback.state, result: completeCallback(request) }
+        callbackInFlight = current
+      }
+      const result = await (current?.result ?? completeCallback(request))
+      if (!result.completed && current !== undefined && callbackInFlight === current) callbackInFlight = undefined
       if (result.completed) return callbackResponse(200, 'success')
       return callbackResponse(result.phase === 'cancelled' ? 409 : 400, result.errorCode)
     } catch (error) {
+      if (current !== undefined && callbackInFlight === current) callbackInFlight = undefined
       const safe = error instanceof OAuthFlowError ? error : new OAuthFlowError('internal', 'The callback could not be processed')
       return callbackResponse(callbackStatus(safe.code), safe.code)
     }
@@ -660,7 +679,7 @@ function projectErrorMessage(code: ProjectDiscoveryErrorCode): string {
 function callbackResponse(status: number, outcome: string): LoopbackCallbackResponse {
   const body = outcome === 'success'
     ? '<!doctype html><meta charset="utf-8"><title>Authorization complete</title><p>Authorization complete. You may return to DeepSeek Harness.</p>'
-    : '<!doctype html><meta charset="utf-8"><title>Authorization could not be completed</title><p>Authorization could not be completed. Return to DeepSeek Harness for details.</p>'
+    : `<!doctype html><meta charset="utf-8"><title>Authorization could not be completed</title><p>Authorization could not be completed. Return to DeepSeek Harness for details.</p><p>Error: ${isLoginErrorCode(outcome) ? outcome : 'internal'}</p>`
   return { status, headers: EMPTY_RESPONSE_HEADERS, body }
 }
 

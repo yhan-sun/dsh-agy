@@ -3257,6 +3257,41 @@ function isRecord$10(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 //#endregion
+//#region direct/legacy/src/login-types.ts
+const LOGIN_ERROR_CODES = [
+	"client-not-configured",
+	"invalid-method",
+	"invalid-path",
+	"invalid-host",
+	"duplicate-parameter",
+	"invalid-parameters",
+	"missing-state",
+	"state-mismatch",
+	"missing-code",
+	"oauth-error",
+	"no-pending-flow",
+	"expired",
+	"cancelled",
+	"port-conflict",
+	"token-exchange-failed",
+	"project-unavailable",
+	"project-authentication-failed",
+	"project-forbidden",
+	"project-rate-limited",
+	"project-offline",
+	"project-malformed",
+	"project-protocol-drift",
+	"project-validation-failed",
+	"persistence-failed",
+	"credential-conflict",
+	"invalid-callback-url",
+	"risk-acknowledgement-required",
+	"internal"
+];
+function isLoginErrorCode(value) {
+	return typeof value === "string" && LOGIN_ERROR_CODES.includes(value);
+}
+//#endregion
 //#region direct/legacy/src/oauth-flow.ts
 /** Host-only PKCE, loopback callback, and token-exchange coordinator. */
 const ANTIGRAVITY_CALLBACK_PORT = 51121;
@@ -3302,6 +3337,7 @@ function createOAuthFlow(options = {}) {
 	let currentStatus = { phase: "idle" };
 	let disposed = false;
 	let listenerClosing = Promise.resolve();
+	let callbackInFlight;
 	const closeListener = (candidate) => {
 		const listener = candidate.listener;
 		candidate.listener = void 0;
@@ -3313,6 +3349,7 @@ function createOAuthFlow(options = {}) {
 		generation: () => committingGeneration ?? generation,
 		start: async () => {
 			if (disposed) throw new OAuthFlowError("internal", "The OAuth flow is unavailable");
+			callbackInFlight = void 0;
 			if (pending !== void 0) await cancelPending(pending, "cancelled");
 			if (processing !== void 0) {
 				if (!processing.commitStarted) processing.controller.abort(new OAuthFlowError("cancelled", "The OAuth login was cancelled"));
@@ -3391,6 +3428,7 @@ function createOAuthFlow(options = {}) {
 			if (processing !== void 0) {
 				const active = processing;
 				if (active.commitStarted) return currentStatus;
+				callbackInFlight = void 0;
 				active.controller.abort(new OAuthFlowError("cancelled", "The OAuth login was cancelled"));
 				updateStatus(active, {
 					phase: "cancelled",
@@ -3398,11 +3436,13 @@ function createOAuthFlow(options = {}) {
 				});
 				return currentStatus;
 			}
+			callbackInFlight = void 0;
 			return currentStatus;
 		},
 		dispose: async () => {
 			if (disposed) return;
 			disposed = true;
+			callbackInFlight = void 0;
 			if (pending !== void 0) await cancelPending(pending, "cancelled");
 			if (processing !== void 0) {
 				if (!processing.commitStarted) processing.controller.abort(new OAuthFlowError("cancelled", "The OAuth login was cancelled"));
@@ -3517,11 +3557,24 @@ function createOAuthFlow(options = {}) {
 		}
 	}
 	async function handleLoopbackRequest(request) {
+		let current;
 		try {
-			const result = await completeCallback(request);
+			assertCallbackRequest(request);
+			const callback = parseCallback(request.url);
+			if (callbackInFlight?.state === callback.state) current = callbackInFlight;
+			else if (pending?.active && pending.state === callback.state) {
+				current = {
+					state: callback.state,
+					result: completeCallback(request)
+				};
+				callbackInFlight = current;
+			}
+			const result = await (current?.result ?? completeCallback(request));
+			if (!result.completed && current !== void 0 && callbackInFlight === current) callbackInFlight = void 0;
 			if (result.completed) return callbackResponse(200, "success");
 			return callbackResponse(result.phase === "cancelled" ? 409 : 400, result.errorCode);
 		} catch (error) {
+			if (current !== void 0 && callbackInFlight === current) callbackInFlight = void 0;
 			const safe = error instanceof OAuthFlowError ? error : new OAuthFlowError("internal", "The callback could not be processed");
 			return callbackResponse(callbackStatus(safe.code), safe.code);
 		}
@@ -3750,10 +3803,11 @@ function projectErrorMessage(code) {
 	return "The Antigravity project probe was cancelled";
 }
 function callbackResponse(status, outcome) {
+	const body = outcome === "success" ? "<!doctype html><meta charset=\"utf-8\"><title>Authorization complete</title><p>Authorization complete. You may return to DeepSeek Harness.</p>" : `<!doctype html><meta charset="utf-8"><title>Authorization could not be completed</title><p>Authorization could not be completed. Return to DeepSeek Harness for details.</p><p>Error: ${isLoginErrorCode(outcome) ? outcome : "internal"}</p>`;
 	return {
 		status,
 		headers: EMPTY_RESPONSE_HEADERS,
-		body: outcome === "success" ? "<!doctype html><meta charset=\"utf-8\"><title>Authorization complete</title><p>Authorization complete. You may return to DeepSeek Harness.</p>" : "<!doctype html><meta charset=\"utf-8\"><title>Authorization could not be completed</title><p>Authorization could not be completed. Return to DeepSeek Harness for details.</p>"
+		body
 	};
 }
 function callbackStatus(code) {
@@ -7111,38 +7165,6 @@ function registerAccountRoutes(connection, namespace, endpoints, handler) {
 		await Promise.all(disposers.map((dispose) => dispose()));
 	};
 }
-//#endregion
-//#region direct/legacy/src/login-types.ts
-const LOGIN_ERROR_CODES = [
-	"client-not-configured",
-	"invalid-method",
-	"invalid-path",
-	"invalid-host",
-	"duplicate-parameter",
-	"invalid-parameters",
-	"missing-state",
-	"state-mismatch",
-	"missing-code",
-	"oauth-error",
-	"no-pending-flow",
-	"expired",
-	"cancelled",
-	"port-conflict",
-	"token-exchange-failed",
-	"project-unavailable",
-	"project-authentication-failed",
-	"project-forbidden",
-	"project-rate-limited",
-	"project-offline",
-	"project-malformed",
-	"project-protocol-drift",
-	"project-validation-failed",
-	"persistence-failed",
-	"credential-conflict",
-	"invalid-callback-url",
-	"risk-acknowledgement-required",
-	"internal"
-];
 //#endregion
 //#region direct/legacy/src/rpc-vocabulary.ts
 /** Closed, browser-safe RPC error vocabulary shared by Host and client. */
