@@ -14,7 +14,7 @@ dsh plugin --profile desktop add 'https://codeload.github.com/yhan-sun/dsh-agy/t
 
 The package keeps the upstream plugin ID `dsh-agy-link`; update or remove an existing copy of that plugin in the same DSH profile before installing this fork.
 
-The repository includes the built files. Use the source archive above (or replace `refs/heads/main` with a commit SHA to pin it): DSH’s strict pnpm policy may still classify a `github:` dependency as an unapproved build even without a prepare script. An archive install avoids that Git-package classification. The archive contains the integrated source; normal runtime libraries such as `qrcode` are installed by pnpm. Maintainers must rebuild and commit `dist` alongside source changes.
+The repository includes the built files. Use the source archive above (or replace `refs/heads/main` with a commit SHA to pin it). DSH’s strict pnpm policy may flag a GitHub source dependency as an unapproved build even without a prepare script. If that happens, add the exact package key from the error to the profile’s `pnpm-workspace.yaml` under `allowBuilds` with the value `false`, and retry. This explicitly denies running build scripts. The archive contains the integrated source; normal runtime libraries such as `qrcode` are installed by pnpm. Maintainers must rebuild and commit `dist` alongside source changes.
 
 Restart DSH. Open **Settings → Antigravity** to sign in and configure the plugin. You can also select an Antigravity model from DSH’s model picker.
 
