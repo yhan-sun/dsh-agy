@@ -1,19 +1,20 @@
-import { n as require_undici, s as stateDir, t as validDirectProxy } from "./direct-proxy-CYk1xaXr.js";
+import { n as require_undici, s as stateDir, t as validDirectProxy } from "./direct-proxy-B5Ey65JN.js";
 import { spawn } from "node:child_process";
 import { dirname, join } from "node:path";
+import { readFileSync, statSync } from "node:fs";
 import { chmod, lstat, mkdir, open, readFile, rename, rm, unlink, writeFile } from "node:fs/promises";
 import { CONTEXT_WINDOW_EXCEEDED_CODE, HarnessError, LlmAdapter, LlmError, ReasoningEffortId, ToolCallId, attributionHeaders, resolveRetryPolicy } from "@deepseek-ai/dsh-llm";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { createServer } from "node:http";
 import * as net from "node:net";
 import { PassThrough, Transform } from "node:stream";
-import { createGunzip } from "node:zlib";
-import { Buffer as Buffer$1 } from "node:buffer";
 import * as tls from "node:tls";
+import { Buffer as Buffer$1 } from "node:buffer";
+import { createGunzip } from "node:zlib";
 import { clientRequestSchema } from "@deepseek-ai/dsh-client-connection";
 import z from "@deepseek-ai/schemastery";
 import { WebError } from "@deepseek-ai/dsh-web";
-// direct/legacy/src/safe-text.ts
+//#region direct/legacy/src/safe-text.ts
 /** Shared bounded text predicate for Host trust-boundary values. */
 function isBoundedSafeText(value, maxLength, minLength = 1) {
 	if (typeof value !== "string" || !Number.isSafeInteger(maxLength) || !Number.isSafeInteger(minLength) || minLength < 0 || maxLength < minLength || value.length < minLength || value.length > maxLength) return false;
@@ -296,17 +297,35 @@ function isNotFound(error) {
 function isRecord$12(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/oauth-client-credentials.ts
-/** OAuth client credentials are supplied by the DSH host, never bundled. */
+//#endregion
+//#region direct/legacy/src/oauth-client-credentials.ts
+/** Local client configuration only; never returned by RPC or written to logs. */
 function directOAuthClientCredentials() {
 	const clientId = process.env.AGY_CLIENT_ID?.trim();
 	const clientSecret = process.env.AGY_CLIENT_SECRET?.trim();
-	return clientId && clientSecret ? {
+	if (clientId || clientSecret) return clientId && clientSecret ? {
 		clientId,
 		clientSecret
 	} : void 0;
+	try {
+		const path = join(stateDir(), "direct", "oauth-client.json");
+		const stat = statSync(path);
+		if (!stat.isFile() || stat.size > 16384 || process.platform !== "win32" && (stat.mode & 63) !== 0) return void 0;
+		const value = JSON.parse(readFileSync(path, "utf8"));
+		if (typeof value !== "object" || value === null || Array.isArray(value)) return void 0;
+		const record = value;
+		const id = typeof record.clientId === "string" ? record.clientId.trim() : "";
+		const secret = typeof record.clientSecret === "string" ? record.clientSecret.trim() : "";
+		return id && secret ? {
+			clientId: id,
+			clientSecret: secret
+		} : void 0;
+	} catch {
+		return;
+	}
 }
-// direct/legacy/src/credential-coordinator.ts
+//#endregion
+//#region direct/legacy/src/credential-coordinator.ts
 const ANTIGRAVITY_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
 const ANTIGRAVITY_REVOKE_ENDPOINT = "https://oauth2.googleapis.com/revoke";
 const DEFAULT_REFRESH_LEAD_MS = 3e4;
@@ -889,7 +908,8 @@ function credentialErrorMessage(code) {
 function isRecord$11(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/core/src/logger.ts
+//#endregion
+//#region direct/core/src/logger.ts
 const ENV_CONSOLE_LOG = "ANTIGRAVITY_CORE_CONSOLE_LOG";
 function isTruthyFlag(flag) {
 	return flag === "1" || flag?.toLowerCase() === "true";
@@ -935,7 +955,8 @@ function createLogger(module) {
 	};
 }
 createLogger("account-storage");
-// direct/core/src/fingerprint.ts
+//#endregion
+//#region direct/core/src/fingerprint.ts
 const AGY_CLI_VERSION = "1.1.24";
 const AGY_CLI_CHANGE_LIST = "974782877";
 function normalizeHarnessPlatform(platform = process.platform) {
@@ -954,7 +975,8 @@ function buildAntigravityHarnessUserAgent(version = AGY_CLI_VERSION, platform = 
 function buildAntigravityLoadCodeAssistMetadata() {
 	return { ideType: "ANTIGRAVITY" };
 }
-// direct/core/src/model-registry.ts
+//#endregion
+//#region direct/core/src/model-registry.ts
 const DEFAULT_MODALITIES = {
 	input: [
 		"text",
@@ -1276,7 +1298,8 @@ function getGemini37FlashAntigravityModel(tier) {
 function getGemini38FlashAntigravityModel(tier) {
 	return getTieredAntigravityModel(GEMINI_38_FLASH_ROUTES, tier);
 }
-// direct/core/src/agy-request-metadata.ts
+//#endregion
+//#region direct/core/src/agy-request-metadata.ts
 const FNV1A_64_OFFSET_BASIS = 14695981039346656037n;
 const FNV1A_64_PRIME = 1099511628211n;
 const DEFAULT_SESSION_STATE_TTL_MS = 864e5;
@@ -1450,7 +1473,8 @@ function buildAgyAgentRequestMetadata(session, payload, model, timestamp = Date.
 		lastStepIndex
 	};
 }
-// direct/core/src/agy-transport.ts
+//#endregion
+//#region direct/core/src/agy-transport.ts
 function headersToRecord(headers) {
 	const result = {};
 	if (!headers) return result;
@@ -1546,7 +1570,8 @@ const EMPTY_SCHEMA_PLACEHOLDER_DESCRIPTION = "Placeholder. Always pass true.";
 createLogger("oauth");
 createLogger("project");
 createLogger("quota-manager");
-// direct/core/src/transform/claude.ts
+//#endregion
+//#region direct/core/src/transform/claude.ts
 /**
 * Claude-specific Request Transformations
 *
@@ -1748,7 +1773,8 @@ function applyClaudeTransforms(payload, options) {
 	if (isThinking && Array.isArray(payload.tools) && payload.tools.length > 0) appendClaudeThinkingHint(payload);
 	return normalizeClaudeTools(payload, cleanJSONSchema);
 }
-// direct/core/src/transform/gemini.ts
+//#endregion
+//#region direct/core/src/transform/gemini.ts
 /**
 * Transform a JSON Schema to Gemini-compatible format.
 * Based on @google/genai SDK's processJsonSchema() function.
@@ -2052,7 +2078,8 @@ function wrapToolsAsFunctionDeclarations(payload) {
 		passthroughToolCount: passthroughTools.length + (hasWebSearchTool && functionDeclarations.length === 0 ? 1 : 0)
 	};
 }
-// direct/core/src/transform/model-resolver.ts
+//#endregion
+//#region direct/core/src/transform/model-resolver.ts
 /**
 * Model Resolution with Thinking Tier Support
 *
@@ -2306,7 +2333,8 @@ function resolveModelWithTier(requestedModel, options = {}) {
 		explicitQuota
 	};
 }
-// direct/legacy/src/private-transport-error.ts
+//#endregion
+//#region direct/legacy/src/private-transport-error.ts
 var PrivateTransportError = class extends Error {
 	code;
 	status;
@@ -2320,7 +2348,8 @@ var PrivateTransportError = class extends Error {
 		if (options.status !== void 0) this.status = options.status;
 	}
 };
-// direct/legacy/src/wire-identity.ts
+//#endregion
+//#region direct/legacy/src/wire-identity.ts
 /**
 * The only identity seam for Antigravity private requests.
 *
@@ -2452,7 +2481,8 @@ function assertClosedObject(value, allowedKeys, code) {
 	const allowed = new Set(allowedKeys);
 	for (const key of Object.keys(value)) if (!allowed.has(key)) throw new WireIdentityError(code, "The wire identity input contains an unapproved override");
 }
-// direct/legacy/src/raw-http.ts
+//#endregion
+//#region direct/legacy/src/raw-http.ts
 /** Literal HTTP/1.1 dispatcher for the fixed Antigravity wire profile. */
 const DEFAULT_HTTPS_PORT = 443;
 const DEFAULT_PROXY_PORT = 8080;
@@ -2822,7 +2852,8 @@ function isAborted$2(signal) {
 function cancelled$1(accepted) {
 	return new PrivateTransportError("cancelled", "The private request was cancelled", { accepted });
 }
-// direct/legacy/src/private-transport.ts
+//#endregion
+//#region direct/legacy/src/private-transport.ts
 /** Bounded Host-only transport primitives for the private Antigravity endpoints. */
 const DEFAULT_PRIVATE_RESPONSE_HEADER_TIMEOUT_MS = 18e4;
 const DEFAULT_PRIVATE_IDLE_TIMEOUT_MS = 6e4;
@@ -3081,7 +3112,8 @@ function boundedRequestBytes(value) {
 function boundedBytes(value, fallback) {
 	return value === void 0 || !Number.isFinite(value) || value <= 0 ? fallback : Math.min(Math.floor(value), fallback);
 }
-// direct/legacy/src/private-failure.ts
+//#endregion
+//#region direct/legacy/src/private-failure.ts
 /** One closed classifier shared by every capability's public error vocabulary. */
 function classifyPrivateFailure(error) {
 	if (!(error instanceof PrivateTransportError)) return "failed";
@@ -3224,7 +3256,8 @@ function projectDiscoveryErrorMessage(code) {
 function isRecord$10(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/oauth-flow.ts
+//#endregion
+//#region direct/legacy/src/oauth-flow.ts
 /** Host-only PKCE, loopback callback, and token-exchange coordinator. */
 const ANTIGRAVITY_CALLBACK_PORT = 51121;
 const ANTIGRAVITY_CALLBACK_HOSTS = Object.freeze([
@@ -3792,7 +3825,8 @@ function combineSignals(primary) {
 function isRecord$9(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/status.ts
+//#endregion
+//#region direct/legacy/src/status.ts
 const ANTIGRAVITY_PLUGIN_ID = "dsh-antigravity-auth";
 const CAPABILITY_ROW_IDS = [
 	"auth-llm",
@@ -3915,7 +3949,8 @@ function gateStatus(id, result) {
 		reasonCode: "gate-failed"
 	};
 }
-// direct/legacy/src/quota.ts
+//#endregion
+//#region direct/legacy/src/quota.ts
 /** Single-account Antigravity quota normalization and bounded Host service. */
 const ANTIGRAVITY_QUOTA_ENDPOINT = `${ANTIGRAVITY_WIRE_ORIGIN}/v1internal:retrieveUserQuotaSummary`;
 const QUOTA_REFRESH_MIN_INTERVAL_MS = 3e4;
@@ -4184,7 +4219,8 @@ function mergeAbortSignals(first, second) {
 function isRecord$8(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/capability-gates.ts
+//#endregion
+//#region direct/legacy/src/capability-gates.ts
 /** Value-free live-gate evidence used to keep capability registration honest. */
 const GATE_FILE_VERSION = 2;
 const MAX_GATE_FILE_BYTES = 65536;
@@ -4803,7 +4839,8 @@ function createMemoryAccountStore(authStore) {
 		}
 	});
 }
-// direct/legacy/src/auth-service.ts
+//#endregion
+//#region direct/legacy/src/auth-service.ts
 const USERINFO_ENDPOINT = "https://www.googleapis.com/oauth2/v3/userinfo";
 /**
 * Fetch the account email through the Google userinfo endpoint. Antigravity
@@ -5201,7 +5238,8 @@ function maskEmail(value) {
 	if (!/^[^\s@]+$/u.test(local) || !/^[^\s@]+$/u.test(domain)) return void 0;
 	return `${local.slice(0, 1)}***@${domain}`;
 }
-// direct/legacy/src/loopback-rpc.ts
+//#endregion
+//#region direct/legacy/src/loopback-rpc.ts
 const LOOPBACK_REQUIRED_MESSAGE = "Antigravity account controls require a loopback-bound DSH Host";
 /**
 * Decide the account RPC activation from the public WebServer bind. Only an
@@ -5254,7 +5292,8 @@ function createLoopbackRpcGuard(webServerHost, delegate) {
 		handler: delegate
 	};
 }
-// direct/legacy/src/open-authorization-url.ts
+//#endregion
+//#region direct/legacy/src/open-authorization-url.ts
 /**
 * Best-effort Host browser launch that hands the terminal user the OAuth
 * authorization URL without persisting it in the session's `command/done`
@@ -5349,7 +5388,8 @@ async function openAuthorizationUrl(url, spawnFn = spawn, platform = process.pla
 		return false;
 	}
 }
-// direct/legacy/src/auth-command.ts
+//#endregion
+//#region direct/legacy/src/auth-command.ts
 function errorMessage(error) {
 	return error instanceof Error ? error.message : String(error);
 }
@@ -5687,7 +5727,8 @@ function isFamily(value) {
 function isRecord$6(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/llm-adapter.ts
+//#endregion
+//#region direct/legacy/src/llm-adapter.ts
 /** Public DSH LLM adapter for the single Antigravity provider route. */
 const ANTIGRAVITY_PROVIDER = "google-antigravity";
 const ANTIGRAVITY_STREAM_ENDPOINT = `${ANTIGRAVITY_WIRE_ORIGIN}/v1internal:streamGenerateContent?alt=sse`;
@@ -7023,7 +7064,8 @@ function isAborted(signal) {
 function isRecord$5(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/account-routes.ts
+//#endregion
+//#region direct/legacy/src/account-routes.ts
 /** Plugin-owned account RPC carried by Connection's authenticated /api routes. */
 /** Register exact routes without creating a separate physical RPC carrier. */
 function registerAccountRoutes(connection, namespace, endpoints, handler) {
@@ -7069,7 +7111,8 @@ function registerAccountRoutes(connection, namespace, endpoints, handler) {
 		await Promise.all(disposers.map((dispose) => dispose()));
 	};
 }
-// direct/legacy/src/login-types.ts
+//#endregion
+//#region direct/legacy/src/login-types.ts
 const LOGIN_ERROR_CODES = [
 	"client-not-configured",
 	"invalid-method",
@@ -7100,7 +7143,8 @@ const LOGIN_ERROR_CODES = [
 	"risk-acknowledgement-required",
 	"internal"
 ];
-// direct/legacy/src/rpc-vocabulary.ts
+//#endregion
+//#region direct/legacy/src/rpc-vocabulary.ts
 /** Closed, browser-safe RPC error vocabulary shared by Host and client. */
 const OPERATION_ERROR_CODES = [
 	"loopback-required",
@@ -7165,9 +7209,11 @@ function isSafeRpcErrorCode(value) {
 function safeRpcErrorMessage(code) {
 	return SAFE_RPC_ERROR_MESSAGES[code] ?? "antigravity-auth: operation failed";
 }
-// direct/legacy/src/rpc-contract.ts
+//#endregion
+//#region direct/legacy/src/rpc-contract.ts
 const ANTIGRAVITY_AUTH_RPC_NAMESPACE = "antigravity-auth";
-// direct/legacy/src/rpc.ts
+//#endregion
+//#region direct/legacy/src/rpc.ts
 /** Dispatch closed, value-safe requests; callback URLs are never echoed. */
 async function handleAntigravityAuthRpc(service, endpoint, payload, signal, modelCatalog, opener) {
 	if (signal?.aborted === true) return cancelled();
@@ -7313,7 +7359,8 @@ function isRevokePayload(value) {
 function isRecord$4(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/capability-lifecycle.ts
+//#endregion
+//#region direct/legacy/src/capability-lifecycle.ts
 /** Register a capability set atomically and dispose every owned member best-effort. */
 function registerCapabilitySet(values, register) {
 	const disposers = [];
@@ -7394,7 +7441,8 @@ function mountCapabilityLifecycle(options) {
 		refresh
 	};
 }
-// direct/legacy/src/media-admission.ts
+//#endregion
+//#region direct/legacy/src/media-admission.ts
 /** Shared Host-only media admission for image editing and the video POC. */
 const DEFAULT_VIDEO_BYTES = 33554432;
 const IMAGE_HANDLE_PATTERN = /^image:[^\s\p{C}]{1,256}$/u;
@@ -7594,7 +7642,8 @@ function throwIfAborted(signal) {
 function isRecord$3(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/index.ts
+//#endregion
+//#region direct/legacy/src/index.ts
 const name$3 = "antigravity-auth";
 const inject$3 = ["llm", "attachments"];
 /** Mount the Host-only OAuth service and its guarded account RPC channel. */
@@ -7670,11 +7719,13 @@ function apply$3(ctx, network) {
 		});
 	});
 }
-// direct/legacy/src/volatile-config.ts
+//#endregion
+//#region direct/legacy/src/volatile-config.ts
 function liveValue(value) {
 	return typeof value === "object" && value !== null && "get" in value ? value.get() : value;
 }
-// direct/legacy/src/search.ts
+//#endregion
+//#region direct/legacy/src/search.ts
 const name$2 = "antigravity-search";
 const inject$2 = ["web", "antigravityAuth"];
 const ANTIGRAVITY_SEARCH_PROVIDER_ID = "antigravity";
@@ -7928,7 +7979,8 @@ function boundedInteger(value, min, max) {
 function isRecord$2(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/image.ts
+//#endregion
+//#region direct/legacy/src/image.ts
 /** Antigravity image generation/editing tools and session-authorized image catalog. */
 const name$1 = "antigravity-image";
 const inject$1 = [
@@ -8485,7 +8537,8 @@ function enumValue(value, values) {
 function isRecord$1(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-// direct/legacy/src/video.ts
+//#endregion
+//#region direct/legacy/src/video.ts
 /** Gated workspace-video understanding proof of concept. */
 const name = "antigravity-video";
 const inject = [
@@ -8798,7 +8851,8 @@ const videoSchema = {
 	required: ["text"],
 	additionalProperties: false
 };
-// direct/legacy/src/integrated-network.ts
+//#endregion
+//#region direct/legacy/src/integrated-network.ts
 var import_undici = require_undici();
 /** Per-backend networking: no global dispatcher or silent proxy fallback. */
 function createIntegratedNetwork(readProxy) {
@@ -8835,7 +8889,8 @@ function createIntegratedNetwork(readProxy) {
 		}
 	};
 }
-// direct/legacy/src/integrated-host.ts
+//#endregion
+//#region direct/legacy/src/integrated-host.ts
 /** Called only after the user enabled the experimental backend and restarted. */
 async function mountDirectBackend(ctx, getConfig, watch, makeNetwork = createIntegratedNetwork) {
 	const network = makeNetwork(() => getConfig().directProxyUrl);
@@ -8874,4 +8929,5 @@ async function mountDirectBackend(ctx, getConfig, watch, makeNetwork = createInt
 	});
 	await authFiber;
 }
+//#endregion
 export { mountDirectBackend };

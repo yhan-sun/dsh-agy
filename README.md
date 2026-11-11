@@ -18,7 +18,7 @@ The repository includes the built files. Use the source archive above (or replac
 
 Restart DSH. Open **Settings → Antigravity** to sign in and configure the plugin. You can also select an Antigravity model from DSH’s model picker.
 
-Requirements: DSH, Node.js 24 or newer, Google’s `agy` CLI available on `PATH`, and your own Google OAuth client credentials. The plugin intentionally does not bundle OAuth credentials. Configure a Google OAuth client suitable for a native app, then start DSH with these variables set in its environment:
+Requirements: DSH, Node.js 24 or newer, and Google’s `agy` CLI available on `PATH` for AGY mode. AGY mode’s additional-account OAuth needs client credentials supplied to the DSH host:
 
 ```bash
 export AGY_CLIENT_ID="<your-client-id>.apps.googleusercontent.com"
@@ -30,7 +30,7 @@ Review Google’s consent-screen requirements. By default, model requests and to
 
 ### Experimental direct mode
 
-In Antigravity settings, explicitly enable experimental direct mode. Its source is included in this package: it is not a second DSH plugin and does not require installing AGY to make direct requests. Configure the OAuth variables above in the DSH host environment, acknowledge the risk, and log in separately in the direct section. Select an `Antigravity (direct, experimental)` model explicitly. AGY and direct credentials are separate, and neither mode falls back to the other. The direct integration relies on non-public interfaces and availability is not guaranteed; features and models require real-account validation.
+In Antigravity settings, explicitly enable experimental direct mode. Its source is included in this package: it is not a second DSH plugin and does not require installing AGY to make direct requests. Direct mode requires a separately configured OAuth client. Supply the environment variables above together or store a local-only client configuration in `~/.dsh/agy-link/direct/oauth-client.json` with owner-only permissions (0600) and the fields `clientId` and `clientSecret`. A third-party client identity is not a Google endorsement and can stop working. Acknowledge the risk and log in separately in the direct section. Select an `Antigravity (direct, experimental)` model explicitly. AGY and direct credentials are separate, and neither mode falls back to the other. The direct integration relies on non-public interfaces and availability is not guaranteed; features and models require real-account validation.
 
 The direct HTTP CONNECT proxy is configured separately from the AGY proxy; leave it empty for a direct connection. Browser OAuth uses the browser’s own network settings. Search, image generation and video analysis are individually opt-in experimental features. Account switching is manual. Disable any separately installed `dsh-antigravity-auth` plugin in the same profile to avoid duplicate providers.
 

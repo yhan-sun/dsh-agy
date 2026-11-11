@@ -9,9 +9,11 @@ Their MIT license is in `legacy/LICENSE`.
 `core/src` comes from `@cortexkit/antigravity-auth-core` 2.2.0,
 upstream tag `v2.2.0`, commit `351c2bf09f007792e7bc183ba73d11e2c57146fe`.
 Its MIT license is in `core/LICENSE`. Imports in the direct source point to
-this in-repository copy; the upstream OAuth client constants have been removed.
-Direct OAuth requires `AGY_CLIENT_ID` and `AGY_CLIENT_SECRET` supplied to the
-DSH host. Never commit real credentials, account records or tokens.
+this in-repository copy. Direct OAuth requires a local OAuth client identity in
+`~/.dsh/agy-link/direct/oauth-client.json` (0600, fields `clientId` and
+`clientSecret`) or the paired environment variables `AGY_CLIENT_ID` and
+`AGY_CLIENT_SECRET`. Availability and Google account acceptance are not
+guaranteed. Never commit client secrets, user credentials or account records.
 
 The direct transport is experimental, disabled by default, and maintains its
 own credentials independently from AGY. It must not be used as an automatic

@@ -1,4 +1,4 @@
-import { C as networkRetryDelayMs, S as looksLikeRateLimit, T as shouldMarkAuthRequired, _ as looksLikeAuthFailure, a as readOverrides, b as looksLikeEligibilityFailure, c as ELIGIBILITY_ERROR_HINT, d as PROVIDER_ID, f as accountsShareSingleEgress, g as isTransportFailure, h as isAuthoritativeAuthError, i as overridesPath, l as Err, m as isAccountScopedFailure, n as require_undici, o as resolveConfig, p as extractAuthUrl, r as dshHome, s as stateDir, t as validDirectProxy, u as NETWORK_RETRY_DELAYS_MS, v as looksLikeAuthVerificationJitter, w as parseResetDurationMs, x as looksLikeHardRateLimit, y as looksLikeContextWindowExceeded } from "./direct-proxy-CYk1xaXr.js";
+import { C as networkRetryDelayMs, S as looksLikeRateLimit, T as shouldMarkAuthRequired, _ as looksLikeAuthFailure, a as readOverrides, b as looksLikeEligibilityFailure, c as ELIGIBILITY_ERROR_HINT, d as PROVIDER_ID, f as accountsShareSingleEgress, g as isTransportFailure, h as isAuthoritativeAuthError, i as overridesPath, l as Err, m as isAccountScopedFailure, n as require_undici, o as resolveConfig, p as extractAuthUrl, r as dshHome, s as stateDir, t as validDirectProxy, u as NETWORK_RETRY_DELAYS_MS, v as looksLikeAuthVerificationJitter, w as parseResetDurationMs, x as looksLikeHardRateLimit, y as looksLikeContextWindowExceeded } from "./direct-proxy-B5Ey65JN.js";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import path, { basename, delimiter, dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { accessSync, chmodSync, constants, copyFileSync, createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
@@ -12,7 +12,7 @@ import { EventEmitter } from "node:events";
 import { createServer } from "node:http";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
-// src/common/pool-types.ts
+//#region src/common/pool-types.ts
 /**
 * Map a model slug to its backend quota counter family.
 *
@@ -71,7 +71,8 @@ function defaultPoolData() {
 		accounts: []
 	};
 }
-// src/host/discovery.ts
+//#endregion
+//#region src/host/discovery.ts
 function defaultConversationsDir() {
 	return process.env.DSH_AGY_CONVERSATIONS_DIR ?? join(homedir(), ".gemini", "antigravity-cli", "conversations");
 }
@@ -119,7 +120,8 @@ function diffConversations(before, dir = defaultConversationsDir()) {
 		ambiguous: added.length > 1
 	};
 }
-// src/host/recording.ts
+//#endregion
+//#region src/host/recording.ts
 function classifyToolError(error) {
 	if (/\b(no such file|file not found|cannot find (?:the )?file|enoent)\b/i.test(error)) return "missing_file";
 	if (/\b(system protection|protected by (?:the )?system|hardcoded.*protection|cannot bypass.*protection)\b/i.test(error)) return "system_protection";
@@ -478,7 +480,8 @@ var RunRegistry = class {
 		}
 	}
 };
-// src/host/mirror-tool.ts
+//#endregion
+//#region src/host/mirror-tool.ts
 const MIRROR_TOOL_NAME = "agy_tool";
 /** The only tool this DSH deployment lets a model call directly. */
 const WRAPPER_TOOL_NAME = "run_code";
@@ -1053,7 +1056,8 @@ function defineAgyMirrorTool(deps) {
 		}
 	});
 }
-// src/host/dsh-goal.ts
+//#endregion
+//#region src/host/dsh-goal.ts
 const toToolCallId$1 = dshLlm.ToolCallId ?? dshLlm.CallId ?? ((id) => id);
 function extractText$1(m) {
 	const content = m.content;
@@ -1300,7 +1304,8 @@ function buildPlanExitToolCallBlock(planMarkdown, blockIdx) {
 		}
 	}];
 }
-// src/common/compaction.ts
+//#endregion
+//#region src/common/compaction.ts
 /** Format a raw token count into human-friendly string like 128.5k, 14.2k, 1.2M, 500. */
 function formatTokenCount(tokens) {
 	if (typeof tokens !== "number" || !Number.isFinite(tokens) || tokens <= 0) return "0";
@@ -1334,7 +1339,8 @@ function renderCompactionMarker(notice) {
 	const encodedSummary = notice.summary ? encodeForMarkdownUrl(notice.summary) : "";
 	return `> [✂️ **上下文已压缩** · ${summaryText}](#agy-compaction-card?before=${notice.beforeTokens}&after=${notice.afterTokens}&items=${notice.items}&summary=${encodedSummary})\n\n`;
 }
-// src/host/mapper.ts
+//#endregion
+//#region src/host/mapper.ts
 const toToolCallId = dshLlm.ToolCallId ?? dshLlm.CallId ?? ((id) => id);
 /**
 * Disambiguate duplicate tool-call IDs across turns or multiple calls in a session.
@@ -1743,7 +1749,8 @@ var EventMapper = class {
 		this.finished = true;
 	}
 };
-// src/host/models.ts
+//#endregion
+//#region src/host/models.ts
 /** Check if a model identifier belongs to the Gemini 4 Argon family. */
 function isArgonModel(id) {
 	return id.trim().toLowerCase().includes("argon");
@@ -2086,7 +2093,8 @@ function defaultEffortFor(entry, cfg) {
 	]) if (entry.efforts.includes(pref)) return pref;
 	return entry.efforts[entry.efforts.length - 1];
 }
-// src/host/parser.ts
+//#endregion
+//#region src/host/parser.ts
 const TEXT_STEP_TYPES = /* @__PURE__ */ new Set([
 	"agent_text",
 	"agenttext",
@@ -2451,7 +2459,8 @@ var StreamJsonParser = class {
 		return ev;
 	}
 };
-// src/host/media.ts
+//#endregion
+//#region src/host/media.ts
 const EXT = {
 	"image/png": "png",
 	"image/jpeg": "jpg",
@@ -2648,7 +2657,8 @@ function describeAgyAutoUpdate(env = process.env, now = Date.now()) {
 	if (age < 9e5) return "suppressed — last check " + minutes + "m ago (agy fast path < 15m)";
 	return "stale — last check " + minutes + "m ago; the next spawn pre-empts it";
 }
-// src/host/runner.ts
+//#endregion
+//#region src/host/runner.ts
 const IS_WIN$2 = process.platform === "win32";
 /**
 * Windows pipes carry bytes in the CHILD's console code page: agy captures
@@ -3419,7 +3429,8 @@ async function probeProcess(bin, args, timeoutMs = 3e4, signal, env, preemptAuto
 		preemptAutoUpdate
 	}).outcome;
 }
-// src/host/wincred.ts
+//#endregion
+//#region src/host/wincred.ts
 const IS_WIN$1 = process.platform === "win32";
 const WIN_CRED_SCRIPT = `
 param($target, $user, $action, $payload)
@@ -4628,7 +4639,8 @@ var AccountPoolManager = class {
 		return earliest !== null ? Math.max(0, earliest - now) : null;
 	}
 };
-// src/host/net.ts
+//#endregion
+//#region src/host/net.ts
 var import_undici = require_undici();
 const envAgent = new import_undici.EnvHttpProxyAgent();
 const perProxyAgents = /* @__PURE__ */ new Map();
@@ -4663,7 +4675,8 @@ function agyFetch(url, init = {}, proxyUrl) {
 		dispatcher: agentFor(proxyUrl)
 	});
 }
-// src/host/oauth.ts
+//#endregion
+//#region src/host/oauth.ts
 function resolveClientCredentials() {
 	const clientId = process.env.AGY_CLIENT_ID?.trim();
 	const clientSecret = process.env.AGY_CLIENT_SECRET?.trim();
@@ -4935,7 +4948,8 @@ function parsePastedCode(input) {
 	if (/^[\w\-/.%]+$/.test(text) && text.length >= 10) return { code: text };
 	return null;
 }
-// src/host/credential-slot.ts
+//#endregion
+//#region src/host/credential-slot.ts
 const SLOT_TARGET = "gemini:antigravity";
 const PRIMARY_STORE_FILE = ".primary-credential.json";
 /** Parse either agy's nested `{token:{…}}` shape or a flat `{access_token}` doc. */
@@ -5787,7 +5801,8 @@ function findDuplicateCredentialIdentities(accounts, homeDir) {
 	});
 	return reports;
 }
-// src/host/agy-log.ts
+//#endregion
+//#region src/host/agy-log.ts
 /** Same home resolution quota.ts uses for per-account credential access. */
 function agyHomeDirFor(account) {
 	return account?.systemHome || !account?.dir ? homedir() : account.dir;
@@ -5838,7 +5853,8 @@ function readAgyRunLogText(homeDir, before) {
 	}
 	return parts.join("\n");
 }
-// src/common/atomic-write.ts
+//#endregion
+//#region src/common/atomic-write.ts
 let seq = 0;
 /** Unique temp path beside `file` (same directory, so rename stays atomic). */
 function atomicTmpPath(file) {
@@ -5858,7 +5874,8 @@ function writeFileAtomicSync(file, data) {
 		throw err;
 	}
 }
-// src/host/sessions.ts
+//#endregion
+//#region src/host/sessions.ts
 var SessionStore = class {
 	file;
 	data = {};
@@ -5951,7 +5968,8 @@ var SessionStore = class {
 		} catch {}
 	}
 };
-// src/host/agy-db.ts
+//#endregion
+//#region src/host/agy-db.ts
 const execFileAsync = promisify(execFile);
 let AGY_DB_DIR = join(homedir(), ".gemini", "antigravity-cli", "conversations");
 /**
@@ -6478,7 +6496,8 @@ async function readStepThoughts(conversationId, stepIndex, accountHome) {
 	await loadCached(conversationId, accountHome);
 	return cache?.thoughts.get(stepIndex) ?? null;
 }
-// src/host/adapter.ts
+//#endregion
+//#region src/host/adapter.ts
 /**
 * True for a tool-result message across dsh-llm schema revisions.
 *
@@ -8434,7 +8453,8 @@ function detectContinuation(messages) {
 	if (callId === null) return null;
 	return parseMirrorCallId(callId);
 }
-// src/host/oneshot.ts
+//#endregion
+//#region src/host/oneshot.ts
 /** Per-file inline cap; larger files are truncated. */
 const INLINE_MAX_BYTES = 262144;
 /** Truncate a buffer to <= max bytes without splitting a UTF-8 code point. */
@@ -8611,7 +8631,8 @@ async function runAgyOnce(deps, req) {
 		durationMs: outcome.durationMs
 	};
 }
-// src/host/ask-tool.ts
+//#endregion
+//#region src/host/ask-tool.ts
 const ALIASES = {
 	flash: "gemini",
 	pro: "gemini",
@@ -8741,7 +8762,8 @@ function defineAgyAskTool(deps) {
 		}
 	});
 }
-// src/host/auth.ts
+//#endregion
+//#region src/host/auth.ts
 const URL_WAIT_MS = 2e4;
 const CODE_SETTLE_MS = 9e4;
 var AuthHelper = class {
@@ -9024,7 +9046,8 @@ var AuthHelper = class {
 		this.state = { phase: "idle" };
 	}
 };
-// src/host/diagnostics.ts
+//#endregion
+//#region src/host/diagnostics.ts
 /**
 * Redact user:pass credentials from a proxy URL for display in command output
 * and reports. The full URL (with embedded credentials) stays in config only.
@@ -9110,7 +9133,8 @@ function writeDoctorReport(deps) {
 	} catch {}
 	return file;
 }
-// src/host/commands.ts
+//#endregion
+//#region src/host/commands.ts
 const HELP$1 = [
 	"**/agy** — Antigravity (agy CLI) bridge",
 	"- `/agy status` — binary, version, auth, mode, catalog, bindings",
@@ -9550,7 +9574,8 @@ function err$1(text) {
 		text
 	};
 }
-// src/host/translate.ts
+//#endregion
+//#region src/host/translate.ts
 /** Durable record type written to the session log (grammar: `plugin:` + lowercase segments). */
 const TRANSLATION_RECORD_TYPE = "plugin:agy-link/translation";
 /** Bounded in-memory cache: one entry per (model, effort, language, source text). */
@@ -10347,7 +10372,8 @@ function sameModel(a, b) {
 	const norm = (s) => s.trim().toLowerCase().replace(/^.*\//, "");
 	return norm(a) === norm(b);
 }
-// src/host/tsl-command.ts
+//#endregion
+//#region src/host/tsl-command.ts
 const HELP = [
 	"**/tsl** — 用 Gemini 把当前会话的输出翻成人话（默认 `gemini-3.8-flash` · high）",
 	"- `/tsl` — 翻译当前会话**最后一个已完成回合**，并在该回复下方生成译文卡片",
@@ -10498,7 +10524,8 @@ async function handle(deps, invocation) {
 		return err("翻译失败：" + (e instanceof Error ? e.message : String(e)));
 	}
 }
-// src/host/pool-auth.ts
+//#endregion
+//#region src/host/pool-auth.ts
 const DONE_STATUS_TTL_MS = 3e4;
 var PoolAuthFlow = class {
 	pool;
@@ -10725,7 +10752,8 @@ var PoolAuthFlow = class {
 		if (!flow.primary) this.pool.cleanupStagingSlot(flow.dir);
 	}
 };
-// src/host/agy-usage.ts
+//#endregion
+//#region src/host/agy-usage.ts
 function num(v) {
 	return typeof v === "number" && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : void 0;
 }
@@ -10892,7 +10920,8 @@ async function readAgyUsage(opts) {
 		return null;
 	}
 }
-// src/host/quota.ts
+//#endregion
+//#region src/host/quota.ts
 /**
 * When the quota-summary endpoint transiently fails, per-model fallback
 * data carries a SINGLE window (sometimes the weekly one) and no weekly
@@ -11806,7 +11835,8 @@ var QuotaService = class {
 		await Promise.allSettled(accounts.map((acc) => this.refreshAccountQuota(acc, force)));
 	}
 };
-// src/host/warmup.ts
+//#endregion
+//#region src/host/warmup.ts
 /** Canonical model route resolution for upstream Google Cloud Code PA endpoints. */
 function toCanonicalWarmupModel(model) {
 	const clean = model.trim().toLowerCase();
@@ -12311,7 +12341,8 @@ function readJsonBody(req, opts = {}) {
 		}));
 	});
 }
-// src/host/mcp-bridge.ts
+//#endregion
+//#region src/host/mcp-bridge.ts
 const MCP_SERVER_KEY = "dsh-tools";
 /**
 * Tools that must NEVER be exposed to an external MCP client. These are
@@ -12639,7 +12670,8 @@ function writeMcpConfig(file, bridge) {
 		} catch {}
 	};
 }
-// src/host/media-route.ts
+//#endregion
+//#region src/host/media-route.ts
 const MIME_MAP = {
 	".png": "image/png",
 	".jpg": "image/jpeg",
@@ -12818,7 +12850,8 @@ function handleAssetRequest(req, res, assetDir) {
 		res.end("asset read error: " + String(err));
 	}
 }
-// src/index.ts
+//#endregion
+//#region src/index.ts
 const name = "dsh-agy-link";
 const inject = ["llm", "commands"];
 function resolveAssetDir() {
@@ -12906,7 +12939,7 @@ function apply(ctx, entryConfig = {}) {
 			if (directFiber) return;
 			directRuntime = "starting";
 			try {
-				const { mountDirectBackend } = await import("./integrated-host-BOczxv8m.js");
+				const { mountDirectBackend } = await import("./integrated-host-CjnKsrO4.js");
 				if (!directAlive || !getConfig().enabled || !getConfig().experimentalDirect) {
 					directRuntime = "disabled";
 					return;
@@ -14370,4 +14403,5 @@ function apply(ctx, entryConfig = {}) {
 		};
 	});
 }
+//#endregion
 export { apply, inject, name };
