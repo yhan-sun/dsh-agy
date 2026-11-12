@@ -133,6 +133,7 @@ function defaultConfig() {
 		suppressAgyAutoUpdate: process.platform === "win32",
 		autoWarmup: false,
 		warmupModels: ["gemini-3.8-flash", "claude-sonnet-5-5"],
+		warmStart: true,
 		autoTranslate: false,
 		translateThinking: true,
 		translateModel: "gemini-3.8-flash",
@@ -568,6 +569,7 @@ function resolveConfig(entry, env = process.env, overrides = readOverrides()) {
 		suppressAgyAutoUpdate: asBool(get("suppressAgyAutoUpdate")) ?? base.suppressAgyAutoUpdate,
 		autoWarmup: asBool(get("autoWarmup")) ?? base.autoWarmup,
 		warmupModels: asStringArray(get("warmupModels")) ?? base.warmupModels,
+		warmStart: asBool(get("warmStart")) ?? base.warmStart,
 		autoTranslate: asBool(get("autoTranslate")) ?? base.autoTranslate,
 		translateThinking: asBool(get("translateThinking")) ?? base.translateThinking,
 		translateModel: asString(get("translateModel")) ?? base.translateModel,
@@ -671,6 +673,10 @@ function resolveConfig(entry, env = process.env, overrides = readOverrides()) {
 	if (env.DSH_AGY_WARMUP_MODELS) {
 		const wm = asStringArray(env.DSH_AGY_WARMUP_MODELS.split(","));
 		if (wm) cfg.warmupModels = wm;
+	}
+	if (env.DSH_AGY_WARM_START !== void 0) {
+		const ws = asBool(env.DSH_AGY_WARM_START);
+		if (ws !== void 0) cfg.warmStart = ws;
 	}
 	if (env.DSH_AGY_AUTO_TRANSLATE !== void 0) {
 		const at = asBool(env.DSH_AGY_AUTO_TRANSLATE);

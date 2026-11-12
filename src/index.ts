@@ -1732,6 +1732,8 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
       if (mirrorToolDispose.current !== null) mirrorToolDispose.current()
       for (const undo of bridgeState.restores) undo()
       void bridgeState.bridge?.close()
+      // A pre-warmed agy process must never outlive the plugin that started it.
+      adapter.disposeWarmRuns()
     }
   })
 }

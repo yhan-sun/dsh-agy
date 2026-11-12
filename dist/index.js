@@ -1,4 +1,4 @@
-import { C as networkRetryDelayMs, S as looksLikeRateLimit, T as shouldMarkAuthRequired, _ as looksLikeAuthFailure, a as readOverrides, b as looksLikeEligibilityFailure, c as ELIGIBILITY_ERROR_HINT, d as PROVIDER_ID, f as accountsShareSingleEgress, g as isTransportFailure, h as isAuthoritativeAuthError, i as overridesPath, l as Err, m as isAccountScopedFailure, n as require_undici, o as resolveConfig, p as extractAuthUrl, r as dshHome, s as stateDir, t as validDirectProxy, u as NETWORK_RETRY_DELAYS_MS, v as looksLikeAuthVerificationJitter, w as parseResetDurationMs, x as looksLikeHardRateLimit, y as looksLikeContextWindowExceeded } from "./direct-proxy-7BxBpCdu.js";
+import { C as networkRetryDelayMs, S as looksLikeRateLimit, T as shouldMarkAuthRequired, _ as looksLikeAuthFailure, a as readOverrides, b as looksLikeEligibilityFailure, c as ELIGIBILITY_ERROR_HINT, d as PROVIDER_ID, f as accountsShareSingleEgress, g as isTransportFailure, h as isAuthoritativeAuthError, i as overridesPath, l as Err, m as isAccountScopedFailure, n as require_undici, o as resolveConfig, p as extractAuthUrl, r as dshHome, s as stateDir, t as validDirectProxy, u as NETWORK_RETRY_DELAYS_MS, v as looksLikeAuthVerificationJitter, w as parseResetDurationMs, x as looksLikeHardRateLimit, y as looksLikeContextWindowExceeded } from "./direct-proxy-DOqiLSFP.js";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import path, { basename, delimiter, dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { accessSync, chmodSync, constants, copyFileSync, createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
@@ -7031,6 +7031,12 @@ function calcPromptTokens(usage) {
 	const totalPrompt = input + cacheRead + cacheWrite;
 	return totalPrompt > 0 ? totalPrompt : void 0;
 }
+/** An unclaimed warm process is killed after this idle window. */
+const WARM_IDLE_MS = 18e4;
+/** Wait for the finished turn's process to exit before starting its successor. */
+const PREWARM_DELAY_MS = 1200;
+/** One retry when the previous process is still finalizing. */
+const PREWARM_RETRY_MS = 3e3;
 var AgyAdapter = class AgyAdapter extends LlmAdapter {
 	deps;
 	recentlyCompactedSessions = /* @__PURE__ */ new Map();
@@ -7068,9 +7074,109 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 		}
 		return this.effortLessCache;
 	}
+	/**
+	* Claim a matching pre-warmed process and hand it this turn's line handler.
+	* Returns null when nothing matches (the caller spawns normally).
+	*/
+	takeWarm(signature) {
+		const warm = this.warmRuns.get(signature);
+		if (warm === void 0) {
+			if (this.warmRuns.size > 0) this.deps.log?.("warm start: no match for " + signature + " (idle: " + [...this.warmRuns.keys()].join(", ") + ")");
+			return null;
+		}
+		this.warmRuns.delete(signature);
+		if (warm.timer !== null) {
+			clearTimeout(warm.timer);
+			warm.timer = null;
+		}
+		if (warm.claimed || warm.proc.child.exitCode !== null || warm.proc.child.killed) return null;
+		return warm;
+	}
+	/** Start the next span's agy process while the tool the caller asked for runs. */
+	prewarm(sessionKey) {
+		if (sessionKey === "") return;
+		const plan = this.warmPlans.get(sessionKey);
+		if (plan === void 0) return;
+		const conversationId = plan.conversationId();
+		const signature = plan.base + "|" + conversationId;
+		if (this.warmRuns.has(signature)) return;
+		let warm;
+		try {
+			warm = {
+				signature,
+				proc: plan.spawn((line) => warm.handler?.(line), conversationId),
+				handler: null,
+				claimed: false,
+				timer: null
+			};
+		} catch {
+			return;
+		}
+		warm.proc.outcome.then((outcome) => {
+			if (this.warmRuns.get(signature) === warm) this.warmRuns.delete(signature);
+			if (!warm.claimed) this.deps.log?.("warm start: pre-spawned process exited before it was used (code " + String(outcome.code) + ")");
+		}, () => {
+			if (this.warmRuns.get(signature) === warm) this.warmRuns.delete(signature);
+			if (!warm.claimed) this.deps.log?.("warm start: pre-spawned process was killed before it was used");
+		});
+		warm.timer = setTimeout(() => {
+			if (warm.claimed || this.warmRuns.get(signature) !== warm) return;
+			this.warmRuns.delete(signature);
+			try {
+				warm.proc.kill("abort");
+			} catch {}
+		}, WARM_IDLE_MS);
+		warm.timer.unref?.();
+		this.warmRuns.set(signature, warm);
+		this.deps.log?.("warm start: pre-spawned agy for " + signature);
+	}
+	/**
+	* Queue a pre-warm after the turn's process has had time to exit (it holds
+	* the conversation DB while finalizing, and a second reader on the same
+	* conversation is exactly what we do not want).
+	*/
+	schedulePrewarm(sessionKey) {
+		if (sessionKey === "") return;
+		setTimeout(() => {
+			if (this.activeRuns.has(sessionKey)) {
+				setTimeout(() => {
+					if (!this.activeRuns.has(sessionKey)) this.prewarm(sessionKey);
+				}, PREWARM_RETRY_MS).unref?.();
+				return;
+			}
+			this.prewarm(sessionKey);
+		}, PREWARM_DELAY_MS).unref?.();
+	}
+	/** Kill every idle warm process (plugin unload, config change). */
+	disposeWarmRuns() {
+		for (const warm of this.warmRuns.values()) {
+			if (warm.timer !== null) clearTimeout(warm.timer);
+			if (!warm.claimed) try {
+				warm.proc.kill("abort");
+			} catch {}
+		}
+		this.warmRuns.clear();
+		this.warmPlans.clear();
+	}
 	warnedKeys = /* @__PURE__ */ new Set();
 	/** sessionKey -> in-flight run, for steer-time preemption. */
 	activeRuns = /* @__PURE__ */ new Map();
+	/**
+	* Pre-warmed agy processes, keyed by {@link getWarmRuns} signature.
+	*
+	* Every agy launch pays silent auth + `loadCodeAssist` + `fetchAvailableModels`
+	* before its model request (~3-7s measured on macOS). A turn with tool calls
+	* runs agy once per step, so that cost was paid per step. After a span ends
+	* with a tool call we launch the next process immediately (stdin kept open, no
+	* prompt yet) and let it finish those handshakes while DSH executes the tool;
+	* the next `stream()` writes one NDJSON line into it instead of spawning.
+	*
+	* The process still handles exactly ONE turn and exits on stdin EOF, so the
+	* per-turn outcome/settle/retry logic is untouched.
+	*/
+	warmRuns = /* @__PURE__ */ new Map();
+	/** sessionKey -> how to pre-warm the next span (set by the current attempt). */
+	warmPlans = /* @__PURE__ */ new Map();
 	/**
 	* sessionKey -> prompt info for duplicate submission debounce.
 	* `inFlight` is true from submit until the run settles (or spawn throws),
@@ -7384,11 +7490,14 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 	* (an explicit request, `defaultEffort`, or the aux channel's pinning).
 	*/
 	async *stream(options) {
+		let effortReplay = false;
+		let coldReplay = false;
 		for (let attempt = 0;; attempt++) {
 			let emitted = false;
 			const telemetry = [];
 			let finish = null;
-			for await (const chunk of this.streamAttempt(options, attempt > 0)) {
+			const attemptState = { warmUsed: false };
+			for await (const chunk of this.streamAttempt(options, effortReplay, attemptState)) {
 				if (chunk.type === "finish") {
 					finish = chunk;
 					continue;
@@ -7404,20 +7513,27 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 				for (const chunk of telemetry) yield chunk;
 				return;
 			}
-			if (attempt === 0 && !emitted && finish.reason.kind === "error") {
+			if (!effortReplay && !emitted && finish.reason.kind === "error") {
 				const failure = finish.reason.failure;
 				const refused = parseEffortUnsupported(String(failure?.message ?? ""));
 				if (refused !== null) {
 					this.learnEffortUnsupported(refused);
+					effortReplay = true;
 					continue;
 				}
 			}
+			if (!coldReplay && attemptState.warmUsed && !emitted && finish.reason.kind === "error") {
+				coldReplay = true;
+				this.deps.log?.("pre-warmed agy process produced no output — replaying this span with a cold start");
+				continue;
+			}
 			for (const chunk of telemetry) yield chunk;
+			if (finish.reason.kind === "stop") this.schedulePrewarm(options.sessionId === void 0 ? "" : String(options.sessionId));
 			yield finish;
 			return;
 		}
 	}
-	async *streamAttempt(options, suppressEffort = false) {
+	async *streamAttempt(options, suppressEffort = false, attemptState) {
 		const cfg = this.deps.getConfig();
 		const bin = this.deps.bin();
 		if (!bin) throw new LlmError("agy binary not found on PATH — install it via https://antigravity.google/docs/cli/install", Err.AGY_NOT_INSTALLED);
@@ -7893,6 +8009,15 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 			promptViaStdin: true
 		}) : argsBase;
 		const stdinPayload = promptViaStdin ? buildStreamInputLine(prompt) : void 0;
+		const warmBase = [
+			sessionKey,
+			account?.id ?? "",
+			activeModelForArgs,
+			effort,
+			isAux && !isTitle ? "plan" : cfg.permissionMode,
+			suppressEffort ? "no-effort" : "effort"
+		].join("|");
+		const warmSignature = warmBase + "|" + (persistBinding && binding !== void 0 ? binding.conversationId : "");
 		const dispatchHardCapMs = cfg.dispatchTimeoutMinutes > 0 ? cfg.dispatchTimeoutMinutes * 6e4 : 0;
 		const dispatchStartedAt = Date.now();
 		const DISPATCH_HEARTBEAT_MS = 12e4;
@@ -8029,6 +8154,40 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 			...account && account.dir ? isolatedHomeEnv(account.dir) : {},
 			...proxyEnvFor(effectiveProxy)
 		};
+		if (cfg.warmStart && (process.env.NODE_TEST_CONTEXT === void 0 || process.env.DSH_AGY_WARM_START === "1") && !isAux && sessionKey !== "" && !options.signal?.aborted) this.warmPlans.set(sessionKey, {
+			base: warmBase,
+			conversationId: () => {
+				if (!persistBinding || sessionAccountKey === "") return "";
+				try {
+					return this.deps.store.get(sessionAccountKey)?.conversationId ?? "";
+				} catch {
+					return "";
+				}
+			},
+			spawn: (forward, conversationId) => startAgyProcess({
+				bin,
+				args: this.buildArgs({
+					prompt: "",
+					model: activeModelForArgs,
+					effort,
+					conversationId: conversationId === "" ? void 0 : conversationId,
+					permissionMode: isAux && !isTitle ? "plan" : cfg.permissionMode,
+					timeoutMs: cfg.timeoutMs,
+					printTimeoutMinutes,
+					extraArgs: cfg.extraArgs,
+					addDirs: effectiveAddDirs,
+					promptViaStdin: true
+				}),
+				cwd: workspaceRoot,
+				timeoutMs: cfg.timeoutMs,
+				maxTurnMs: cfg.maxTurnMinutes > 0 ? cfg.maxTurnMinutes * 6e4 : void 0,
+				env,
+				keepStdin: true,
+				preemptAutoUpdate: cfg.suppressAgyAutoUpdate,
+				stderrKeepalive: true,
+				onLine: forward
+			})
+		});
 		let proc;
 		let spawned = false;
 		try {
@@ -8061,7 +8220,44 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 				},
 				log: (msg) => this.deps.log?.(msg)
 			});
-			proc = startAgyProcess({
+			const handleLine = (line) => {
+				sawAnyEvent = true;
+				slotHandoff?.onFirstEvent();
+				lastOutputAt = Date.now();
+				startToolHeartbeat();
+				applyToolIdleBudget();
+				for (const ev of parser.feed(line + "\n")) {
+					if (ev.kind === "init" && ev.conversationId) streamCid = ev.conversationId;
+					if (ev.kind === "result" && ev.conversationId !== "") streamCid = ev.conversationId;
+					if (ev.kind === "step" && ev.stepKind === "tool" && ev.tool) {
+						if (!(ev.state === "DONE" || ev.state === "ERROR" || ev.state === void 0 && (ev.tool.output !== void 0 || ev.tool.error !== void 0))) {
+							if (!openToolKeys.has(ev.stepKey)) {
+								openToolKeys.add(ev.stepKey);
+								openToolSince.set(ev.stepKey, Date.now());
+								applyToolIdleBudget();
+								startToolHeartbeat();
+							}
+						} else if (openToolKeys.delete(ev.stepKey)) {
+							openToolSince.delete(ev.stepKey);
+							applyToolIdleBudget();
+							if (openToolKeys.size === 0) stopToolHeartbeat();
+						}
+					}
+					rec.append(ev);
+				}
+			};
+			const warm = this.takeWarm(warmSignature);
+			if (warm !== null) {
+				warm.handler = handleLine;
+				warm.claimed = true;
+				warm.proc.noteActivity(cfg.timeoutMs);
+				proc = warm.proc;
+				try {
+					proc.child.stdin?.write(buildStreamInputLine(prompt));
+					proc.child.stdin?.end();
+				} catch {}
+				if (attemptState !== void 0) attemptState.warmUsed = true;
+			} else proc = startAgyProcess({
 				bin,
 				args,
 				cwd: workspaceRoot,
@@ -8072,32 +8268,7 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 				stdinPayload,
 				preemptAutoUpdate: cfg.suppressAgyAutoUpdate,
 				stderrKeepalive: true,
-				onLine: (line) => {
-					sawAnyEvent = true;
-					slotHandoff?.onFirstEvent();
-					lastOutputAt = Date.now();
-					startToolHeartbeat();
-					applyToolIdleBudget();
-					for (const ev of parser.feed(line + "\n")) {
-						if (ev.kind === "init" && ev.conversationId) streamCid = ev.conversationId;
-						if (ev.kind === "result" && ev.conversationId !== "") streamCid = ev.conversationId;
-						if (ev.kind === "step" && ev.stepKind === "tool" && ev.tool) {
-							if (!(ev.state === "DONE" || ev.state === "ERROR" || ev.state === void 0 && (ev.tool.output !== void 0 || ev.tool.error !== void 0))) {
-								if (!openToolKeys.has(ev.stepKey)) {
-									openToolKeys.add(ev.stepKey);
-									openToolSince.set(ev.stepKey, Date.now());
-									applyToolIdleBudget();
-									startToolHeartbeat();
-								}
-							} else if (openToolKeys.delete(ev.stepKey)) {
-								openToolSince.delete(ev.stepKey);
-								applyToolIdleBudget();
-								if (openToolKeys.size === 0) stopToolHeartbeat();
-							}
-						}
-						rec.append(ev);
-					}
-				}
+				onLine: handleLine
 			});
 			spawned = true;
 			runningProc = proc;
@@ -13157,7 +13328,7 @@ function apply(ctx, entryConfig = {}) {
 			if (directFiber) return;
 			directRuntime = "starting";
 			try {
-				const { mountDirectBackend } = await import("./integrated-host-CP-UwXA_.js");
+				const { mountDirectBackend } = await import("./integrated-host-CJIQNVtz.js");
 				if (!directAlive || !getConfig().enabled || !getConfig().experimentalDirect) {
 					directRuntime = "disabled";
 					return;
@@ -14631,6 +14802,7 @@ function apply(ctx, entryConfig = {}) {
 			if (mirrorToolDispose.current !== null) mirrorToolDispose.current();
 			for (const undo of bridgeState.restores) undo();
 			bridgeState.bridge?.close();
+			adapter.disposeWarmRuns();
 		};
 	});
 }

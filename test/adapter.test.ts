@@ -2596,3 +2596,38 @@ test('goal round with a live active goal emits update_goal with the live revisio
   assert.equal(args.revision, 5, 'live revision wins over the stale one in history')
   assert.equal(args.action, 'complete')
 })
+
+test('a finished turn pre-warms the next agy process and the next turn adopts it', async () => {
+  // Measured live: every agy launch re-pays silent auth + loadCodeAssist +
+  // fetchAvailableModels (~3-7s) before its model request. The adapter starts
+  // that process right after a turn ends (the reader is typing) and the next
+  // turn writes its prompt into it instead of spawning.
+  const invocations = join(workDir, 'warm-invocations.txt')
+  const ready = join(workDir, 'warm-ready.txt')
+  process.env.DSH_AGY_WARM_START = '1'
+  process.env.FAKE_AGY_MODE = 'warm'
+  process.env.FAKE_AGY_INVOCATION_FILE = invocations
+  process.env.FAKE_AGY_WARM_READY_FILE = ready
+  const { adapter } = makeAdapter({ timeoutMs: 8_000 })
+  const spawned = () => {
+    try {
+      return readFileSync(invocations, 'utf8').split('\n').filter(Boolean).length
+    } catch {
+      return 0
+    }
+  }
+  try {
+    await runTurn(adapter, [msg('user', 'first question')], { sessionId: 'sess-warm' as never })
+    // The pre-warm is deliberately delayed so the finished process can exit.
+    await waitFor(() => (spawned() >= 2 && existsSync(ready) ? true : undefined), 8_000)
+
+    await runTurn(adapter, [msg('user', 'first question'), msg('assistant', 'warm answer'), msg('user', 'second question')], { sessionId: 'sess-warm' as never })
+    assert.equal(spawned(), 2, 'the second turn must reuse the pre-warmed process, not spawn a third')
+  } finally {
+    adapter.disposeWarmRuns()
+    delete process.env.DSH_AGY_WARM_START
+    delete process.env.FAKE_AGY_WARM_READY_FILE
+    delete process.env.FAKE_AGY_INVOCATION_FILE
+    delete process.env.FAKE_AGY_MODE
+  }
+})

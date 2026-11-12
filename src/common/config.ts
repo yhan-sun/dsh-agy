@@ -156,6 +156,7 @@ export function resolveConfig(
     suppressAgyAutoUpdate: asBool(get('suppressAgyAutoUpdate')) ?? base.suppressAgyAutoUpdate,
     autoWarmup: asBool(get('autoWarmup')) ?? base.autoWarmup,
     warmupModels: asStringArray(get('warmupModels')) ?? base.warmupModels,
+    warmStart: asBool(get('warmStart')) ?? base.warmStart,
     autoTranslate: asBool(get('autoTranslate')) ?? base.autoTranslate,
     translateThinking: asBool(get('translateThinking')) ?? base.translateThinking,
     translateModel: asString(get('translateModel')) ?? base.translateModel,
@@ -265,6 +266,10 @@ export function resolveConfig(
   if (env.DSH_AGY_WARMUP_MODELS) {
     const wm = asStringArray(env.DSH_AGY_WARMUP_MODELS.split(','))
     if (wm) cfg.warmupModels = wm
+  }
+  if (env.DSH_AGY_WARM_START !== undefined) {
+    const ws = asBool(env.DSH_AGY_WARM_START)
+    if (ws !== undefined) cfg.warmStart = ws
   }
   if (env.DSH_AGY_AUTO_TRANSLATE !== undefined) {
     const at = asBool(env.DSH_AGY_AUTO_TRANSLATE)

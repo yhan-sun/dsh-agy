@@ -172,6 +172,13 @@ export interface PluginConfig {
    * model and the result is persisted as a `plugin:agy-link/translation`
    * session record, rendered as a labelled Gemini card under that reply.
    */
+  /**
+   * Pre-warm the next agy process after a tool-calls span (default ON). agy
+   * re-does silent auth + model discovery on every launch, so overlapping that
+   * with the tool run removes ~3-7s from every step after the first. Set
+   * `warmStart: false` (or `DSH_AGY_WARM_START=0`) to spawn cold every time.
+   */
+  warmStart: boolean
   autoTranslate: boolean
   /**
    * Translate the model's own thinking trace (default ON): Gemini reasons in
@@ -307,6 +314,7 @@ export function defaultConfig(): PluginConfig {
     warmupModels: ['gemini-3.8-flash', 'claude-sonnet-5-5'],
     // Translation is strictly opt-in: it spends quota on every completed
     // turn, so the default must never silently start billing a user.
+    warmStart: true,
     autoTranslate: false,
     translateThinking: true,
     translateModel: 'gemini-3.8-flash',

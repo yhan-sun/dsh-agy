@@ -245,7 +245,30 @@ if (mode === 'slow-init') {
   process.exit(0)
 }
 
-if (mode === 'noise') {
+// `warm` — the shape a pre-warmed agy has: boot, print init, then wait for
+// NDJSON prompt lines on stdin and answer one turn per line. Stays alive until
+// stdin closes, which is exactly what the adapter's warm-process reuse relies on.
+if (mode === 'warm') {
+  process.stdin.setEncoding('utf8')
+  let pending = ''
+  const answer = () => {
+    emit({ event: 'init', conversation_id: conv, init: { model: 'gemini-3-7-flash', cwd: '/tmp', tools: ['run_command'] } })
+    emit({ event: 'step_update', step_update: { conversation_id: conv, step_index: 1, state: 'DONE', step_type: 'agent_response', text_delta: 'warm answer', duration_seconds: 0.2, usage: { input_tokens: 10, output_tokens: 2 } } })
+    emit({ event: 'result', result: { conversation_id: conv, status: 'DONE', response: 'warm answer', duration_seconds: 0.2, num_turns: 1, usage: { input_tokens: 10, output_tokens: 2 } } })
+  }
+  process.stdin.on('data', (d) => {
+    pending += d
+    let idx
+    while ((idx = pending.indexOf('\n')) >= 0) {
+      pending = pending.slice(idx + 1)
+      answer()
+    }
+  })
+  process.stdin.on('end', () => process.exit(0))
+  if (process.env.FAKE_AGY_WARM_READY_FILE) {
+    try { writeFileSync(process.env.FAKE_AGY_WARM_READY_FILE, String(Date.now())) } catch {}
+  }
+} else if (mode === 'noise') {
   process.stdout.write('\u26a0 fetching model catalog\n')
   emit({ event: 'init', conversation_id: conv, model: 'gemini-3-6-flash' })
   process.stdout.write('some progress noise\n')
@@ -320,4 +343,4 @@ emit({
     usage: { input_tokens: 10, output_tokens: 5, thinking_tokens: 2, cache_read_tokens: 3 },
   },
 })
-process.exit(0)
+if (mode !== 'warm') process.exit(0)

@@ -21,6 +21,7 @@ import { defaultMediaDir, stageImages, sweepDir, type ImageRefLike } from './med
 import { ensureIsolatedKeychain, isolatedHomeEnv, proxyEnvFor, startAgyProcess, buildStreamInputLine, shouldUsePromptStdin, stripNulBytes } from './runner.ts'
 import { detectSystemProxy } from './wincred.ts'
 import { AbortedWaitError, WaitTimeoutError, acquireCredentialSlot, credentialSlotMutex, SlotUnavailableError, armSlotHandoff, type SlotHandoff } from './credential-slot.ts'
+import type { RunningProcess } from './runner.ts'
 import { agyHomeDirFor, readAgyRunLogText, snapshotAgyLogs } from './agy-log.ts'
 import { stateDir } from '../common/config.ts'
 import { SENT_IMAGE_IDS_MAX, type SessionStore } from './sessions.ts'
@@ -749,6 +750,36 @@ export function calcPromptTokens(usage: RawUsage | null | undefined): number | u
   return totalPrompt > 0 ? totalPrompt : undefined
 }
 
+/**
+ * Pre-warmed agy process: launched after a tool-calls span, claimed by the next
+ * span of the same session/model/mode/conversation.
+ */
+interface WarmRun {
+  signature: string
+  proc: RunningProcess
+  /** Installed on claim; the pre-warm phase forwards its early lines into it. */
+  handler: ((line: string) => void) | null
+  claimed: boolean
+  timer: NodeJS.Timeout | null
+}
+
+/** How to pre-warm the next span: the signature it will be claimed under. */
+interface WarmPlan {
+  /** Signature WITHOUT the conversation id; it is resolved when the warm process starts. */
+  base: string
+  /** The conversation the next span will resume (binding may settle after the cut). */
+  conversationId: () => string
+  /** `forward` receives every stdout line of the pre-warmed process. */
+  spawn: (forward: (line: string) => void, conversationId: string) => RunningProcess
+}
+
+/** An unclaimed warm process is killed after this idle window. */
+const WARM_IDLE_MS = 180_000
+/** Wait for the finished turn's process to exit before starting its successor. */
+const PREWARM_DELAY_MS = 1_200
+/** One retry when the previous process is still finalizing. */
+const PREWARM_RETRY_MS = 3_000
+
 export class AgyAdapter extends LlmAdapter {
   private readonly recentlyCompactedSessions = new Map<string, number>()
 
@@ -798,9 +829,131 @@ export class AgyAdapter extends LlmAdapter {
     return this.effortLessCache
   }
 
+  /**
+   * Claim a matching pre-warmed process and hand it this turn's line handler.
+   * Returns null when nothing matches (the caller spawns normally).
+   */
+  private takeWarm(signature: string): WarmRun | null {
+    const warm = this.warmRuns.get(signature)
+    if (warm === undefined) {
+      if (this.warmRuns.size > 0) {
+        this.deps.log?.('warm start: no match for ' + signature + ' (idle: ' + [...this.warmRuns.keys()].join(', ') + ')')
+      }
+      return null
+    }
+    this.warmRuns.delete(signature)
+    if (warm.timer !== null) {
+      clearTimeout(warm.timer)
+      warm.timer = null
+    }
+    // A process that already exited (or never waited for stdin) cannot serve
+    // this turn; fall back to a cold spawn.
+    if (warm.claimed || warm.proc.child.exitCode !== null || warm.proc.child.killed) return null
+    return warm
+  }
+
+  /** Start the next span's agy process while the tool the caller asked for runs. */
+  private prewarm(sessionKey: string): void {
+    if (sessionKey === '') return
+    const plan = this.warmPlans.get(sessionKey)
+    if (plan === undefined) return
+    // Resolve the conversation NOW: the binding is persisted when the previous
+    // process exits, which happens after the stream cut that scheduled this.
+    const conversationId = plan.conversationId()
+    const signature = plan.base + '|' + conversationId
+    if (this.warmRuns.has(signature)) return
+    let warm: WarmRun
+    try {
+      const proc = plan.spawn((line: string) => warm.handler?.(line), conversationId)
+      warm = { signature, proc, handler: null, claimed: false, timer: null }
+    } catch {
+      return
+    }
+    // Nobody awaits a warm process: attach a handler so an exit does not
+    // surface as an unhandled rejection, and note WHY it went away.
+    void warm.proc.outcome.then(
+      (outcome) => {
+        if (this.warmRuns.get(signature) === warm) this.warmRuns.delete(signature)
+        if (!warm.claimed) {
+          this.deps.log?.('warm start: pre-spawned process exited before it was used (code ' + String(outcome.code) + ')')
+        }
+      },
+      () => {
+        if (this.warmRuns.get(signature) === warm) this.warmRuns.delete(signature)
+        if (!warm.claimed) this.deps.log?.('warm start: pre-spawned process was killed before it was used')
+      },
+    )
+    warm.timer = setTimeout(() => {
+      if (warm.claimed || this.warmRuns.get(signature) !== warm) return
+      this.warmRuns.delete(signature)
+      try {
+        warm.proc.kill('abort')
+      } catch {
+        // already gone
+      }
+    }, WARM_IDLE_MS)
+    warm.timer.unref?.()
+    this.warmRuns.set(signature, warm)
+    this.deps.log?.('warm start: pre-spawned agy for ' + signature)
+  }
+
+  /**
+   * Queue a pre-warm after the turn's process has had time to exit (it holds
+   * the conversation DB while finalizing, and a second reader on the same
+   * conversation is exactly what we do not want).
+   */
+  private schedulePrewarm(sessionKey: string): void {
+    if (sessionKey === '') return
+    const timer = setTimeout(() => {
+      if (this.activeRuns.has(sessionKey)) {
+        // Still finishing: try once more a little later.
+        const retry = setTimeout(() => {
+          if (!this.activeRuns.has(sessionKey)) this.prewarm(sessionKey)
+        }, PREWARM_RETRY_MS)
+        retry.unref?.()
+        return
+      }
+      this.prewarm(sessionKey)
+    }, PREWARM_DELAY_MS)
+    timer.unref?.()
+  }
+
+  /** Kill every idle warm process (plugin unload, config change). */
+  disposeWarmRuns(): void {
+    for (const warm of this.warmRuns.values()) {
+      if (warm.timer !== null) clearTimeout(warm.timer)
+      if (!warm.claimed) {
+        try {
+          warm.proc.kill('abort')
+        } catch {
+          // already gone
+        }
+      }
+    }
+    this.warmRuns.clear()
+    this.warmPlans.clear()
+  }
+
   private readonly warnedKeys = new Set<string>()
   /** sessionKey -> in-flight run, for steer-time preemption. */
   private readonly activeRuns = new Map<string, RunRecording>()
+
+  /**
+   * Pre-warmed agy processes, keyed by {@link getWarmRuns} signature.
+   *
+   * Every agy launch pays silent auth + `loadCodeAssist` + `fetchAvailableModels`
+   * before its model request (~3-7s measured on macOS). A turn with tool calls
+   * runs agy once per step, so that cost was paid per step. After a span ends
+   * with a tool call we launch the next process immediately (stdin kept open, no
+   * prompt yet) and let it finish those handshakes while DSH executes the tool;
+   * the next `stream()` writes one NDJSON line into it instead of spawning.
+   *
+   * The process still handles exactly ONE turn and exits on stdin EOF, so the
+   * per-turn outcome/settle/retry logic is untouched.
+   */
+  private readonly warmRuns = new Map<string, WarmRun>()
+  /** sessionKey -> how to pre-warm the next span (set by the current attempt). */
+  private readonly warmPlans = new Map<string, WarmPlan>()
   /**
    * sessionKey -> prompt info for duplicate submission debounce.
    * `inFlight` is true from submit until the run settles (or spawn throws),
@@ -1191,6 +1344,10 @@ export class AgyAdapter extends LlmAdapter {
    * (an explicit request, `defaultEffort`, or the aux channel's pinning).
    */
   override async *stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
+    // Two independent one-shot replays, each with its own trigger: agy refusing
+    // `--effort`, and a pre-warmed process that died before producing anything.
+    let effortReplay = false
+    let coldReplay = false
     for (let attempt = 0; ; attempt++) {
       // A refused attempt emits a bare `usage` chunk before its error finish
       // (measured on agy 1.4.6). Usage is telemetry, not output: hold it back so
@@ -1199,7 +1356,8 @@ export class AgyAdapter extends LlmAdapter {
       let emitted = false
       const telemetry: StreamChunk[] = []
       let finish: StreamChunk | null = null
-      for await (const chunk of this.streamAttempt(options, attempt > 0)) {
+      const attemptState = { warmUsed: false }
+      for await (const chunk of this.streamAttempt(options, effortReplay, attemptState)) {
         if (chunk.type === 'finish') {
           // Hold the finish back one step: a refusal must not reach the caller
           // when the replay is about to succeed.
@@ -1217,21 +1375,37 @@ export class AgyAdapter extends LlmAdapter {
         for (const chunk of telemetry) yield chunk
         return
       }
-      if (attempt === 0 && !emitted && finish.reason.kind === 'error') {
+      if (!effortReplay && !emitted && finish.reason.kind === 'error') {
         const failure = (finish.reason as { failure?: { message?: string } }).failure
         const refused = parseEffortUnsupported(String(failure?.message ?? ''))
         if (refused !== null) {
           this.learnEffortUnsupported(refused)
+          effortReplay = true
           continue
         }
       }
+      // A warm process that died before its first token (crashed boot, agy
+      // build that refuses the stdin transport) must not fail the turn: replay
+      // once from a cold spawn. Nothing was emitted, so the replay is safe.
+      if (!coldReplay && attemptState.warmUsed && !emitted && finish.reason.kind === 'error') {
+        coldReplay = true
+        this.deps.log?.('pre-warmed agy process produced no output — replaying this span with a cold start')
+        continue
+      }
       for (const chunk of telemetry) yield chunk
+      // Turn finished. agy re-pays silent auth + model discovery (~3-7s) on the
+      // next turn, so start that process now and let it finish those handshakes
+      // while the reader types. Tool-call cuts are NOT pre-warmed: the live
+      // process keeps serving those steps (see detectContinuation).
+      if (finish.reason.kind === 'stop') {
+        this.schedulePrewarm(options.sessionId === undefined ? '' : String(options.sessionId))
+      }
       yield finish
       return
     }
   }
 
-  private async *streamAttempt(options: GenerateOptions, suppressEffort = false): AsyncIterable<StreamChunk> {
+  private async *streamAttempt(options: GenerateOptions, suppressEffort = false, attemptState?: { warmUsed: boolean }): AsyncIterable<StreamChunk> {
     const cfg = this.deps.getConfig()
     const bin = this.deps.bin()
     if (!bin) throw new LlmError('agy binary not found on PATH — install it via https://antigravity.google/docs/cli/install', Err.AGY_NOT_INSTALLED)
@@ -2129,6 +2303,19 @@ export class AgyAdapter extends LlmAdapter {
         })
       : argsBase
     const stdinPayload = promptViaStdin ? buildStreamInputLine(prompt) : undefined
+    // Identity of the process that can serve THIS span: a pre-warmed one is
+    // only reused when every dimension matches, otherwise a changed model,
+    // mode or conversation must cold-start.
+    const warmBase = [
+      sessionKey,
+      account?.id ?? '',
+      activeModelForArgs,
+      effort,
+      isAux && !isTitle ? 'plan' : cfg.permissionMode,
+      suppressEffort ? 'no-effort' : 'effort',
+    ].join('|')
+    const warmSignature = warmBase + '|' + (persistBinding && binding !== undefined ? binding.conversationId : '')
+    let warmUsed = false
     // ---- dispatch phase: concurrency slot → credential slot → (spawn) ----
     //
     // 2026-10-16 zombie-turn incident: a request queued for the credential
@@ -2374,6 +2561,50 @@ export class AgyAdapter extends LlmAdapter {
       ...proxyEnvFor(effectiveProxy),
     }
 
+    // Register how the NEXT span of this session could be pre-warmed: same
+    // binary/env/args, stdin transport, no prompt written yet.
+    // Test runs opt out unless they ask for it explicitly: the harness counts
+    // spawns, and a pre-warm is an extra (idle) process by design.
+    const warmEnabled = cfg.warmStart
+      && (process.env.NODE_TEST_CONTEXT === undefined || process.env.DSH_AGY_WARM_START === '1')
+    if (warmEnabled && !isAux && sessionKey !== '' && !options.signal?.aborted) {
+      this.warmPlans.set(sessionKey, {
+        base: warmBase,
+        conversationId: () => {
+          if (!persistBinding || sessionAccountKey === '') return ''
+          try {
+            return this.deps.store.get(sessionAccountKey)?.conversationId ?? ''
+          } catch {
+            return ''
+          }
+        },
+        spawn: (forward, conversationId) =>
+          startAgyProcess({
+            bin,
+            args: this.buildArgs({
+              prompt: '',
+              model: activeModelForArgs,
+              effort,
+              conversationId: conversationId === '' ? undefined : conversationId,
+              permissionMode: isAux && !isTitle ? 'plan' : cfg.permissionMode,
+              timeoutMs: cfg.timeoutMs,
+              printTimeoutMinutes,
+              extraArgs: cfg.extraArgs,
+              addDirs: effectiveAddDirs,
+              promptViaStdin: true,
+            }),
+            cwd: workspaceRoot,
+            timeoutMs: cfg.timeoutMs,
+            maxTurnMs: cfg.maxTurnMinutes > 0 ? cfg.maxTurnMinutes * 60_000 : undefined,
+            env,
+            keepStdin: true,
+            preemptAutoUpdate: cfg.suppressAgyAutoUpdate,
+            stderrKeepalive: true,
+            onLine: forward,
+          }),
+      })
+    }
+
     let proc: ReturnType<typeof startAgyProcess>
     let spawned = false
     try {
@@ -2417,24 +2648,11 @@ export class AgyAdapter extends LlmAdapter {
           log: (msg) => this.deps.log?.(msg),
         })
       }
-      proc = startAgyProcess({
-      bin,
-      args,
-      cwd: workspaceRoot,
-      timeoutMs: cfg.timeoutMs,
-      // Wall-clock cap for the whole turn (issue #92): the idle watchdog is
-      // re-armed by every output line, so a self-driving loop that keeps
-      // printing never trips it. 0 disables (behaviour unchanged).
-      maxTurnMs: cfg.maxTurnMinutes > 0 ? cfg.maxTurnMinutes * 60_000 : undefined,
-      signal: options.signal,
-      env,
-      stdinPayload,
-      preemptAutoUpdate: cfg.suppressAgyAutoUpdate,
-      // stderr is liveness too: agy prints progress/diagnostics there while a
-      // long step is running, and a run that only talks on stderr used to be
-      // "idle" as far as the watchdog was concerned.
-      stderrKeepalive: true,
-      onLine: (line) => {
+      // Extracted so a PRE-WARMED process can adopt this turn's handler: agy
+      // pays auth + model discovery (~3-7s) on every launch, so the process is
+      // started right after a tool-calls span and only receives the prompt when
+      // the tool result comes back.
+      const handleLine = (line: string) => {
         sawAnyEvent = true
         // First output = agy resolved its credential; give the machine-wide
         // slot back so other accounts' sessions can run concurrently.
@@ -2467,8 +2685,46 @@ export class AgyAdapter extends LlmAdapter {
           }
           rec.append(ev)
         }
-      },
-      })
+      }
+      const warm = this.takeWarm(warmSignature)
+      if (warm !== null) {
+        warm.handler = handleLine
+        warm.claimed = true
+        warm.proc.noteActivity(cfg.timeoutMs)
+        proc = warm.proc
+        try {
+          // One NDJSON line, then EOF: agy runs exactly this turn and exits, so
+          // the per-turn outcome/settle logic below is unchanged. The warm
+          // process was always started with the stdin transport, so the prompt
+          // must be written as NDJSON even when the cold path would have used -p.
+          proc.child.stdin?.write(buildStreamInputLine(prompt))
+          proc.child.stdin?.end()
+        } catch {
+          // stdin already gone: the outcome closure reports the failure.
+        }
+        warmUsed = true
+        if (attemptState !== undefined) attemptState.warmUsed = true
+      } else {
+        proc = startAgyProcess({
+          bin,
+          args,
+          cwd: workspaceRoot,
+          timeoutMs: cfg.timeoutMs,
+          // Wall-clock cap for the whole turn (issue #92): the idle watchdog is
+          // re-armed by every output line, so a self-driving loop that keeps
+          // printing never trips it. 0 disables (behaviour unchanged).
+          maxTurnMs: cfg.maxTurnMinutes > 0 ? cfg.maxTurnMinutes * 60_000 : undefined,
+          signal: options.signal,
+          env,
+          stdinPayload,
+          preemptAutoUpdate: cfg.suppressAgyAutoUpdate,
+          // stderr is liveness too: agy prints progress/diagnostics there while a
+          // long step is running, and a run that only talks on stderr used to be
+          // "idle" as far as the watchdog was concerned.
+          stderrKeepalive: true,
+          onLine: handleLine,
+        })
+      }
       spawned = true
       runningProc = proc
       // stdout can deliver the first lines before this assignment lands —
