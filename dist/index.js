@@ -1,4 +1,4 @@
-import { C as networkRetryDelayMs, S as looksLikeRateLimit, T as shouldMarkAuthRequired, _ as looksLikeAuthFailure, a as readOverrides, b as looksLikeEligibilityFailure, c as ELIGIBILITY_ERROR_HINT, d as PROVIDER_ID, f as accountsShareSingleEgress, g as isTransportFailure, h as isAuthoritativeAuthError, i as overridesPath, l as Err, m as isAccountScopedFailure, n as require_undici, o as resolveConfig, p as extractAuthUrl, r as dshHome, s as stateDir, t as validDirectProxy, u as NETWORK_RETRY_DELAYS_MS, v as looksLikeAuthVerificationJitter, w as parseResetDurationMs, x as looksLikeHardRateLimit, y as looksLikeContextWindowExceeded } from "./direct-proxy-DOqiLSFP.js";
+import { C as networkRetryDelayMs, S as looksLikeRateLimit, T as shouldMarkAuthRequired, _ as looksLikeAuthFailure, a as readOverrides, b as looksLikeEligibilityFailure, c as ELIGIBILITY_ERROR_HINT, d as PROVIDER_ID, f as accountsShareSingleEgress, g as isTransportFailure, h as isAuthoritativeAuthError, i as overridesPath, l as Err, m as isAccountScopedFailure, n as require_undici, o as resolveConfig, p as extractAuthUrl, r as dshHome, s as stateDir, t as validDirectProxy, u as NETWORK_RETRY_DELAYS_MS, v as looksLikeAuthVerificationJitter, w as parseResetDurationMs, x as looksLikeHardRateLimit, y as looksLikeContextWindowExceeded } from "./direct-proxy-3dj9PGPI.js";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import path, { basename, delimiter, dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { accessSync, chmodSync, constants, copyFileSync, createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
@@ -7037,6 +7037,8 @@ const WARM_IDLE_MS = 18e4;
 const PREWARM_DELAY_MS = 1200;
 /** One retry when the previous process is still finalizing. */
 const PREWARM_RETRY_MS = 3e3;
+/** Give up after this many retries (the conversation never went quiet). */
+const PREWARM_MAX_RETRIES = 6;
 var AgyAdapter = class AgyAdapter extends LlmAdapter {
 	deps;
 	recentlyCompactedSessions = /* @__PURE__ */ new Map();
@@ -7135,17 +7137,16 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 	* the conversation DB while finalizing, and a second reader on the same
 	* conversation is exactly what we do not want).
 	*/
-	schedulePrewarm(sessionKey) {
+	schedulePrewarm(sessionKey, attempt = 0) {
 		if (sessionKey === "") return;
 		setTimeout(() => {
-			if (this.activeRuns.has(sessionKey)) {
-				setTimeout(() => {
-					if (!this.activeRuns.has(sessionKey)) this.prewarm(sessionKey);
-				}, PREWARM_RETRY_MS).unref?.();
+			const prev = this.lastProc.get(sessionKey);
+			if (this.activeRuns.has(sessionKey) || prev !== void 0 && prev.child.exitCode === null) {
+				if (attempt < PREWARM_MAX_RETRIES) this.schedulePrewarm(sessionKey, attempt + 1);
 				return;
 			}
 			this.prewarm(sessionKey);
-		}, PREWARM_DELAY_MS).unref?.();
+		}, attempt === 0 ? PREWARM_DELAY_MS : PREWARM_RETRY_MS).unref?.();
 	}
 	/** Kill every idle warm process (plugin unload, config change). */
 	disposeWarmRuns() {
@@ -7177,6 +7178,13 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 	warmRuns = /* @__PURE__ */ new Map();
 	/** sessionKey -> how to pre-warm the next span (set by the current attempt). */
 	warmPlans = /* @__PURE__ */ new Map();
+	/**
+	* sessionKey -> the process that just served this session. agy keeps writing
+	* the conversation DB for a while after it emits its result, and a second
+	* process opened on the same conversation while that is happening simply
+	* waits on the lock — so a pre-warm must not start before it exits.
+	*/
+	lastProc = /* @__PURE__ */ new Map();
 	/**
 	* sessionKey -> prompt info for duplicate submission debounce.
 	* `inFlight` is true from submit until the run settles (or spawn throws),
@@ -8273,6 +8281,7 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 			});
 			spawned = true;
 			runningProc = proc;
+			if (sessionKey !== "") this.lastProc.set(sessionKey, proc);
 			applyToolIdleBudget();
 			if (!isAux && sessionKey !== "") {
 				rec.requestAbort = () => proc.kill("abort");
@@ -13329,7 +13338,7 @@ function apply(ctx, entryConfig = {}) {
 			if (directFiber) return;
 			directRuntime = "starting";
 			try {
-				const { mountDirectBackend } = await import("./integrated-host-CJIQNVtz.js");
+				const { mountDirectBackend } = await import("./integrated-host-CJLSNbs8.js");
 				if (!directAlive || !getConfig().enabled || !getConfig().experimentalDirect) {
 					directRuntime = "disabled";
 					return;

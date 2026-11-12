@@ -779,6 +779,8 @@ const WARM_IDLE_MS = 180_000
 const PREWARM_DELAY_MS = 1_200
 /** One retry when the previous process is still finalizing. */
 const PREWARM_RETRY_MS = 3_000
+/** Give up after this many retries (the conversation never went quiet). */
+const PREWARM_MAX_RETRIES = 6
 
 export class AgyAdapter extends LlmAdapter {
   private readonly recentlyCompactedSessions = new Map<string, number>()
@@ -902,19 +904,22 @@ export class AgyAdapter extends LlmAdapter {
    * the conversation DB while finalizing, and a second reader on the same
    * conversation is exactly what we do not want).
    */
-  private schedulePrewarm(sessionKey: string): void {
+  private schedulePrewarm(sessionKey: string, attempt = 0): void {
     if (sessionKey === '') return
     const timer = setTimeout(() => {
-      if (this.activeRuns.has(sessionKey)) {
-        // Still finishing: try once more a little later.
-        const retry = setTimeout(() => {
-          if (!this.activeRuns.has(sessionKey)) this.prewarm(sessionKey)
-        }, PREWARM_RETRY_MS)
-        retry.unref?.()
+      const prev = this.lastProc.get(sessionKey)
+      const busy = this.activeRuns.has(sessionKey) || (prev !== undefined && prev.child.exitCode === null)
+      if (busy) {
+        // agy is still finalizing this conversation (DB writes). Starting a
+        // second reader now makes it wait on the lock, which is slower than a
+        // cold start — so back off and try again.
+        if (attempt < PREWARM_MAX_RETRIES) {
+          this.schedulePrewarm(sessionKey, attempt + 1)
+        }
         return
       }
       this.prewarm(sessionKey)
-    }, PREWARM_DELAY_MS)
+    }, attempt === 0 ? PREWARM_DELAY_MS : PREWARM_RETRY_MS)
     timer.unref?.()
   }
 
@@ -954,6 +959,13 @@ export class AgyAdapter extends LlmAdapter {
   private readonly warmRuns = new Map<string, WarmRun>()
   /** sessionKey -> how to pre-warm the next span (set by the current attempt). */
   private readonly warmPlans = new Map<string, WarmPlan>()
+  /**
+   * sessionKey -> the process that just served this session. agy keeps writing
+   * the conversation DB for a while after it emits its result, and a second
+   * process opened on the same conversation while that is happening simply
+   * waits on the lock — so a pre-warm must not start before it exits.
+   */
+  private readonly lastProc = new Map<string, RunningProcess>()
   /**
    * sessionKey -> prompt info for duplicate submission debounce.
    * `inFlight` is true from submit until the run settles (or spawn throws),
@@ -2732,6 +2744,7 @@ export class AgyAdapter extends LlmAdapter {
       }
       spawned = true
       runningProc = proc
+      if (sessionKey !== '') this.lastProc.set(sessionKey, proc)
       // stdout can deliver the first lines before this assignment lands —
       // re-apply whatever tool-idle budget those events already requested.
       applyToolIdleBudget()

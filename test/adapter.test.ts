@@ -2608,7 +2608,7 @@ test('a finished turn pre-warms the next agy process and the next turn adopts it
   process.env.FAKE_AGY_MODE = 'warm'
   process.env.FAKE_AGY_INVOCATION_FILE = invocations
   process.env.FAKE_AGY_WARM_READY_FILE = ready
-  const { adapter } = makeAdapter({ timeoutMs: 8_000 })
+  const { adapter } = makeAdapter({ timeoutMs: 8_000, warmStart: true })
   const spawned = () => {
     try {
       return readFileSync(invocations, 'utf8').split('\n').filter(Boolean).length
@@ -2619,7 +2619,7 @@ test('a finished turn pre-warms the next agy process and the next turn adopts it
   try {
     await runTurn(adapter, [msg('user', 'first question')], { sessionId: 'sess-warm' as never })
     // The pre-warm is deliberately delayed so the finished process can exit.
-    await waitFor(() => (spawned() >= 2 && existsSync(ready) ? true : undefined), 8_000)
+    await waitFor(() => (spawned() >= 2 && existsSync(ready) ? true : undefined), 20_000)
 
     await runTurn(adapter, [msg('user', 'first question'), msg('assistant', 'warm answer'), msg('user', 'second question')], { sessionId: 'sess-warm' as never })
     assert.equal(spawned(), 2, 'the second turn must reuse the pre-warmed process, not spawn a third')

@@ -91,7 +91,7 @@ This fork requires a user-provided Google OAuth client for the in-app login and 
 
 | Key | Environment | Default | Description |
 | --- | --- | --- | --- |
-| `warmStart` | `DSH_AGY_WARM_START` | `true` | Pre-launch the next agy process after a turn so its auth/model discovery overlaps with your typing |
+| `warmStart` | `DSH_AGY_WARM_START` | `false` | Opt-in: pre-launch the next agy process after a turn (waits for the previous process to exit first) |
 | `autoTranslate` | `DSH_AGY_AUTO_TRANSLATE` | `false` | Translate every completed turn |
 | `translateThinking` | `DSH_AGY_TRANSLATE_THINKING` | `true` | Show a Chinese translation above each reasoning block (English original kept below) |
 | `translateModel` | `DSH_AGY_TRANSLATE_MODEL` | `gemini-3.8-flash` | Translate model, with catalog fallback |

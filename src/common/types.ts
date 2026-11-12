@@ -173,10 +173,14 @@ export interface PluginConfig {
    * session record, rendered as a labelled Gemini card under that reply.
    */
   /**
-   * Pre-warm the next agy process after a tool-calls span (default ON). agy
-   * re-does silent auth + model discovery on every launch, so overlapping that
-   * with the tool run removes ~3-7s from every step after the first. Set
-   * `warmStart: false` (or `DSH_AGY_WARM_START=0`) to spawn cold every time.
+   * Pre-warm the next agy process after a turn (default OFF).
+   *
+   * agy re-does silent auth + model discovery on every launch (~3-7s), so
+   * starting the next process while the reader is typing can hide that cost.
+   * It is opt-in because agy keeps writing the conversation DB for a while
+   * after it answers: a second process on the same conversation waits on that
+   * lock, and two agy processes at once also compete for the same account.
+   * Enable with `warmStart: true` / `DSH_AGY_WARM_START=1`.
    */
   warmStart: boolean
   autoTranslate: boolean
@@ -314,7 +318,7 @@ export function defaultConfig(): PluginConfig {
     warmupModels: ['gemini-3.8-flash', 'claude-sonnet-5-5'],
     // Translation is strictly opt-in: it spends quota on every completed
     // turn, so the default must never silently start billing a user.
-    warmStart: true,
+    warmStart: false,
     autoTranslate: false,
     translateThinking: true,
     translateModel: 'gemini-3.8-flash',

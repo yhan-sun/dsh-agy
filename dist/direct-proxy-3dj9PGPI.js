@@ -133,7 +133,7 @@ function defaultConfig() {
 		suppressAgyAutoUpdate: process.platform === "win32",
 		autoWarmup: false,
 		warmupModels: ["gemini-3.8-flash", "claude-sonnet-5-5"],
-		warmStart: true,
+		warmStart: false,
 		autoTranslate: false,
 		translateThinking: true,
 		translateModel: "gemini-3.8-flash",

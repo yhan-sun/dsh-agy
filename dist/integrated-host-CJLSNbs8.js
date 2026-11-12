@@ -1,4 +1,4 @@
-import { n as require_undici, s as stateDir, t as validDirectProxy } from "./direct-proxy-DOqiLSFP.js";
+import { n as require_undici, s as stateDir, t as validDirectProxy } from "./direct-proxy-3dj9PGPI.js";
 import { spawn } from "node:child_process";
 import { dirname, join } from "node:path";
 import { readFileSync, statSync } from "node:fs";
