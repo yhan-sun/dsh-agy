@@ -7848,47 +7848,6 @@ body.dark .agy-tsl-card,
 				fill: "#FFFFFF"
 			}));
 		}
-		/**
-		* Antigravity outline navigation icon matching DSH Desktop native icon family:
-		* 16x16 geometry, monochrome currentColor, 1.25px stroke, no fill.
-		*/
-		function IconAntigravityNav(props) {
-			const size = props?.size ?? 16;
-			return h("svg", {
-				width: size,
-				height: size,
-				viewBox: "0 0 36 36",
-				fill: "none",
-				stroke: "currentColor",
-				"stroke-width": "2.6",
-				"stroke-linecap": "round",
-				"stroke-linejoin": "round",
-				"aria-hidden": true,
-				"data-agy-nav-icon": "true",
-				className: props?.className,
-				style: {
-					display: "inline-block",
-					verticalAlign: "-2.5px",
-					flexShrink: 0
-				}
-			}, h("path", { d: "M 6.8 14.2 C 8.2 9.6 17.8 7.2 26.2 10.8 C 28.0 11.6 29.3 12.6 30.2 13.8" }), h("circle", {
-				cx: 18,
-				cy: 18,
-				r: 7.5
-			}), h("path", { d: "M 30.2 13.8 C 31.4 18.2 21.8 26.2 12.8 24.2 C 9.4 23.4 7.4 21.8 6.6 19.6" }), h("circle", {
-				cx: 8.2,
-				cy: 18.2,
-				r: 2,
-				fill: "currentColor",
-				stroke: "none"
-			}), h("circle", {
-				cx: 28.4,
-				cy: 20.4,
-				r: 1.6,
-				fill: "currentColor",
-				stroke: "none"
-			}));
-		}
 		const AGY_OUTLINE_SVG = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 36 36\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" data-agy-nav-icon=\"true\"><path d=\"M 6.8 14.2 C 8.2 9.6 17.8 7.2 26.2 10.8 C 28.0 11.6 29.3 12.6 30.2 13.8\"/><circle cx=\"18\" cy=\"18\" r=\"7.5\"/><path d=\"M 30.2 13.8 C 31.4 18.2 21.8 26.2 12.8 24.2 C 9.4 23.4 7.4 21.8 6.6 19.6\"/><circle cx=\"8.2\" cy=\"18.2\" r=\"2.0\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"28.4\" cy=\"20.4\" r=\"1.6\" fill=\"currentColor\" stroke=\"none\"/></svg>";
 		/**
 		* Settings dialog navigation icon replacement for Antigravity.
@@ -8619,9 +8578,11 @@ html.agy-modal-open body {
 	border: 1px solid var(--agy-badge-email-border);
 	border-radius: 999px;
 	padding: 1px 7px;
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 4px !important;
+	white-space: nowrap !important;
+	flex-shrink: 0 !important;
 }
 .agy-account-state {
 	border-radius: 999px !important;
@@ -8632,6 +8593,8 @@ html.agy-modal-open body {
 	display: inline-flex !important;
 	align-items: center !important;
 	gap: 4px !important;
+	white-space: nowrap !important;
+	flex-shrink: 0 !important;
 }
 .agy-account-state-error {
 	background: var(--agy-danger-hover-bg) !important;
@@ -8654,18 +8617,21 @@ html.agy-modal-open body {
 	border: 1px solid var(--agy-badge-proxy-border);
 	border-radius: 999px;
 	padding: 1px 7px;
-	font-size: 10.5px;
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
+	font-size: 10.5px !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 4px !important;
+	white-space: nowrap !important;
+	flex-shrink: 0 !important;
 }
 .agy-card-actions {
-	display: flex;
-	align-items: center;
+	display: inline-flex !important;
+	align-items: center !important;
 	gap: 6px !important;
-	flex-wrap: wrap;
-	justify-content: flex-end;
-	flex-shrink: 0;
+	flex-wrap: wrap !important;
+	justify-content: flex-end !important;
+	margin-left: auto !important;
+	flex-shrink: 0 !important;
 }
 .agy-account-action {
 	min-height: 28px !important;
@@ -8890,12 +8856,11 @@ select.agy-select { color-scheme: light; }
 body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 
 /* ------------------------------------------------------------------
-   Phone web. Below 680px the console becomes a full-height sheet and
-   every inline flex row is allowed to wrap: the layout is written with
-   style attributes, and only an !important rule can beat those, so the
-   overrides here are deliberately blunt.
+   Phone web. Below 480px the standalone modal sheet adapts to small
+   touch viewports. Desktop settings modals (~640px) preserve desktop
+   visual hierarchy and standard flex alignment.
    ------------------------------------------------------------------ */
-@media (max-width: 680px) {
+@media (max-width: 480px) {
 	.agy-modal-backdrop {
 		padding: 0 !important;
 		align-items: stretch !important;
@@ -8917,18 +8882,9 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 		padding: 14px 12px calc(18px + env(safe-area-inset-bottom)) !important;
 		-webkit-overflow-scrolling: touch;
 	}
-	.agy-account-header { grid-template-columns: minmax(0, 1fr); }
-	.agy-card-actions { justify-content: flex-start; }
+	.agy-card-actions { justify-content: flex-start !important; gap: 4px !important; }
 	.agy-account-quota-summary { align-items: flex-start; flex-direction: column; gap: 2px; }
 
-	/* A flex row may wrap instead of pushing the panel sideways. */
-	.agy-console [style*="display: flex"] { flex-wrap: wrap !important; }
-	/* Label on its own line, the control underneath it. */
-	.agy-console [style*="justify-content: space-between"] {
-		flex-direction: column !important;
-		align-items: stretch !important;
-		gap: 8px !important;
-	}
 	/* Segmented controls fill the row; every segment shares the width. */
 	.agy-console [style*="agy-seg-group-border"] {
 		display: flex !important;
@@ -8945,7 +8901,7 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 	.agy-console input { min-width: 0 !important; flex: 1 1 140px !important; }
 	/* Settings dropdowns share their row and stretch on a phone. */
 	.agy-console .agy-select { flex: 1 1 0 !important; min-width: 0 !important; max-width: none !important; height: 34px !important; }
-	.agy-console .agy-btn { min-height: 34px; }
+	.agy-console .agy-btn { min-height: 32px; }
 	.agy-console .agy-permission-row {
 		grid-template-columns: minmax(0, 1fr) !important;
 		row-gap: 8px !important;
@@ -8989,15 +8945,6 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 	.agy-header-actions > button:first-child { grid-column: 1 / -1; }
 	.agy-header-actions > button { width: 100%; justify-content: center; }
 
-	/* Account actions: equal-width buttons instead of one ragged line. */
-	.agy-card-actions {
-		display: grid !important;
-		grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
-		gap: 6px;
-		width: 100%;
-		align-items: stretch;
-	}
-	.agy-card-actions > button { width: 100%; justify-content: center; }
 	.agy-setting-row { align-items: flex-start !important; }
 	.agy-setting-copy { padding-right: 0; }
 	.agy-permission-row { grid-template-columns: minmax(0, 1fr) !important; row-gap: 6px; }
@@ -10061,7 +10008,9 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						display: "inline-flex",
 						gap: "3px",
 						alignItems: "center",
-						marginLeft: "4px"
+						marginLeft: "4px",
+						flexShrink: 0,
+						whiteSpace: "nowrap"
 					} }, h("span", {
 						className: "agy-account-order",
 						style: {
@@ -10090,7 +10039,10 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						"aria-label": t("account.moveDown"),
 						title: t("account.moveDown"),
 						onClick: () => void moveAccount(acc.id, 1)
-					}, uiIcon("chevronDown", 11)) : null) : null, isAuthRequired ? h("span", {
+					}, uiIcon("chevronDown", 11)) : null) : null, isInUse ? h("span", {
+						className: "agy-account-state agy-account-state-selected",
+						title: t("status.inUse")
+					}, uiIcon("check", 10, "var(--agy-badge-active-text)"), t("status.inUse")) : null, isAuthRequired ? h("span", {
 						className: "agy-account-state agy-account-state-error",
 						style: {
 							gap: "3px",
@@ -10108,19 +10060,7 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 							whiteSpace: "nowrap",
 							flexShrink: 0
 						}
-					}, uiIcon("alert", 10, "#f59e0b"), "冷却中") : null, acc.email ? h("span", {
-						className: "agy-account-email",
-						title: acc.email
-					}, uiIcon("mail", 10, "var(--agy-badge-email-text)"), acc.email) : null, isInUse ? h("span", {
-						className: "agy-account-state agy-account-state-selected",
-						title: t("status.inUse")
-					}, uiIcon("check", 10, "var(--agy-badge-active-text)"), t("status.inUse")) : null, (() => {
-						const effectiveProxy = acc.proxyUrl || pool?.systemProxy;
-						return effectiveProxy ? h("span", {
-							className: "agy-account-meta",
-							title: effectiveProxy
-						}, uiIcon("globe", 10, "var(--agy-badge-proxy-text)"), t("status.proxy")) : null;
-					})(), !acc.enabled ? h("span", {
+					}, uiIcon("alert", 10, "#f59e0b"), "冷却中") : null, !acc.enabled ? h("span", {
 						className: "agy-account-state",
 						style: {
 							background: "var(--agy-bg-subbox)",
@@ -10128,7 +10068,9 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 							border: "1px solid var(--agy-border-subbox)",
 							gap: "3px",
 							fontSize: "10.5px",
-							padding: "1px 7px"
+							padding: "1px 7px",
+							whiteSpace: "nowrap",
+							flexShrink: 0
 						},
 						title: t("status.disabled")
 					}, uiIcon("power", 10, "#64748b"), t("status.disabled")) : null), h("div", { className: "agy-card-actions" }, h("button", {
@@ -10195,7 +10137,36 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						"aria-label": t("account.removeTitle"),
 						disabled: accountActionBusy(acc, "remove"),
 						onClick: () => void removeAccount(acc.id, displayAlias)
-					}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon("trash", 11, "currentColor")) : null)), h("div", {
+					}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon("trash", 11, "currentColor")) : null)), (() => {
+						const isDistinctEmail = Boolean(acc.email && acc.email !== displayAlias);
+						const effectiveProxy = acc.proxyUrl || pool?.systemProxy;
+						if (!isDistinctEmail && !effectiveProxy && !acc.email) return null;
+						return h("div", {
+							className: "agy-account-submeta",
+							style: {
+								display: isDistinctEmail || effectiveProxy ? "flex" : "none",
+								alignItems: "center",
+								gap: "6px",
+								marginTop: "6px",
+								flexWrap: "wrap"
+							}
+						}, acc.email ? h("span", {
+							className: "agy-account-email",
+							style: {
+								display: isDistinctEmail ? "inline-flex" : "none",
+								whiteSpace: "nowrap",
+								flexShrink: 0
+							},
+							title: acc.email
+						}, uiIcon("mail", 10, "var(--agy-badge-email-text)"), acc.email) : null, effectiveProxy ? h("span", {
+							className: "agy-account-meta",
+							title: effectiveProxy,
+							style: {
+								whiteSpace: "nowrap",
+								flexShrink: 0
+							}
+						}, uiIcon("globe", 10, "var(--agy-badge-proxy-text)"), t("status.proxy")) : null);
+					})(), h("div", {
 						key: "agy-body",
 						className: "agy-account-quota",
 						style: S.quotaBox
@@ -10502,20 +10473,24 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 				}))), h("div", {
 					className: "dshDesktopSettingsGroupHeader",
 					style: {
-						marginBottom: "12px",
+						marginBottom: "8px",
 						marginTop: "16px"
 					}
 				}, h("div", { style: {
 					display: "flex",
 					alignItems: "center",
-					gap: "8px"
+					gap: "8px",
+					flexWrap: "wrap"
 				} }, h("h3", { className: "dshDesktopSettingsGroupTitle" }, "统一账号池"), h("span", {
 					className: "dshDesktopSettingsBadge",
 					style: { color: "var(--dsw-alias-brand-primary, #38bdf8)" }
 				}, `${accounts.length}`), h("span", {
 					className: "dshDesktopSettingsGroupIntro",
 					style: { margin: 0 }
-				}, status.experimentalDirect ? "· 请求直连 Google API" : "· 请求走 AGY CLI 桥接")), h("div", { className: "dshDesktopSegmentGroup" }, h("button", {
+				}, status.experimentalDirect ? "· 请求直连 Google API" : "· 请求走 AGY CLI 桥接"))), h("div", {
+					className: "dshDesktopSettingsToggleRow",
+					style: { marginBottom: "14px" }
+				}, h("div", { className: "dshDesktopSettingsChoiceCopy" }, h("div", { className: "dshDesktopSettingsChoiceTitle" }, uiIcon("refresh", 13, "var(--dsw-alias-brand-primary, #38bdf8)"), h("span", null, "账号调度模式")), h("span", { className: "dshDesktopSettingsChoiceBody" }, pool?.mode === "sequential" ? "当前模式：顺次耗尽（优先使用排在前面的账号，额度耗尽后自动顺次切换至下一账号）" : pool?.mode === "round-robin" ? "当前模式：轮询均衡（每次请求在所有就绪账号之间均匀轮换分配）" : "当前模式：手动指定（固定使用当前生效的账号，不自动切换）")), h("div", { className: "dshDesktopSegmentGroup" }, h("button", {
 					type: "button",
 					className: `dshDesktopSegmentBtn${pool?.mode === "manual" || !pool?.mode ? " active" : ""}`,
 					"aria-pressed": pool?.mode === "manual" || !pool?.mode,
@@ -10847,13 +10822,6 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 					label: () => locale.bind(NS)("section.label"),
 					locale: NS
 				}, AgySettingsSection);
-			});
-			ctx.slots.inject("settings.section.icon", () => {
-				return ctx.slots.register({
-					name: "settings.section.icon",
-					id: "agy-link",
-					order: 20
-				}, (ownerProps) => IconAntigravityNav({ size: ownerProps?.size ?? 16 }));
 			});
 			ctx.slots.inject("plugins.bundle.config", () => {
 				return ctx.slots.register({
