@@ -4124,6 +4124,180 @@ div[data-variant="think"] [class*="thinkBody"] {
 			}
 		}
 		//#endregion
+		//#region src/client/tooltip.ts
+		const TIP_ATTR = "data-agy-tip";
+		const TIP_CLASS = "agy-tip";
+		const SHOW_DELAY_MS = 120;
+		const GAP_PX = 8;
+		const EDGE_PX = 8;
+		let activeDispose = null;
+		/** Tooltip styling; kept next to the layer so the tag can be injected standalone. */
+		const TOOLTIP_CSS = `
+.agy-tip {
+	position: fixed;
+	z-index: 100000;
+	top: 0;
+	left: 0;
+	max-width: min(280px, calc(100vw - 16px));
+	padding: 5px 9px;
+	border-radius: 7px;
+	background: var(--dsw-alias-tooltip-bg, rgba(15, 23, 42, 0.96));
+	color: var(--dsw-alias-tooltip-label, #f8fafc);
+	font-family: var(--agy-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+	font-size: 11.5px;
+	font-weight: 500;
+	line-height: 1.5;
+	white-space: normal;
+	text-align: left;
+	pointer-events: none;
+	opacity: 0;
+	transform: translateY(2px);
+	transition: opacity 0.12s ease, transform 0.12s ease;
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	box-sizing: border-box;
+}
+.agy-tip[data-visible="true"] {
+	opacity: 1;
+	transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+	.agy-tip { transition: none; }
+}
+`;
+		/** Compute a viewport-clamped position above the anchor (below when it does not fit). */
+		function placeTooltip(anchor, size, viewport) {
+			const above = anchor.top - size.height - GAP_PX;
+			const top = above >= EDGE_PX ? above : Math.min(anchor.bottom + GAP_PX, viewport.height - size.height - EDGE_PX);
+			const centered = anchor.left + anchor.width / 2 - size.width / 2;
+			const maxLeft = Math.max(EDGE_PX, viewport.width - size.width - EDGE_PX);
+			return {
+				top: Math.max(top, EDGE_PX),
+				left: Math.min(Math.max(centered, EDGE_PX), maxLeft)
+			};
+		}
+		/**
+		* Install the delegated tooltip layer.
+		* @returns disposer that removes the layer and every listener.
+		*/
+		function installAgyTooltips() {
+			if (typeof window === "undefined" || typeof document === "undefined") return () => {};
+			activeDispose?.();
+			const doc = document;
+			const host = doc.head ?? doc.documentElement;
+			if (!host) return () => {};
+			const styleId = "dsh-agy-link-tooltip-css";
+			let style = doc.getElementById(styleId);
+			if (style === null) {
+				style = doc.createElement("style");
+				style.id = styleId;
+				style.setAttribute("data-plugin", "dsh-agy-link");
+				host.appendChild(style);
+			}
+			style.textContent = TOOLTIP_CSS;
+			let tip = doc.querySelector(`.${TIP_CLASS}`);
+			if (tip === null) {
+				tip = doc.createElement("div");
+				tip.className = TIP_CLASS;
+				tip.setAttribute("role", "tooltip");
+				tip.setAttribute("aria-hidden", "true");
+				tip.dataset.visible = "false";
+				(doc.body ?? doc.documentElement).appendChild(tip);
+			}
+			const node = tip;
+			let showTimer = null;
+			let current = null;
+			const clearTimer = () => {
+				if (showTimer !== null) {
+					clearTimeout(showTimer);
+					showTimer = null;
+				}
+			};
+			const hide = () => {
+				clearTimer();
+				current = null;
+				node.dataset.visible = "false";
+				node.setAttribute("aria-hidden", "true");
+			};
+			const show = (anchor, text) => {
+				node.textContent = text;
+				node.dataset.visible = "true";
+				node.setAttribute("aria-hidden", "false");
+				const pos = placeTooltip(anchor.getBoundingClientRect(), {
+					width: node.offsetWidth,
+					height: node.offsetHeight
+				}, {
+					width: window.innerWidth,
+					height: window.innerHeight
+				});
+				node.style.top = `${pos.top}px`;
+				node.style.left = `${pos.left}px`;
+				current = anchor;
+			};
+			const anchorOf = (target) => {
+				if (!(target instanceof Element)) return null;
+				const el = target.closest(`[${TIP_ATTR}]`);
+				if (!el) return null;
+				return el.getAttribute(TIP_ATTR)?.trim() ? el : null;
+			};
+			const onPointerOver = (event) => {
+				const el = anchorOf(event.target);
+				if (!el) {
+					if (current !== null && !(event.target instanceof Node && current.contains(event.target))) hide();
+					return;
+				}
+				if (el === current) return;
+				clearTimer();
+				const text = el.getAttribute(TIP_ATTR) ?? "";
+				showTimer = window.setTimeout(() => show(el, text), SHOW_DELAY_MS);
+			};
+			const onPointerOut = (event) => {
+				const el = anchorOf(event.target);
+				if (!el) return;
+				const to = event.relatedTarget;
+				if (to instanceof Node && el.contains(to)) return;
+				if (current === el || showTimer !== null) {
+					clearTimer();
+					if (current === el) hide();
+				}
+			};
+			const onFocusIn = (event) => {
+				const el = anchorOf(event.target);
+				if (!el) return;
+				clearTimer();
+				show(el, el.getAttribute(TIP_ATTR) ?? "");
+			};
+			const onFocusOut = () => hide();
+			const onDismiss = () => hide();
+			const onKeyDown = (event) => {
+				if (event.key === "Escape") hide();
+			};
+			doc.addEventListener("pointerover", onPointerOver, true);
+			doc.addEventListener("pointerout", onPointerOut, true);
+			doc.addEventListener("focusin", onFocusIn, true);
+			doc.addEventListener("focusout", onFocusOut, true);
+			doc.addEventListener("pointerdown", onDismiss, true);
+			doc.addEventListener("keydown", onKeyDown, true);
+			window.addEventListener("scroll", onDismiss, true);
+			window.addEventListener("resize", onDismiss);
+			const dispose = () => {
+				clearTimer();
+				doc.removeEventListener("pointerover", onPointerOver, true);
+				doc.removeEventListener("pointerout", onPointerOut, true);
+				doc.removeEventListener("focusin", onFocusIn, true);
+				doc.removeEventListener("focusout", onFocusOut, true);
+				doc.removeEventListener("pointerdown", onDismiss, true);
+				doc.removeEventListener("keydown", onKeyDown, true);
+				window.removeEventListener("scroll", onDismiss, true);
+				window.removeEventListener("resize", onDismiss);
+				node.remove();
+				style?.remove();
+				if (activeDispose === dispose) activeDispose = null;
+			};
+			activeDispose = dispose;
+			return dispose;
+		}
+		//#endregion
 		//#region src/client/translate.ts
 		const { createElement: h$1, useState: useState$2, useEffect: useEffect$2 } = require("react");
 		const win$1 = globalThis;
@@ -10353,13 +10527,13 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						type: "button",
 						className: "agy-account-order-button",
 						"aria-label": t("account.moveUp"),
-						title: t("account.moveUp"),
+						"data-agy-tip": t("account.moveUp"),
 						onClick: () => void moveAccount(acc.id, -1)
 					}, uiIcon("chevronUp", 12)) : null, accIndex < accounts.length - 1 ? h("button", {
 						type: "button",
 						className: "agy-account-order-button",
 						"aria-label": t("account.moveDown"),
-						title: t("account.moveDown"),
+						"data-agy-tip": t("account.moveDown"),
 						onClick: () => void moveAccount(acc.id, 1)
 					}, uiIcon("chevronDown", 12)) : null) : null, isInUse ? h("span", {
 						className: "agy-account-state agy-account-state-selected",
@@ -10391,47 +10565,47 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 						title: t("status.disabled")
 					}, uiIcon("power", 10, "#64748b"), t("status.disabled")) : null, acc.proxyUrl ? h("span", {
 						className: "agy-account-proxy",
-						title: `${t("status.proxy")} · ${acc.proxyUrl}`,
+						"data-agy-tip": `${t("status.proxy")} · ${acc.proxyUrl}`,
 						"aria-label": t("status.proxy")
 					}, uiIcon("globe", 11, "var(--agy-badge-proxy-text)")) : null), h("div", { className: "agy-card-actions" }, h("button", {
 						type: "button",
 						className: `agy-btn agy-account-action agy-account-icon-action${acc.enabled ? "" : " agy-account-action-primary"}`,
-						title: acc.enabled ? t("account.disableTitle") : t("account.enableTitle"),
+						"data-agy-tip": acc.enabled ? t("account.disableTitle") : t("account.enableTitle"),
 						"aria-label": acc.enabled ? t("account.disableTitle") : t("account.enableTitle"),
 						disabled: accountActionBusy(acc, "enable"),
 						onClick: () => void toggleAccountEnabled(acc)
 					}, loadingAction === `enable:${acc.id}` ? renderSpinner() : uiIcon("power", 13, "currentColor")), acc.enabled && !isInUse && !isAuthRequired ? h("button", {
 						type: "button",
 						className: "agy-btn agy-account-action agy-account-icon-action agy-account-action-primary",
-						title: t("account.setActive"),
+						"data-agy-tip": t("account.setActive"),
 						"aria-label": t("account.setActive"),
 						disabled: accountActionBusy(acc, "active"),
 						onClick: () => void setActiveAccount(acc.id)
 					}, loadingAction === `active:${acc.id}` ? renderSpinner() : uiIcon("zap", 13)) : null, h("button", {
 						type: "button",
 						className: "agy-btn agy-account-action agy-account-icon-action",
-						title: t("account.syncTitle"),
+						"data-agy-tip": t("account.syncTitle"),
 						"aria-label": t("account.syncTitle"),
 						disabled: accountActionBusy(acc, "refresh"),
 						onClick: () => void refreshQuota(acc.id)
 					}, loadingAction === `refresh:${acc.id}` ? renderSpinner() : uiIcon("refresh", 13)), acc.enabled && !acc.authRequired ? h("button", {
 						type: "button",
 						className: "agy-btn agy-account-action agy-account-icon-action",
-						title: t("account.warmupTitle"),
+						"data-agy-tip": t("account.warmupTitle"),
 						"aria-label": t("account.warmupTitle"),
 						disabled: accountActionBusy(acc, "warmup"),
 						onClick: () => void warmupAccount(acc.id)
 					}, loadingAction === `warmup:${acc.id}` ? renderSpinner() : uiIcon("flame", 13, "var(--agy-text-secondary)")) : null, h("button", {
 						type: "button",
 						className: `agy-btn agy-account-action agy-account-icon-action${isEditingProxy ? " agy-account-action-primary" : ""}`,
-						title: t("proxy.button"),
+						"data-agy-tip": t("proxy.button"),
 						"aria-label": t("proxy.button"),
 						disabled: accountActionBusy(acc, "proxy"),
 						onClick: () => setEditingProxyId(isEditingProxy ? null : acc.id)
 					}, uiIcon("globe", 13)), accounts.length > 1 ? h("button", {
 						type: "button",
 						className: "agy-btn agy-account-action agy-account-icon-action agy-account-action-danger",
-						title: t("account.removeTitle"),
+						"data-agy-tip": t("account.removeTitle"),
 						"aria-label": t("account.removeTitle"),
 						disabled: accountActionBusy(acc, "remove"),
 						onClick: () => void removeAccount(acc.id, displayAlias)
@@ -11096,6 +11270,7 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 			ctx.effect(() => installMermaidRendering());
 			ctx.effect(() => installImageEnhancer());
 			ctx.effect(() => installDecisionChips());
+			ctx.effect(() => installAgyTooltips());
 			ctx.effect(() => installCompactionCard());
 			ctx.effect(() => {
 				try {

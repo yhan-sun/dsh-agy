@@ -10,6 +10,7 @@ import { en, es, NS, ptBR, zh, type AgyLocaleKey } from './locales.ts';
 import { installAutoExpandReasoning } from './reasoning.ts';
 import { installImageEnhancer } from './images.ts';
 import { installDecisionChips } from './decisions.ts';
+import { installAgyTooltips } from './tooltip.ts';
 import { installTranslationUi } from './translate.ts';
 import { installCompactionCard } from './compaction.ts';
 import { ensureScrollListener, disposeScrollListener, setOverlaySuspended } from './scroll-guard.ts';
@@ -3076,14 +3077,14 @@ export function apply(ctx: ClientContext): void {
 								type: 'button',
 								className: 'agy-account-order-button',
 								'aria-label': t('account.moveUp'),
-								title: t('account.moveUp'),
+								'data-agy-tip': t('account.moveUp'),
 								onClick: () => void moveAccount(acc.id, -1),
 							}, uiIcon('chevronUp', 12)) : null,
 							accIndex < accounts.length - 1 ? h('button', {
 								type: 'button',
 								className: 'agy-account-order-button',
 								'aria-label': t('account.moveDown'),
-								title: t('account.moveDown'),
+								'data-agy-tip': t('account.moveDown'),
 								onClick: () => void moveAccount(acc.id, 1),
 							}, uiIcon('chevronDown', 12)) : null,
 						) : null,
@@ -3121,7 +3122,7 @@ export function apply(ctx: ClientContext): void {
 						}, uiIcon('power', 10, '#64748b'), t('status.disabled')) : null,
 						acc.proxyUrl ? h('span', {
 							className: 'agy-account-proxy',
-							title: `${t('status.proxy')} · ${acc.proxyUrl}`,
+							'data-agy-tip': `${t('status.proxy')} · ${acc.proxyUrl}`,
 							'aria-label': t('status.proxy'),
 						}, uiIcon('globe', 11, 'var(--agy-badge-proxy-text)')) : null,
 					),
@@ -3131,7 +3132,7 @@ export function apply(ctx: ClientContext): void {
 						h('button', {
 							type: 'button',
 							className: `agy-btn agy-account-action agy-account-icon-action${acc.enabled ? '' : ' agy-account-action-primary'}`,
-							title: acc.enabled ? t('account.disableTitle') : t('account.enableTitle'),
+							'data-agy-tip': acc.enabled ? t('account.disableTitle') : t('account.enableTitle'),
 							'aria-label': acc.enabled ? t('account.disableTitle') : t('account.enableTitle'),
 							disabled: accountActionBusy(acc, 'enable'),
 							onClick: () => void toggleAccountEnabled(acc),
@@ -3141,7 +3142,7 @@ export function apply(ctx: ClientContext): void {
 						acc.enabled && !isInUse && !isAuthRequired ? h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-action agy-account-icon-action agy-account-action-primary',
-							title: t('account.setActive'),
+							'data-agy-tip': t('account.setActive'),
 							'aria-label': t('account.setActive'),
 							disabled: accountActionBusy(acc, 'active'),
 							onClick: () => void setActiveAccount(acc.id),
@@ -3149,7 +3150,7 @@ export function apply(ctx: ClientContext): void {
 						h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-action agy-account-icon-action',
-							title: t('account.syncTitle'),
+							'data-agy-tip': t('account.syncTitle'),
 							'aria-label': t('account.syncTitle'),
 							disabled: accountActionBusy(acc, 'refresh'),
 							onClick: () => void refreshQuota(acc.id),
@@ -3157,7 +3158,7 @@ export function apply(ctx: ClientContext): void {
 						acc.enabled && !acc.authRequired ? h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-action agy-account-icon-action',
-							title: t('account.warmupTitle'),
+							'data-agy-tip': t('account.warmupTitle'),
 							'aria-label': t('account.warmupTitle'),
 							disabled: accountActionBusy(acc, 'warmup'),
 							onClick: () => void warmupAccount(acc.id),
@@ -3165,7 +3166,7 @@ export function apply(ctx: ClientContext): void {
 						h('button', {
 							type: 'button',
 							className: `agy-btn agy-account-action agy-account-icon-action${isEditingProxy ? ' agy-account-action-primary' : ''}`,
-							title: t('proxy.button'),
+							'data-agy-tip': t('proxy.button'),
 							'aria-label': t('proxy.button'),
 							disabled: accountActionBusy(acc, 'proxy'),
 							onClick: () => setEditingProxyId(isEditingProxy ? null : acc.id),
@@ -3173,7 +3174,7 @@ export function apply(ctx: ClientContext): void {
 						accounts.length > 1 ? h('button', {
 							type: 'button',
 							className: 'agy-btn agy-account-action agy-account-icon-action agy-account-action-danger',
-							title: t('account.removeTitle'),
+							'data-agy-tip': t('account.removeTitle'),
 							'aria-label': t('account.removeTitle'),
 							disabled: accountActionBusy(acc, 'remove'),
 							onClick: () => void removeAccount(acc.id, displayAlias),
@@ -3925,6 +3926,10 @@ export function apply(ctx: ClientContext): void {
 
 	// Interactive user decision & choice chips (recovered working tree).
 	ctx.effect(() => installDecisionChips());
+
+	// Icon-only row actions need an explicit label: one delegated tooltip layer
+	// replaces the slow, unstyled native `title` bubble.
+	ctx.effect(() => installAgyTooltips());
 
 	// Interactive compaction card (DeepSeek Flash native visual parity + token delta metrics).
 	ctx.effect(() => installCompactionCard());

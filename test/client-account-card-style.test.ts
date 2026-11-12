@@ -62,6 +62,17 @@ test('account identity and its actions share one header row', () => {
   assert.match(source, /\.agy-account-icon-action \{[^}]*width: 28px !important/)
 })
 
+test('icon-only actions expose a hover bubble instead of the native title', () => {
+  const actions = source.slice(source.indexOf("className: 'agy-card-actions'"), source.indexOf('// Quota details'))
+  const tips = actions.match(/'data-agy-tip':/g) ?? []
+  assert.ok(tips.length >= 5, `expected >=5 tooltip labels, saw ${tips.length}`)
+  assert.equal(/\btitle:/.test(actions), false, 'the slow OS-chrome title is replaced by the tooltip layer')
+  // The arrows and the proxy marker are icon-only too.
+  assert.ok(source.includes("'data-agy-tip': t('account.moveUp')"))
+  assert.ok(source.includes("'data-agy-tip': `${t('status.proxy')} · ${acc.proxyUrl}`"))
+  assert.match(source, /ctx\.effect\(\(\) => installAgyTooltips\(\)\)/, 'the layer is installed with the console')
+})
+
 test('the toolbar keeps service state and its actions on one line', () => {
   const start = source.indexOf("className: 'agy-toolbar'")
   assert.ok(start > 0, 'the toolbar renders')
