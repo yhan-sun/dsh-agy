@@ -4314,8 +4314,19 @@ div[data-variant="think"] [class*="thinkBody"] {
 		const ZH_BODY_CLASS = "agy-think-zh-body";
 		const HIDDEN_ATTR = "data-agy-zh-hidden";
 		const CACHE_PREFIX = "agy-think-zh:";
-		/** Concurrent translate calls; the host runs one agy process per call. */
-		const MAX_IN_FLIGHT = 2;
+		/**
+		* Concurrent translate calls; the host runs one agy process per call, and that
+		* process re-does auth + model discovery (~5s) before its own model call, so
+		* more parallelism only adds pressure to the same account. One at a time.
+		*/
+		const MAX_IN_FLIGHT = 1;
+		/**
+		* While a turn is streaming, every extra agy run competes with the run the user
+		* is waiting on (same account, same rate limits). Translations therefore wait
+		* for the turn to settle — the rows stay English for a few seconds, then fill
+		* in at once.
+		*/
+		const STREAMING_ROW_SELECTOR = "div[data-variant=\"think\"][data-state=\"running\"]";
 		/** A failed key is not retried before this window (avoids a request storm). */
 		const FAILURE_TTL_MS = 6e4;
 		/** Longest text we will send in one request. */
@@ -4563,6 +4574,7 @@ div[data-variant="think"] [class*="thinkBody"] {
 				if (disposed) return;
 				if (!opts.enabled()) return;
 				if (isInteractionLocked()) return;
+				if (doc.querySelector(STREAMING_ROW_SELECTOR) !== null) return;
 				for (const row of Array.from(doc.querySelectorAll(ROW_SELECTOR))) try {
 					enhanceRow(row);
 				} catch {}

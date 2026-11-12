@@ -134,6 +134,23 @@ test('a running reasoning block is left alone until it settles', async () => {
   })
 })
 
+test('translations wait for the whole turn to settle', async () => {
+  await withDom(async (dom) => {
+    const settled = reasoningRow(dom.window.document, 'A finished thought that is safe to translate now.')
+    const streaming = reasoningRow(dom.window.document, 'A thought that is still being written by the model.', 'running')
+    let calls = 0
+    installThinkingTranslation({ enabled: () => true, translate: async () => { calls++; return '中文译文' } })
+    await sleep(350)
+    assert.equal(calls, 0, 'a live turn must not compete with its own translation runs')
+    assert.equal(settled.querySelector('.agy-think-zh-summary'), null)
+
+    streaming.setAttribute('data-state', 'ok')
+    await sleep(350)
+    assert.ok(calls >= 1, 'once the turn settles the backlog is translated')
+    assert.ok(settled.querySelector('.agy-think-zh-summary'), 'the earlier settled row is filled in too')
+  })
+})
+
 test('the feature gate disables every DOM change', async () => {
   await withDom(async (dom) => {
     const row = reasoningRow(dom.window.document, 'A thought that should stay English for now.')
