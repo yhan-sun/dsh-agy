@@ -320,7 +320,7 @@ export function installThinkingTranslation(opts: ThinkingTranslationOptions): ()
 		const key = cacheKeyFor(summaryText);
 		const cached = readCache(key);
 		if (cached !== null) {
-			markSettledSummary(row, cached);
+			markSettledSummary(row, firstLine(cached));
 			return;
 		}
 		void requestTranslation(summaryText, opts.lang?.()).then((zh) => {

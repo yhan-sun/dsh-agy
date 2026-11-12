@@ -4550,7 +4550,7 @@ div[data-variant="think"] [class*="thinkBody"] {
 				const key = cacheKeyFor(summaryText);
 				const cached = readCache(key);
 				if (cached !== null) {
-					markSettledSummary(row, cached);
+					markSettledSummary(row, firstLine(cached));
 					return;
 				}
 				requestTranslation(summaryText, opts.lang?.()).then((zh) => {
