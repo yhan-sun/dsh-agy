@@ -8154,7 +8154,8 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 			...account && account.dir ? isolatedHomeEnv(account.dir) : {},
 			...proxyEnvFor(effectiveProxy)
 		};
-		if (cfg.warmStart && (process.env.NODE_TEST_CONTEXT === void 0 || process.env.DSH_AGY_WARM_START === "1") && !isAux && sessionKey !== "" && !options.signal?.aborted) this.warmPlans.set(sessionKey, {
+		const warmPlatformOk = process.platform !== "win32" || process.env.DSH_AGY_WARM_START === "1";
+		if (cfg.warmStart && warmPlatformOk && (process.env.NODE_TEST_CONTEXT === void 0 || process.env.DSH_AGY_WARM_START === "1") && !isAux && sessionKey !== "" && !options.signal?.aborted) this.warmPlans.set(sessionKey, {
 			base: warmBase,
 			conversationId: () => {
 				if (!persistBinding || sessionAccountKey === "") return "";

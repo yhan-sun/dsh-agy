@@ -2565,7 +2565,12 @@ export class AgyAdapter extends LlmAdapter {
     // binary/env/args, stdin transport, no prompt written yet.
     // Test runs opt out unless they ask for it explicitly: the harness counts
     // spawns, and a pre-warm is an extra (idle) process by design.
-    const warmEnabled = cfg.warmStart
+    // Windows has ONE machine-global credential slot, and ownership is handed
+    // over inside the dispatch path. A process started outside that window could
+    // read another account's credentials, so Windows keeps cold starts unless
+    // the operator opts in explicitly.
+    const warmPlatformOk = process.platform !== 'win32' || process.env.DSH_AGY_WARM_START === '1'
+    const warmEnabled = cfg.warmStart && warmPlatformOk
       && (process.env.NODE_TEST_CONTEXT === undefined || process.env.DSH_AGY_WARM_START === '1')
     if (warmEnabled && !isAux && sessionKey !== '' && !options.signal?.aborted) {
       this.warmPlans.set(sessionKey, {
