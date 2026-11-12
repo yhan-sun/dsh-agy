@@ -749,7 +749,7 @@ function renderFamilyQuotaBar(
 					},
 				}),
 			),
-		h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '8px', width: '148px', minWidth: '148px', justifyContent: 'flex-end', flexShrink: 0 } },
+		h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '6px', width: 'auto', minWidth: '210px', justifyContent: 'flex-end', flexShrink: 0, whiteSpace: 'nowrap' } },
 				h('span', {
 					title: tooltipText,
 					style: {
@@ -761,11 +761,13 @@ function renderFamilyQuotaBar(
 						fontWeight: 700,
 						fontSize: '12px',
 						lineHeight: 1.2,
-						cursor: tooltipText ? 'help' : 'default',
 						fontVariantNumeric: 'tabular-nums',
+						cursor: tooltipText ? 'help' : 'default',
+						whiteSpace: 'nowrap',
+						flexShrink: 0,
 					},
 				}, percent < 0 ? '—' : `${percent}%`),
-				resetStr ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '11px', fontWeight: 400, display: 'inline-flex', alignItems: 'center', gap: '3px' } }, uiIcon('refresh', 9, 'var(--agy-text-tertiary)'), resetStr) : null,
+				resetStr ? h('span', { style: { color: 'var(--agy-text-tertiary)', fontSize: '11px', fontWeight: 400, display: 'inline-flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' } }, uiIcon('refresh', 9, 'var(--agy-text-tertiary)'), resetStr) : null,
 			),
 		);
 	};
@@ -1249,34 +1251,62 @@ html.agy-modal-open body {
 	display: flex !important;
 	align-items: center !important;
 	justify-content: space-between !important;
-	gap: 12px !important;
-	margin-bottom: 0 !important;
+	gap: 8px 12px !important;
+	flex-wrap: wrap !important;
+	margin: 0 !important;
+	min-width: 0;
 }
 .agy-account-identity {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	flex-wrap: wrap;
+	display: flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	flex-wrap: nowrap !important;
 	min-width: 0;
-	flex: 1 1 auto;
+	flex: 1 1 340px;
+}
+.agy-account-name {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	min-width: 0;
+	flex: 0 1 auto;
+	color: var(--agy-text-primary) !important;
+	font-size: 13.5px !important;
+	font-weight: 700 !important;
+	line-height: 1.35 !important;
+	white-space: nowrap !important;
+}
+.agy-account-name-text {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.agy-account-order-group {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 2px !important;
+	flex-shrink: 0 !important;
+	white-space: nowrap;
 }
 .agy-account-order-button {
 	width: 20px !important;
 	height: 20px !important;
 	min-height: 20px !important;
 	padding: 0 !important;
-	border: 0 !important;
-	border-radius: 4px !important;
-	background: transparent !important;
-	color: var(--agy-text-tertiary) !important;
+	border: 1px solid var(--agy-border-btn) !important;
+	border-radius: 5px !important;
+	background: var(--agy-bg-btn) !important;
+	color: var(--agy-text-secondary) !important;
 	cursor: pointer;
 	display: inline-flex !important;
 	align-items: center;
 	justify-content: center;
-	transition: background-color 0.15s ease, color 0.15s ease;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 .agy-account-order-button:hover:not(:disabled) {
 	background: var(--agy-bg-btn-hover) !important;
+	border-color: var(--agy-border-card-hover) !important;
 	color: var(--agy-text-primary) !important;
 }
 .agy-account-email {
@@ -1292,12 +1322,26 @@ html.agy-modal-open body {
 	white-space: nowrap !important;
 	flex-shrink: 0 !important;
 }
+.agy-account-proxy {
+	color: var(--agy-badge-proxy-text) !important;
+	background: var(--agy-badge-proxy-bg);
+	border: 1px solid var(--agy-badge-proxy-border);
+	border-radius: 999px;
+	padding: 1px 7px;
+	font-size: 10.5px !important;
+	line-height: 1.6 !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 4px !important;
+	white-space: nowrap !important;
+	flex-shrink: 0 !important;
+}
 .agy-account-state {
 	border-radius: 999px !important;
 	padding: 1px 7px !important;
 	font-size: 11px !important;
 	font-weight: 600 !important;
-	line-height: 1.4 !important;
+	line-height: 1.6 !important;
 	display: inline-flex !important;
 	align-items: center !important;
 	gap: 4px !important;
@@ -1339,7 +1383,7 @@ html.agy-modal-open body {
 	flex-wrap: wrap !important;
 	justify-content: flex-end !important;
 	margin-left: auto !important;
-	flex-shrink: 0 !important;
+	flex: 0 1 auto !important;
 }
 .agy-account-action {
 	min-height: 28px !important;
@@ -1372,9 +1416,9 @@ html.agy-modal-open body {
 	filter: brightness(1.08) !important;
 }
 .agy-account-action-danger {
-	border: 1px solid var(--agy-danger-border) !important;
-	background: var(--agy-danger-bg) !important;
-	color: var(--agy-danger-text) !important;
+	border: 1px solid rgba(239, 68, 68, 0.35) !important;
+	background: rgba(239, 68, 68, 0.10) !important;
+	color: var(--agy-danger-hover-text) !important;
 }
 .agy-account-action-danger:hover:not(:disabled) {
 	border-color: var(--agy-danger-hover-border) !important;
@@ -1419,6 +1463,169 @@ html.agy-modal-open body {
 .agy-account-expand:hover {
 	opacity: 0.85;
 }
+/* ------------------------------------------------------------------
+   Account pool surface. These rows use plugin-owned class names on
+   purpose: reusing the host's dshDesktopSettings* classes made the
+   desktop sheet's spacing/border rules (gap 24, padding 16px 0) win
+   over ours and produced huge empty bands around the pool header.
+   ------------------------------------------------------------------ */
+.agy-pool {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin: 20px 0 2px;
+	min-width: 0;
+}
+.agy-pool > .agy-account-card {
+	margin-bottom: 0 !important;
+}
+.agy-pool-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+.agy-pool-title {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-size: 15px !important;
+	font-weight: 600 !important;
+	line-height: 1.4 !important;
+	color: var(--agy-text-primary) !important;
+}
+.agy-pool-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 20px;
+	height: 18px;
+	padding: 0 6px;
+	border-radius: 999px;
+	background: var(--agy-bg-subbox);
+	border: 1px solid var(--agy-border-subbox);
+	color: var(--agy-text-secondary);
+	font-size: 10.5px;
+	font-weight: 700;
+	line-height: 1;
+}
+.agy-pool-hint {
+	color: var(--agy-text-tertiary);
+	font-size: 11.5px;
+	line-height: 1.5;
+}
+.agy-settings-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	min-width: 0;
+	margin: 0 0 2px;
+	padding: 10px 12px;
+	border: 1px solid var(--agy-border-card);
+	border-radius: 10px;
+	background: var(--agy-bg-card);
+	box-sizing: border-box;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.agy-settings-row:hover {
+	border-color: var(--agy-border-card-hover);
+}
+.agy-settings-row-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	flex: 1 1 auto;
+}
+.agy-settings-row-title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	font-size: 12.5px;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--agy-text-primary);
+}
+.agy-settings-row-desc {
+	font-size: 11.5px;
+	line-height: 1.5;
+	color: var(--agy-text-secondary);
+}
+.agy-mode-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px 16px;
+	flex-wrap: wrap;
+	min-width: 0;
+	padding: 10px 12px;
+	border: 1px solid var(--agy-border-card);
+	border-radius: 10px;
+	background: var(--agy-bg-card);
+	box-sizing: border-box;
+}
+.agy-mode-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	flex: 1 1 240px;
+}
+.agy-mode-title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12.5px;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--agy-text-primary);
+}
+.agy-mode-desc {
+	font-size: 11.5px;
+	line-height: 1.5;
+	color: var(--agy-text-secondary);
+}
+.agy-mode-seg {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	border: 1px solid var(--agy-border-subbox);
+	border-radius: 8px;
+	background: var(--agy-bg-subbox);
+	flex-shrink: 0;
+}
+.agy-mode-seg-btn {
+	appearance: none;
+	-webkit-appearance: none;
+	border: 0;
+	border-radius: 6px;
+	padding: 4px 10px;
+	background: transparent;
+	color: var(--agy-text-secondary);
+	font-family: inherit;
+	font-size: 11.5px;
+	font-weight: 500;
+	line-height: 1.4;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+.agy-mode-seg-btn:hover:not(:disabled) {
+	color: var(--agy-text-primary);
+}
+.agy-mode-seg-btn.is-active {
+	background: var(--dsw-alias-brand-primary, #38bdf8);
+	color: #0b1220;
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+.agy-mode-seg-btn:disabled {
+	opacity: 0.55;
+	cursor: default;
+}
 .agy-family-quota {
 	margin: 0 !important;
 	padding: 3px 0 !important;
@@ -1438,8 +1645,11 @@ html.agy-modal-open body {
 	border-radius: 999px !important;
 }
 .agy-quota-line > div:last-child {
-	width: 148px !important;
-	min-width: 148px !important;
+	width: auto !important;
+	min-width: 210px !important;
+}
+.agy-quota-line > div:last-child > span {
+	white-space: nowrap !important;
 }
 .agy-account-quota .agy-btn {
 	justify-content: flex-start !important;
@@ -1552,7 +1762,7 @@ html.agy-modal-open body {
 .agy-console .agy-btn-primary { box-shadow: none !important; white-space: nowrap; flex: 0 0 auto; }
 .agy-header-actions { flex-wrap: wrap; justify-content: flex-end; gap: 8px !important; }
 .agy-header-actions > button { min-height: 34px; white-space: nowrap; flex: 0 0 auto; }
-.agy-card-actions > button { min-width: 58px; }
+.agy-card-actions > button { min-width: 0; }
 @media (prefers-reduced-motion: reduce) {
 	.agy-card-hover, .agy-btn, .agy-progress-fill { transition: none !important; }
 	.agy-spinner, .agy-shimmer-track::after { animation: none !important; }
@@ -1590,8 +1800,17 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 		padding: 14px 12px calc(18px + env(safe-area-inset-bottom)) !important;
 		-webkit-overflow-scrolling: touch;
 	}
-	.agy-card-actions { justify-content: flex-start !important; gap: 4px !important; }
+	.agy-card-actions { justify-content: flex-start !important; gap: 4px !important; margin-left: 0 !important; }
 	.agy-account-quota-summary { align-items: flex-start; flex-direction: column; gap: 2px; }
+	/* A 360px screen cannot hold email + #N + arrows + badges on one line:
+	   give the identity its own wrapped rows instead of clipping them. */
+	.agy-account-header { row-gap: 6px !important; }
+	.agy-account-identity { flex-wrap: wrap !important; overflow: visible; }
+	.agy-account-name { flex: 1 1 100%; }
+	.agy-mode-row { align-items: stretch; }
+	.agy-mode-seg { width: 100%; box-sizing: border-box; }
+	.agy-mode-seg-btn { flex: 1 1 0; text-align: center; }
+	.agy-quota-line > div:last-child { min-width: 0 !important; }
 
 	/* Segmented controls fill the row; every segment shares the width. */
 	.agy-console [style*="agy-seg-group-border"] {
@@ -1878,13 +2097,22 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 function injectGlobalStyles(): void {
 	if (typeof document === 'undefined') return;
 	const styleId = 'dsh-agy-link-global-css';
-	if (document.getElementById(styleId) === null) {
-		const st = document.createElement('style');
+	const host = document.head ?? document.documentElement;
+	if (!host) return;
+	let st = document.getElementById(styleId) as HTMLStyleElement | null;
+	if (st === null) {
+		st = document.createElement('style');
 		st.id = styleId;
-		st.textContent = GLOBAL_CSS;
-		const host = document.head ?? document.documentElement;
-		if (host) host.appendChild(st);
+		st.setAttribute('data-plugin', 'dsh-agy-link');
+		host.appendChild(st);
 	}
+	// DSH hot-reloads plugin client bundles WITHOUT reloading the document, so
+	// the <style> tag from the previous bundle survives while the new JS runs.
+	// Guarding on "the tag already exists" therefore made every CSS change
+	// invisible until a full app restart: the old sheet won forever and the new
+	// DOM rendered with half the rules (native buttons, unpilled email badge,
+	// oversized host spacing). Always sync the content to the running bundle.
+	if (st.textContent !== GLOBAL_CSS) st.textContent = GLOBAL_CSS;
 }
 
 const S: Record<string, Record<string, unknown>> = {
@@ -2687,6 +2915,12 @@ export function apply(ctx: ClientContext): void {
 				...anthropicModels.map((m) => ({ family: 'Anthropic', model: m })),
 				...openaiModels.map((m) => ({ family: 'OpenAI', model: m })),
 			];
+			// The card is identified by the Google address, not by the generated
+			// "主账号（系统登录）/备用 Google 账号 N" alias: those aliases told the
+			// user nothing and duplicated the email row. The alias stays available
+			// as a tooltip; accounts that have not synced an email fall back to it.
+			const effectiveEmail = acc.email || '';
+			const accountTitle = effectiveEmail || displayAlias;
 
 			return h('div', {
 				key: acc.id,
@@ -2707,30 +2941,27 @@ export function apply(ctx: ClientContext): void {
 							},
 						}),
 						h('span', {
-							style: {
-								fontWeight: 700,
-								fontSize: '13.5px',
-								color: 'var(--agy-text-primary)',
-								whiteSpace: 'nowrap',
-							},
-							title: displayAlias,
-						}, displayAlias),
-						accounts.length > 1 ? h('div', {
-							style: { display: 'inline-flex', gap: '3px', alignItems: 'center', marginLeft: '4px', flexShrink: 0, whiteSpace: 'nowrap' },
+							className: 'agy-account-name',
+							title: accountTitle === displayAlias ? displayAlias : `${accountTitle} · ${displayAlias}`,
 						},
+							effectiveEmail ? uiIcon('mail', 12, 'var(--agy-text-tertiary)') : null,
+							h('span', { className: 'agy-account-name-text' }, accountTitle),
+						),
+						accounts.length > 1 ? h('div', { className: 'agy-account-order-group' },
 							h('span', {
 								className: 'agy-account-order',
 								style: {
 									display: 'inline-flex',
 									alignItems: 'center',
 									justifyContent: 'center',
-									minWidth: '22px',
+									minWidth: '20px',
 									height: '18px',
 									padding: '0 5px',
 									borderRadius: '999px',
-									fontSize: '11px',
+									fontSize: '10.5px',
 									fontWeight: 700,
-									background: 'rgba(255, 255, 255, 0.06)',
+									background: 'var(--agy-bg-subbox)',
+									border: '1px solid var(--agy-border-subbox)',
 									color: 'var(--agy-text-secondary)',
 								},
 								title: `优先级 #${accIndex + 1}`,
@@ -2741,14 +2972,14 @@ export function apply(ctx: ClientContext): void {
 								'aria-label': t('account.moveUp'),
 								title: t('account.moveUp'),
 								onClick: () => void moveAccount(acc.id, -1),
-							}, uiIcon('chevronUp', 11)) : null,
+							}, uiIcon('chevronUp', 12)) : null,
 							accIndex < accounts.length - 1 ? h('button', {
 								type: 'button',
 								className: 'agy-account-order-button',
 								'aria-label': t('account.moveDown'),
 								title: t('account.moveDown'),
 								onClick: () => void moveAccount(acc.id, 1),
-							}, uiIcon('chevronDown', 11)) : null,
+							}, uiIcon('chevronDown', 12)) : null,
 						) : null,
 						isInUse ? h('span', {
 							className: 'agy-account-state agy-account-state-selected',
@@ -2760,8 +2991,6 @@ export function apply(ctx: ClientContext): void {
 								gap: '3px',
 								fontSize: '10.5px',
 								padding: '1px 7px',
-								whiteSpace: 'nowrap',
-								flexShrink: 0,
 							},
 						}, uiIcon('alert', 10, '#ef4444'), t('status.authRequired')) : null,
 						hasCooldown ? h('span', {
@@ -2770,8 +2999,6 @@ export function apply(ctx: ClientContext): void {
 								gap: '3px',
 								fontSize: '10.5px',
 								padding: '1px 7px',
-								whiteSpace: 'nowrap',
-								flexShrink: 0,
 							},
 						}, uiIcon('alert', 10, '#f59e0b'), '冷却中') : null,
 						!acc.enabled ? h('span', {
@@ -2783,11 +3010,13 @@ export function apply(ctx: ClientContext): void {
 								gap: '3px',
 								fontSize: '10.5px',
 								padding: '1px 7px',
-								whiteSpace: 'nowrap',
-								flexShrink: 0,
 							},
 							title: t('status.disabled'),
 						}, uiIcon('power', 10, '#64748b'), t('status.disabled')) : null,
+						acc.proxyUrl ? h('span', {
+							className: 'agy-account-proxy',
+							title: acc.proxyUrl,
+						}, uiIcon('globe', 10, 'var(--agy-badge-proxy-text)'), t('status.proxy')) : null,
 					),
 					h('div', {
 						className: 'agy-card-actions',
@@ -2844,37 +3073,6 @@ export function apply(ctx: ClientContext): void {
 						}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon('trash', 11, 'currentColor')) : null,
 					),
 				),
-				// Submeta line: distinct email & proxy
-				(() => {
-					const isDistinctEmail = Boolean(acc.email && acc.email !== displayAlias);
-					const effectiveProxy = acc.proxyUrl || pool?.systemProxy;
-					if (!isDistinctEmail && !effectiveProxy && !acc.email) return null;
-					return h('div', {
-						className: 'agy-account-submeta',
-						style: {
-							display: isDistinctEmail || effectiveProxy ? 'flex' : 'none',
-							alignItems: 'center',
-							gap: '6px',
-							marginTop: '6px',
-							flexWrap: 'wrap',
-						},
-					},
-						acc.email ? h('span', {
-							className: 'agy-account-email',
-							style: {
-								display: isDistinctEmail ? 'inline-flex' : 'none',
-								whiteSpace: 'nowrap',
-								flexShrink: 0,
-							},
-							title: acc.email,
-						}, uiIcon('mail', 10, 'var(--agy-badge-email-text)'), acc.email) : null,
-						effectiveProxy ? h('span', {
-							className: 'agy-account-meta',
-							title: effectiveProxy,
-							style: { whiteSpace: 'nowrap', flexShrink: 0 },
-						}, uiIcon('globe', 10, 'var(--agy-badge-proxy-text)'), t('status.proxy')) : null,
-					);
-				})(),
 				// Quota details
 				h('div', { key: 'agy-body', className: 'agy-account-quota', style: S.quotaBox },
 					renderQuotaBar('Gemini', 'google', acc),
@@ -3121,20 +3319,21 @@ export function apply(ctx: ClientContext): void {
 			),
 			renderToastBanner(),
 			addAccountSection,
-			h('div', { className: 'dshDesktopSettingsToggleRow', style: { marginBottom: '14px' } },
-				h('div', { className: 'dshDesktopSettingsChoiceCopy' },
-					h('div', { className: 'dshDesktopSettingsChoiceTitle' },
+			h('div', { className: 'agy-settings-row' },
+				h('div', { className: 'agy-settings-row-copy' },
+					h('div', { className: 'agy-settings-row-title' },
 						uiIcon('zap', 14, status.experimentalDirect ? 'var(--dsw-alias-brand-primary, #38bdf8)' : 'var(--dsw-alias-label-secondary, #94a3b8)'),
 						h('span', { id: 'agy-direct-mode-label' }, t('direct.title')),
 						status.experimentalDirect ? h('span', {
-							className: 'dshDesktopSettingsBadge',
+							className: 'agy-pool-count',
 							style: {
 								color: 'var(--dsw-alias-state-success-primary, #34d399)',
 								background: 'color-mix(in srgb, var(--dsw-alias-state-success-primary, #34d399) 12%, transparent)',
+								borderColor: 'color-mix(in srgb, var(--dsw-alias-state-success-primary, #34d399) 28%, transparent)',
 							},
 						}, '直连生效中') : null,
 					),
-					h('span', { className: 'dshDesktopSettingsChoiceBody' }, t('direct.description')),
+					h('span', { className: 'agy-settings-row-desc' }, t('direct.description')),
 				),
 				h('button', {
 					type: 'button',
@@ -3146,51 +3345,54 @@ export function apply(ctx: ClientContext): void {
 					onClick: () => { void setCfg('experimentalDirect', status.experimentalDirect !== true); },
 				}, h('span', { className: 'dshDesktopSettingsToggleKnob', 'aria-hidden': true })),
 			),
-			h('div', { className: 'dshDesktopSettingsGroupHeader', style: { marginBottom: '8px', marginTop: '16px' } },
-				h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } },
-					h('h3', { className: 'dshDesktopSettingsGroupTitle' }, '统一账号池'),
-					h('span', { className: 'dshDesktopSettingsBadge', style: { color: 'var(--dsw-alias-brand-primary, #38bdf8)' } }, `${accounts.length}`),
-					h('span', { className: 'dshDesktopSettingsGroupIntro', style: { margin: 0 } },
-						status.experimentalDirect ? '· 请求直连 Google API' : '· 请求走 AGY CLI 桥接',
+			h('div', { className: 'agy-pool' },
+				h('div', { className: 'agy-pool-head' },
+					h('h3', { className: 'agy-pool-title' }, '统一账号池'),
+					h('span', { className: 'agy-pool-count' }, `${accounts.length}`),
+					h('span', { className: 'agy-pool-hint' },
+						status.experimentalDirect ? '请求直连 Google API' : '请求走 AGY CLI 桥接',
 					),
 				),
+				h('div', { className: 'agy-mode-row' },
+					h('div', { className: 'agy-mode-copy' },
+						h('div', { className: 'agy-mode-title' },
+							uiIcon('refresh', 13, 'var(--dsw-alias-brand-primary, #38bdf8)'),
+							h('span', null, '账号调度模式'),
+						),
+						h('span', { className: 'agy-mode-desc' },
+							pool?.mode === 'sequential'
+								? '顺次耗尽：优先使用排在前面的账号，额度耗尽后自动切换'
+								: pool?.mode === 'round-robin'
+									? '轮询均衡：每次请求在所有就绪账号之间轮换分配'
+									: '手动指定：固定使用当前生效的账号，不自动切换',
+						),
+					),
+					h('div', { className: 'agy-mode-seg', role: 'group', 'aria-label': '账号调度模式' },
+						h('button', {
+							type: 'button',
+							className: `agy-mode-seg-btn${pool?.mode === 'manual' || !pool?.mode ? ' is-active' : ''}`,
+							'aria-pressed': pool?.mode === 'manual' || !pool?.mode,
+							disabled: loadingAction === 'mode:manual',
+							onClick: () => void setMode('manual'),
+						}, t('pool.manual')),
+						h('button', {
+							type: 'button',
+							className: `agy-mode-seg-btn${pool?.mode === 'sequential' ? ' is-active' : ''}`,
+							'aria-pressed': pool?.mode === 'sequential',
+							disabled: loadingAction === 'mode:sequential',
+							onClick: () => void setMode('sequential'),
+						}, t('pool.sequential')),
+						h('button', {
+							type: 'button',
+							className: `agy-mode-seg-btn${pool?.mode === 'round-robin' ? ' is-active' : ''}`,
+							'aria-pressed': pool?.mode === 'round-robin',
+							disabled: loadingAction === 'mode:round-robin',
+							onClick: () => void setMode('round-robin'),
+						}, t('pool.roundRobin')),
+					),
+				),
+				renderedAccountCards,
 			),
-			h('div', { className: 'dshDesktopSettingsToggleRow', style: { marginBottom: '14px' } },
-				h('div', { className: 'dshDesktopSettingsChoiceCopy' },
-					h('div', { className: 'dshDesktopSettingsChoiceTitle' },
-						uiIcon('refresh', 13, 'var(--dsw-alias-brand-primary, #38bdf8)'),
-						h('span', null, '账号调度模式'),
-					),
-					h('span', { className: 'dshDesktopSettingsChoiceBody' },
-						pool?.mode === 'sequential'
-							? '当前模式：顺次耗尽（优先使用排在前面的账号，额度耗尽后自动顺次切换至下一账号）'
-							: pool?.mode === 'round-robin'
-								? '当前模式：轮询均衡（每次请求在所有就绪账号之间均匀轮换分配）'
-								: '当前模式：手动指定（固定使用当前生效的账号，不自动切换）',
-					),
-				),
-				h('div', { className: 'dshDesktopSegmentGroup' },
-					h('button', {
-						type: 'button',
-						className: `dshDesktopSegmentBtn${pool?.mode === 'manual' || !pool?.mode ? ' active' : ''}`,
-						'aria-pressed': pool?.mode === 'manual' || !pool?.mode,
-						onClick: () => void setMode('manual'),
-					}, t('pool.manual')),
-					h('button', {
-						type: 'button',
-						className: `dshDesktopSegmentBtn${pool?.mode === 'sequential' ? ' active' : ''}`,
-						'aria-pressed': pool?.mode === 'sequential',
-						onClick: () => void setMode('sequential'),
-					}, t('pool.sequential')),
-					h('button', {
-						type: 'button',
-						className: `dshDesktopSegmentBtn${pool?.mode === 'round-robin' ? ' active' : ''}`,
-						'aria-pressed': pool?.mode === 'round-robin',
-						onClick: () => void setMode('round-robin'),
-					}, t('pool.roundRobin')),
-				),
-			),
-			renderedAccountCards,
 			status.directRuntime === 'starting' ? h('p', { style: S.muted, role: 'status' }, t('direct.loading')) : null,
 			status.directRuntime === 'error' ? h('p', { role: 'alert' }, t('direct.error')) : null,
 			status.directRuntime === 'loaded' ? h(DirectSettingsPane, { status, setConfig: setCfg }) : null,
