@@ -272,6 +272,8 @@ window.__ModuleLoader__.load({
 			"config.autoWarmupDesc": "周配额到达重置时间或冷启动时自动唤醒 1 次启动新周期",
 			"config.autoTranslate": "自动翻译",
 			"config.autoTranslateDesc": "每个回合结束后，用 Gemini 把最后的回复翻成大白话，显示在该回复下方",
+			"config.translateThinking": "翻译思考内容",
+			"config.translateThinkingDesc": "Gemini 用英文思考：把每条思考的摘要和正文翻成中文显示在上方，英文原文保留在下方。每条思考多一次翻译调用。",
 			"config.translateModel": "翻译模型",
 			"config.translateModelDesc": "翻译调用使用哪个模型；默认自动从 Gemini Flash 里挑最新的一个",
 			"config.translateModelAuto": "默认（自动）",
@@ -475,6 +477,8 @@ window.__ModuleLoader__.load({
 			"config.autoWarmupDesc": "Automatically trigger a 1-token probe when weekly reset time is reached",
 			"config.autoTranslate": "Auto translate",
 			"config.autoTranslateDesc": "After each turn, Gemini rewrites the final answer in plain language and shows it under that reply",
+			"config.translateThinking": "Translate thinking",
+			"config.translateThinkingDesc": "Gemini reasons in English. Show a Chinese translation above each reasoning block and keep the English original below. One extra translate call per block.",
 			"config.translateModel": "Translation model",
 			"config.translateModelDesc": "Model used for the translation call; the default picks the newest Gemini Flash automatically",
 			"config.translateModelAuto": "Default (auto)",
@@ -678,6 +682,8 @@ window.__ModuleLoader__.load({
 			"config.autoWarmupDesc": "Ativa automaticamente um ciclo quando o tempo de redefinição semanal é atingido",
 			"config.autoTranslate": "Tradução automática",
 			"config.autoTranslateDesc": "Ao fim de cada turno, o Gemini reescreve a resposta final em linguagem simples e mostra abaixo dela",
+			"config.translateThinking": "Traduzir o raciocínio",
+			"config.translateThinkingDesc": "O Gemini raciocina em inglês. Mostra uma tradução em chinês acima de cada bloco de raciocínio e mantém o original em inglês abaixo. Uma chamada extra de tradução por bloco.",
 			"config.translateModel": "Modelo de tradução",
 			"config.translateModelDesc": "Modelo usado na chamada de tradução; o padrão escolhe automaticamente o Gemini Flash mais recente",
 			"config.translateModelAuto": "Padrão (auto)",
@@ -881,6 +887,8 @@ window.__ModuleLoader__.load({
 			"config.autoWarmupDesc": "Activa automáticamente un ciclo cuando se alcanza el tiempo de reinicio semanal",
 			"config.autoTranslate": "Traducción automática",
 			"config.autoTranslateDesc": "Al terminar cada turno, Gemini reescribe la respuesta final en lenguaje sencillo y la muestra debajo de esa respuesta",
+			"config.translateThinking": "Traducir el razonamiento",
+			"config.translateThinkingDesc": "Gemini razona en inglés. Muestra una traducción al chino encima de cada bloque de razonamiento y conserva el original en inglés debajo. Una llamada extra de traducción por bloque.",
 			"config.translateModel": "Modelo de traducción",
 			"config.translateModelDesc": "Modelo usado en la llamada de traducción; el valor por defecto elige automáticamente el Gemini Flash más reciente",
 			"config.translateModelAuto": "Predeterminado (auto)",
@@ -4130,7 +4138,7 @@ div[data-variant="think"] [class*="thinkBody"] {
 		const SHOW_DELAY_MS = 120;
 		const GAP_PX = 8;
 		const EDGE_PX = 8;
-		let activeDispose = null;
+		let activeDispose$1 = null;
 		/** Tooltip styling; kept next to the layer so the tag can be injected standalone. */
 		const TOOLTIP_CSS = `
 .agy-tip {
@@ -4182,7 +4190,7 @@ div[data-variant="think"] [class*="thinkBody"] {
 		*/
 		function installAgyTooltips() {
 			if (typeof window === "undefined" || typeof document === "undefined") return () => {};
-			activeDispose?.();
+			activeDispose$1?.();
 			const doc = document;
 			const host = doc.head ?? doc.documentElement;
 			if (!host) return () => {};
@@ -4291,6 +4299,304 @@ div[data-variant="think"] [class*="thinkBody"] {
 				window.removeEventListener("scroll", onDismiss, true);
 				window.removeEventListener("resize", onDismiss);
 				node.remove();
+				style?.remove();
+				if (activeDispose$1 === dispose) activeDispose$1 = null;
+			};
+			activeDispose$1 = dispose;
+			return dispose;
+		}
+		//#endregion
+		//#region src/client/thinking-zh.ts
+		const ROW_SELECTOR = "div[data-variant=\"think\"]";
+		const SUMMARY_SELECTOR = "[class*=\"summaryText\"]";
+		const BODY_SELECTOR = "[class*=\"thinkBody\"]";
+		const ZH_SUMMARY_CLASS = "agy-think-zh-summary";
+		const ZH_BODY_CLASS = "agy-think-zh-body";
+		const HIDDEN_ATTR = "data-agy-zh-hidden";
+		const CACHE_PREFIX = "agy-think-zh:";
+		/** Concurrent translate calls; the host runs one agy process per call. */
+		const MAX_IN_FLIGHT = 2;
+		/** A failed key is not retried before this window (avoids a request storm). */
+		const FAILURE_TTL_MS = 6e4;
+		/** Longest text we will send in one request. */
+		const MAX_INPUT_CHARS = 6e3;
+		/** Shorter blocks are noise ("Hmm", "OK"), not worth a translate call. */
+		const MIN_INPUT_CHARS = 8;
+		const CSS$1 = `
+.agy-think-zh-summary {
+	color: var(--dsw-alias-label-secondary, #94a3b8);
+}
+[${HIDDEN_ATTR}="true"] {
+	display: none !important;
+}
+.agy-think-zh-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	margin: 0 0 8px;
+}
+.agy-think-zh {
+	color: var(--dsw-alias-label-primary, #f8fafc);
+	white-space: pre-wrap;
+	word-break: break-word;
+	font-size: inherit;
+	line-height: inherit;
+}
+.agy-think-zh:empty { display: none; }
+.agy-think-zh-sep {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 10px 0 8px;
+	color: var(--dsw-alias-label-tertiary, #64748b);
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	user-select: none;
+}
+.agy-think-zh-sep::before,
+.agy-think-zh-sep::after {
+	content: '';
+	height: 1px;
+	flex: 1 1 auto;
+	background: var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.08));
+}
+`;
+		/**
+		* Strip the plugin's own token banner (`[agy · 528 tokens]`, `[agy]`) from a
+		* thought so the translator sees prose only.
+		* @param raw - reasoning text as streamed by the adapter.
+		* @returns the prose without the leading banner line.
+		*/
+		function cleanThoughtText(raw) {
+			return raw.replace(/^\s*\[agy(?:\s*·\s*\d+\s*tokens)?\]\s*/i, "").replace(/\s+$/, "");
+		}
+		/** FNV-1a: a stable cache key for a block of text (no crypto dependency). */
+		function hashText(text) {
+			let hash = 2166136261;
+			for (let i = 0; i < text.length; i++) {
+				hash ^= text.charCodeAt(i);
+				hash = Math.imul(hash, 16777619) >>> 0;
+			}
+			return hash.toString(16);
+		}
+		const cacheKeyFor = (text) => CACHE_PREFIX + hashText(text);
+		/** First non-empty line of a translation: the collapsed row shows exactly this. */
+		function firstLine(text) {
+			for (const line of text.split("\n")) {
+				const trimmed = line.trim();
+				if (trimmed !== "") return trimmed;
+			}
+			return text.trim();
+		}
+		let activeDispose = null;
+		/**
+		* Install the thinking-translation enhancer.
+		* @param opts - enable gate, target language and the translate transport.
+		* @returns disposer that removes listeners, the observer and our nodes.
+		*/
+		function installThinkingTranslation(opts) {
+			if (typeof window === "undefined" || typeof document === "undefined") return () => {};
+			activeDispose?.();
+			const doc = document;
+			const host = doc.head ?? doc.documentElement;
+			if (!host) return () => {};
+			const styleId = "dsh-agy-link-thinking-zh-css";
+			let style = doc.getElementById(styleId);
+			if (style === null) {
+				style = doc.createElement("style");
+				style.id = styleId;
+				style.setAttribute("data-plugin", "dsh-agy-link");
+				host.appendChild(style);
+			}
+			style.textContent = CSS$1;
+			const memory = /* @__PURE__ */ new Map();
+			const failures = /* @__PURE__ */ new Map();
+			const queue = /* @__PURE__ */ new Map();
+			let inFlight = 0;
+			let disposed = false;
+			let timer = null;
+			const readCache = (key) => {
+				const hit = memory.get(key);
+				if (hit !== void 0) return hit;
+				try {
+					const stored = window.sessionStorage?.getItem(key);
+					if (typeof stored === "string" && stored !== "") {
+						memory.set(key, stored);
+						return stored;
+					}
+				} catch {}
+				return null;
+			};
+			const writeCache = (key, value) => {
+				memory.set(key, value);
+				try {
+					window.sessionStorage?.setItem(key, value);
+				} catch {}
+			};
+			const pump = () => {
+				if (disposed) return;
+				while (inFlight < MAX_IN_FLIGHT && queue.size > 0) {
+					const [key, entry] = queue.entries().next().value;
+					queue.delete(key);
+					inFlight++;
+					const lang = entry.lang;
+					opts.translate(entry.text, lang).then((value) => {
+						if (value !== null && value.trim() !== "") {
+							writeCache(key, value);
+							failures.delete(key);
+							entry.waiters.forEach((resolve) => resolve(value));
+						} else {
+							failures.set(key, Date.now());
+							entry.waiters.forEach((resolve) => resolve(null));
+						}
+					}).catch(() => {
+						failures.set(key, Date.now());
+						entry.waiters.forEach((resolve) => resolve(null));
+					}).finally(() => {
+						inFlight--;
+						pump();
+					});
+				}
+			};
+			const requestTranslation = (text, lang) => {
+				const key = cacheKeyFor(text);
+				const cached = readCache(key);
+				if (cached !== null) return Promise.resolve(cached);
+				const failedAt = failures.get(key);
+				if (failedAt !== void 0 && Date.now() - failedAt < FAILURE_TTL_MS) return Promise.resolve(null);
+				const existing = queue.get(key);
+				if (existing !== void 0) return new Promise((resolve) => existing.waiters.push(resolve));
+				const entry = {
+					text,
+					lang,
+					waiters: []
+				};
+				queue.set(key, entry);
+				const promise = new Promise((resolve) => entry.waiters.push(resolve));
+				pump();
+				return promise;
+			};
+			const markSettledSummary = (row, zh) => {
+				const summary = row.querySelector(SUMMARY_SELECTOR);
+				if (summary === null) return;
+				if (summary.getAttribute(HIDDEN_ATTR) !== "true") summary.setAttribute(HIDDEN_ATTR, "true");
+				const holder = summary.parentElement;
+				if (holder === null) return;
+				let node = holder.querySelector(":scope > .agy-think-zh-summary");
+				if (node === null) {
+					node = doc.createElement("span");
+					node.className = ZH_SUMMARY_CLASS;
+					holder.appendChild(node);
+				}
+				if (node.textContent !== zh) node.textContent = zh;
+			};
+			const markSettledBody = (row, zh) => {
+				const body = row.querySelector(BODY_SELECTOR);
+				if (body === null) return;
+				let wrapper = body.querySelector(":scope > .agy-think-zh-body");
+				if (wrapper === null) {
+					wrapper = doc.createElement("div");
+					wrapper.className = ZH_BODY_CLASS;
+					const para = doc.createElement("div");
+					para.className = "agy-think-zh";
+					const sep = doc.createElement("div");
+					sep.className = "agy-think-zh-sep";
+					sep.textContent = "原文 · English";
+					wrapper.appendChild(para);
+					wrapper.appendChild(sep);
+					body.insertBefore(wrapper, body.firstChild);
+				}
+				const para = wrapper.querySelector(".agy-think-zh");
+				if (para !== null && para.textContent !== zh) para.textContent = zh;
+			};
+			/**
+			* Text of a node with our own injected blocks removed, so a second scan sees
+			* the same English source instead of our translation.
+			*/
+			const ownText = (el) => {
+				if (el === null) return "";
+				let out = "";
+				for (const child of Array.from(el.childNodes)) {
+					if (child instanceof Element && (child.classList.contains(ZH_BODY_CLASS) || child.classList.contains(ZH_SUMMARY_CLASS))) continue;
+					out += child.textContent ?? "";
+				}
+				return out;
+			};
+			const enhanceRow = (row) => {
+				if ((row.getAttribute("data-state") ?? "") !== "ok") return;
+				const summary = row.querySelector(SUMMARY_SELECTOR);
+				const body = row.querySelector(BODY_SELECTOR);
+				const summaryText = cleanThoughtText(ownText(summary)).trim();
+				const fullText = cleanThoughtText(ownText(body)).trim();
+				if (fullText !== "") {
+					if (fullText.length < MIN_INPUT_CHARS || fullText.length > MAX_INPUT_CHARS) return;
+					const key = cacheKeyFor(fullText);
+					const cached = readCache(key);
+					if (cached !== null) {
+						markSettledBody(row, cached);
+						markSettledSummary(row, firstLine(cached));
+						return;
+					}
+					requestTranslation(fullText, opts.lang?.()).then((zh) => {
+						if (disposed || zh === null) return;
+						if (!row.isConnected) return;
+						markSettledBody(row, zh);
+						markSettledSummary(row, firstLine(zh));
+					});
+					return;
+				}
+				if (summaryText.length < MIN_INPUT_CHARS || summaryText.length > MAX_INPUT_CHARS) return;
+				const key = cacheKeyFor(summaryText);
+				const cached = readCache(key);
+				if (cached !== null) {
+					markSettledSummary(row, cached);
+					return;
+				}
+				requestTranslation(summaryText, opts.lang?.()).then((zh) => {
+					if (disposed || zh === null) return;
+					if (!row.isConnected) return;
+					markSettledSummary(row, firstLine(zh));
+				});
+			};
+			const scan = () => {
+				if (disposed) return;
+				if (!opts.enabled()) return;
+				if (isInteractionLocked()) return;
+				for (const row of Array.from(doc.querySelectorAll(ROW_SELECTOR))) try {
+					enhanceRow(row);
+				} catch {}
+			};
+			const schedule = () => {
+				if (disposed || timer !== null) return;
+				timer = window.setTimeout(() => {
+					timer = null;
+					scan();
+				}, 220);
+			};
+			const observer = new MutationObserver(schedule);
+			try {
+				observer.observe(doc.body ?? doc.documentElement, {
+					childList: true,
+					subtree: true,
+					attributes: true,
+					attributeFilter: ["data-state", "data-expanded"]
+				});
+			} catch {}
+			const setup = () => scan();
+			if (doc.readyState === "loading") window.addEventListener("DOMContentLoaded", setup, { once: true });
+			else setup();
+			const dispose = () => {
+				disposed = true;
+				observer.disconnect();
+				if (timer !== null) {
+					clearTimeout(timer);
+					timer = null;
+				}
+				window.removeEventListener("DOMContentLoaded", setup);
+				for (const node of Array.from(doc.querySelectorAll(".agy-think-zh-summary"))) node.remove();
+				for (const node of Array.from(doc.querySelectorAll(".agy-think-zh-body"))) node.remove();
+				for (const node of Array.from(doc.querySelectorAll(`[${HIDDEN_ATTR}]`))) node.removeAttribute(HIDDEN_ATTR);
 				style?.remove();
 				if (activeDispose === dispose) activeDispose = null;
 			};
@@ -4500,6 +4806,25 @@ body.dark .agy-tsl-card,
 			} catch {
 				return null;
 			}
+		}
+		/**
+		* Translate one block of plain text (no session record, no card).
+		* Used by the thinking-trace layer, which decorates reasoning rows instead of
+		* appending a durable translation node.
+		* @param text - prose to translate.
+		* @param lang - target language wording; the host falls back to its config.
+		* @returns the translated text, or null when the host refused or failed.
+		*/
+		async function translatePlainText(text, lang) {
+			const trimmed = text.trim();
+			if (trimmed === "") return null;
+			const res = await postTranslate({
+				text: trimmed,
+				...lang === void 0 || lang.trim() === "" ? {} : { lang: lang.trim() }
+			});
+			if (!res || res.ok !== true) return null;
+			const out = typeof res.text === "string" ? res.text.trim() : "";
+			return out === "" ? null : out;
 		}
 		/** Ask the host whether this reply already owns a durable translation. */
 		async function getMessageState(sessionId, messageId) {
@@ -8635,6 +8960,46 @@ body.dark,
 /* Standalone enable/disable toggle (rows without a segment group). Class-based
    so both states carry a real border, a hover affordance and a visible
    clickable area — the old inline segBtn left the OFF state invisible. */
+/* DSH-style switch used by rows that must render on both surfaces (the desktop
+   settings sheet and the web Plugins page) without depending on host classes. */
+.agy-switch {
+	position: relative;
+	flex: 0 0 auto;
+	width: 40px;
+	height: 22px;
+	padding: 0;
+	border: 1px solid var(--agy-border-btn);
+	border-radius: 999px;
+	background: var(--agy-bg-btn);
+	cursor: pointer;
+	transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.agy-switch[data-on="true"] {
+	background: var(--agy-bg-btn-primary);
+	border-color: var(--agy-border-btn-primary);
+}
+.agy-switch:disabled {
+	opacity: 0.55;
+	cursor: default;
+}
+.agy-switch:focus-visible {
+	outline: 2px solid var(--dsw-alias-state-business-primary, #2563eb);
+	outline-offset: 2px;
+}
+.agy-switch-knob {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+	transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.agy-switch[data-on="true"] .agy-switch-knob {
+	transform: translateX(18px);
+}
 .agy-toggle {
 	display: inline-flex;
 	align-items: center;
@@ -10992,7 +11357,19 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 				}).map((option) => h("option", {
 					key: option.value,
 					value: option.value
-				}, option.label))))), h("div", { className: "dshDesktopSettingsToggleRow" }, h("div", { className: "dshDesktopSettingsChoiceCopy" }, h("span", { className: "dshDesktopSettingsChoiceTitle" }, t("config.defaultEffort")), h("span", { className: "dshDesktopSettingsChoiceBody" }, t("config.defaultEffortDesc"))), h("div", { className: "dshDesktopSegmentGroup" }, h("button", {
+				}, option.label))))), h("div", { className: "agy-settings-row" }, h("div", { className: "agy-settings-row-copy" }, h("div", { className: "agy-settings-row-title" }, h("span", { id: "agy-thinking-translate-label" }, t("config.translateThinking"))), h("span", { className: "agy-settings-row-desc" }, t("config.translateThinkingDesc"))), h("button", {
+					type: "button",
+					role: "switch",
+					className: "agy-switch",
+					"aria-labelledby": "agy-thinking-translate-label",
+					"aria-checked": status?.translateThinking !== false,
+					"data-on": status?.translateThinking !== false ? "true" : "false",
+					disabled: loadingAction === "config:translateThinking",
+					onClick: () => void setCfg("translateThinking", status?.translateThinking === false)
+				}, h("span", {
+					className: "agy-switch-knob",
+					"aria-hidden": true
+				}))), h("div", { className: "dshDesktopSettingsToggleRow" }, h("div", { className: "dshDesktopSettingsChoiceCopy" }, h("span", { className: "dshDesktopSettingsChoiceTitle" }, t("config.defaultEffort")), h("span", { className: "dshDesktopSettingsChoiceBody" }, t("config.defaultEffortDesc"))), h("div", { className: "dshDesktopSegmentGroup" }, h("button", {
 					type: "button",
 					className: `dshDesktopSegmentBtn${status?.defaultEffort === "" ? " active" : ""}`,
 					disabled: loadingAction === "config:defaultEffort",
@@ -11271,6 +11648,11 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 			ctx.effect(() => installImageEnhancer());
 			ctx.effect(() => installDecisionChips());
 			ctx.effect(() => installAgyTooltips());
+			ctx.effect(() => installThinkingTranslation({
+				enabled: () => statusCache?.translateThinking !== false,
+				lang: () => statusCache?.translateTargetLanguage ?? "",
+				translate: (text, lang) => translatePlainText(text, lang)
+			}));
 			ctx.effect(() => installCompactionCard());
 			ctx.effect(() => {
 				try {

@@ -1,4 +1,4 @@
-import { C as networkRetryDelayMs, S as looksLikeRateLimit, T as shouldMarkAuthRequired, _ as looksLikeAuthFailure, a as readOverrides, b as looksLikeEligibilityFailure, c as ELIGIBILITY_ERROR_HINT, d as PROVIDER_ID, f as accountsShareSingleEgress, g as isTransportFailure, h as isAuthoritativeAuthError, i as overridesPath, l as Err, m as isAccountScopedFailure, n as require_undici, o as resolveConfig, p as extractAuthUrl, r as dshHome, s as stateDir, t as validDirectProxy, u as NETWORK_RETRY_DELAYS_MS, v as looksLikeAuthVerificationJitter, w as parseResetDurationMs, x as looksLikeHardRateLimit, y as looksLikeContextWindowExceeded } from "./direct-proxy-B5Ey65JN.js";
+import { C as networkRetryDelayMs, S as looksLikeRateLimit, T as shouldMarkAuthRequired, _ as looksLikeAuthFailure, a as readOverrides, b as looksLikeEligibilityFailure, c as ELIGIBILITY_ERROR_HINT, d as PROVIDER_ID, f as accountsShareSingleEgress, g as isTransportFailure, h as isAuthoritativeAuthError, i as overridesPath, l as Err, m as isAccountScopedFailure, n as require_undici, o as resolveConfig, p as extractAuthUrl, r as dshHome, s as stateDir, t as validDirectProxy, u as NETWORK_RETRY_DELAYS_MS, v as looksLikeAuthVerificationJitter, w as parseResetDurationMs, x as looksLikeHardRateLimit, y as looksLikeContextWindowExceeded } from "./direct-proxy-7BxBpCdu.js";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import path, { basename, delimiter, dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { accessSync, chmodSync, constants, copyFileSync, createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
@@ -13157,7 +13157,7 @@ function apply(ctx, entryConfig = {}) {
 			if (directFiber) return;
 			directRuntime = "starting";
 			try {
-				const { mountDirectBackend } = await import("./integrated-host-DOzvQs77.js");
+				const { mountDirectBackend } = await import("./integrated-host-CP-UwXA_.js");
 				if (!directAlive || !getConfig().enabled || !getConfig().experimentalDirect) {
 					directRuntime = "disabled";
 					return;
@@ -13781,6 +13781,7 @@ function apply(ctx, entryConfig = {}) {
 						autoWarmup: cfg.autoWarmup,
 						warmupModels: cfg.warmupModels,
 						autoTranslate: cfg.autoTranslate,
+						translateThinking: cfg.translateThinking,
 						translateModel: cfg.translateModel,
 						translateEffort: cfg.translateEffort,
 						translateTargetLanguage: cfg.translateTargetLanguage,
@@ -14298,6 +14299,7 @@ function apply(ctx, entryConfig = {}) {
 						"directVideo",
 						"directProxyUrl",
 						"autoTranslate",
+						"translateThinking",
 						"translateModel",
 						"translateEffort",
 						"translateTargetLanguage",

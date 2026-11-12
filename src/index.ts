@@ -997,6 +997,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
           autoWarmup: cfg.autoWarmup,
           warmupModels: cfg.warmupModels,
           autoTranslate: cfg.autoTranslate,
+          translateThinking: cfg.translateThinking,
           translateModel: cfg.translateModel,
           translateEffort: cfg.translateEffort,
           translateTargetLanguage: cfg.translateTargetLanguage,
@@ -1396,7 +1397,7 @@ export function apply(ctx: Context, entryConfig: Record<string, unknown> = {}): 
         const key = typeof body.key === 'string' ? body.key : ''
         const allowed = [
           'permissionMode', 'defaultModel', 'defaultEffort', 'askTool', 'workspaceRoot', 'hiddenModels', 'autoWarmup', 'warmupModels', 'experimentalDirect', 'directSearch', 'directImage', 'directVideo', 'directProxyUrl',
-          'autoTranslate', 'translateModel', 'translateEffort', 'translateTargetLanguage', 'translateMaxChars', 'translateSkipSameModel', 'translateBindConversation', 'translateMinIntervalMs',
+          'autoTranslate', 'translateThinking', 'translateModel', 'translateEffort', 'translateTargetLanguage', 'translateMaxChars', 'translateSkipSameModel', 'translateBindConversation', 'translateMinIntervalMs',
         ]
         if (!allowed.includes(key)) {
           sendJson(res as RawRes, 400, { error: 'key not settable' })

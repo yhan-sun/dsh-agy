@@ -173,6 +173,14 @@ export interface PluginConfig {
    * session record, rendered as a labelled Gemini card under that reply.
    */
   autoTranslate: boolean
+  /**
+   * Translate the model's own thinking trace (default ON): Gemini reasons in
+   * English, so each reasoning block gets a Chinese summary/preview while the
+   * English original stays available below it. Costs one translate call per
+   * thinking block, which is why the client only translates settled blocks and
+   * caches every result.
+   */
+  translateThinking: boolean
   /** Model used for translation (default `gemini-3.8-flash`; falls back through the live catalog). */
   translateModel: string
   /** Reasoning effort for effort-capable translate models (default `high`). */
@@ -300,6 +308,7 @@ export function defaultConfig(): PluginConfig {
     // Translation is strictly opt-in: it spends quota on every completed
     // turn, so the default must never silently start billing a user.
     autoTranslate: false,
+    translateThinking: true,
     translateModel: 'gemini-3.8-flash',
     translateEffort: 'high',
     translateTargetLanguage: '中文（简体）',

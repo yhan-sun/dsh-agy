@@ -134,6 +134,7 @@ function defaultConfig() {
 		autoWarmup: false,
 		warmupModels: ["gemini-3.8-flash", "claude-sonnet-5-5"],
 		autoTranslate: false,
+		translateThinking: true,
 		translateModel: "gemini-3.8-flash",
 		translateEffort: "high",
 		translateTargetLanguage: "中文（简体）",
@@ -568,6 +569,7 @@ function resolveConfig(entry, env = process.env, overrides = readOverrides()) {
 		autoWarmup: asBool(get("autoWarmup")) ?? base.autoWarmup,
 		warmupModels: asStringArray(get("warmupModels")) ?? base.warmupModels,
 		autoTranslate: asBool(get("autoTranslate")) ?? base.autoTranslate,
+		translateThinking: asBool(get("translateThinking")) ?? base.translateThinking,
 		translateModel: asString(get("translateModel")) ?? base.translateModel,
 		translateEffort: asString(get("translateEffort")) ?? base.translateEffort,
 		translateTargetLanguage: asString(get("translateTargetLanguage")) ?? base.translateTargetLanguage,
@@ -673,6 +675,10 @@ function resolveConfig(entry, env = process.env, overrides = readOverrides()) {
 	if (env.DSH_AGY_AUTO_TRANSLATE !== void 0) {
 		const at = asBool(env.DSH_AGY_AUTO_TRANSLATE);
 		if (at !== void 0) cfg.autoTranslate = at;
+	}
+	if (env.DSH_AGY_TRANSLATE_THINKING !== void 0) {
+		const tt = asBool(env.DSH_AGY_TRANSLATE_THINKING);
+		if (tt !== void 0) cfg.translateThinking = tt;
 	}
 	if (env.DSH_AGY_TRANSLATE_MODEL) cfg.translateModel = env.DSH_AGY_TRANSLATE_MODEL;
 	if (env.DSH_AGY_TRANSLATE_EFFORT) cfg.translateEffort = env.DSH_AGY_TRANSLATE_EFFORT;

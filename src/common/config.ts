@@ -157,6 +157,7 @@ export function resolveConfig(
     autoWarmup: asBool(get('autoWarmup')) ?? base.autoWarmup,
     warmupModels: asStringArray(get('warmupModels')) ?? base.warmupModels,
     autoTranslate: asBool(get('autoTranslate')) ?? base.autoTranslate,
+    translateThinking: asBool(get('translateThinking')) ?? base.translateThinking,
     translateModel: asString(get('translateModel')) ?? base.translateModel,
     translateEffort: asString(get('translateEffort')) ?? base.translateEffort,
     translateTargetLanguage: asString(get('translateTargetLanguage')) ?? base.translateTargetLanguage,
@@ -268,6 +269,10 @@ export function resolveConfig(
   if (env.DSH_AGY_AUTO_TRANSLATE !== undefined) {
     const at = asBool(env.DSH_AGY_AUTO_TRANSLATE)
     if (at !== undefined) cfg.autoTranslate = at
+  }
+  if (env.DSH_AGY_TRANSLATE_THINKING !== undefined) {
+    const tt = asBool(env.DSH_AGY_TRANSLATE_THINKING)
+    if (tt !== undefined) cfg.translateThinking = tt
   }
   if (env.DSH_AGY_TRANSLATE_MODEL) cfg.translateModel = env.DSH_AGY_TRANSLATE_MODEL
   if (env.DSH_AGY_TRANSLATE_EFFORT) cfg.translateEffort = env.DSH_AGY_TRANSLATE_EFFORT

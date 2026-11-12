@@ -11,7 +11,8 @@ import { installAutoExpandReasoning } from './reasoning.ts';
 import { installImageEnhancer } from './images.ts';
 import { installDecisionChips } from './decisions.ts';
 import { installAgyTooltips } from './tooltip.ts';
-import { installTranslationUi } from './translate.ts';
+import { installThinkingTranslation } from './thinking-zh.ts';
+import { installTranslationUi, translatePlainText } from './translate.ts';
 import { installCompactionCard } from './compaction.ts';
 import { ensureScrollListener, disposeScrollListener, setOverlaySuspended } from './scroll-guard.ts';
 import { AntigravityAuthSettings, type AntigravityAuthSettingsProps } from '../../direct/legacy/src/client/AntigravityAuthSettings.tsx';
@@ -114,6 +115,8 @@ interface StatusPayload {
 	autoWarmup?: boolean;
 	warmupModels?: readonly string[];
 	autoTranslate?: boolean;
+	translateThinking?: boolean;
+	translateTargetLanguage?: string;
 	translateModel?: string;
 	translateEffort?: string;
 	bindings?: number;
@@ -1167,6 +1170,46 @@ body.dark,
 /* Standalone enable/disable toggle (rows without a segment group). Class-based
    so both states carry a real border, a hover affordance and a visible
    clickable area — the old inline segBtn left the OFF state invisible. */
+/* DSH-style switch used by rows that must render on both surfaces (the desktop
+   settings sheet and the web Plugins page) without depending on host classes. */
+.agy-switch {
+	position: relative;
+	flex: 0 0 auto;
+	width: 40px;
+	height: 22px;
+	padding: 0;
+	border: 1px solid var(--agy-border-btn);
+	border-radius: 999px;
+	background: var(--agy-bg-btn);
+	cursor: pointer;
+	transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.agy-switch[data-on="true"] {
+	background: var(--agy-bg-btn-primary);
+	border-color: var(--agy-border-btn-primary);
+}
+.agy-switch:disabled {
+	opacity: 0.55;
+	cursor: default;
+}
+.agy-switch:focus-visible {
+	outline: 2px solid var(--dsw-alias-state-business-primary, #2563eb);
+	outline-offset: 2px;
+}
+.agy-switch-knob {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+	transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.agy-switch[data-on="true"] .agy-switch-knob {
+	transform: translateX(18px);
+}
 .agy-toggle {
 	display: inline-flex;
 	align-items: center;
@@ -3577,6 +3620,24 @@ export function apply(ctx: ClientContext): void {
 						}).map((option) => h('option', { key: option.value, value: option.value }, option.label))),
 					),
 				),
+				h('div', { className: 'agy-settings-row' },
+					h('div', { className: 'agy-settings-row-copy' },
+						h('div', { className: 'agy-settings-row-title' },
+							h('span', { id: 'agy-thinking-translate-label' }, t('config.translateThinking')),
+						),
+						h('span', { className: 'agy-settings-row-desc' }, t('config.translateThinkingDesc')),
+					),
+					h('button', {
+						type: 'button',
+						role: 'switch',
+						className: 'agy-switch',
+						'aria-labelledby': 'agy-thinking-translate-label',
+						'aria-checked': status?.translateThinking !== false,
+						'data-on': status?.translateThinking !== false ? 'true' : 'false',
+						disabled: loadingAction === 'config:translateThinking',
+						onClick: () => void setCfg('translateThinking', status?.translateThinking === false),
+					}, h('span', { className: 'agy-switch-knob', 'aria-hidden': true })),
+				),
 				h('div', { className: 'dshDesktopSettingsToggleRow' },
 					h('div', { className: 'dshDesktopSettingsChoiceCopy' },
 						h('span', { className: 'dshDesktopSettingsChoiceTitle' }, t('config.defaultEffort')),
@@ -3930,6 +3991,14 @@ export function apply(ctx: ClientContext): void {
 	// Icon-only row actions need an explicit label: one delegated tooltip layer
 	// replaces the slow, unstyled native `title` bubble.
 	ctx.effect(() => installAgyTooltips());
+
+	// Gemini thinks in English: add a Chinese layer to each settled reasoning
+	// block (summary + expanded body) while keeping the original trace intact.
+	ctx.effect(() => installThinkingTranslation({
+		enabled: () => statusCache?.translateThinking !== false,
+		lang: () => statusCache?.translateTargetLanguage ?? '',
+		translate: (text, lang) => translatePlainText(text, lang),
+	}));
 
 	// Interactive compaction card (DeepSeek Flash native visual parity + token delta metrics).
 	ctx.effect(() => installCompactionCard());

@@ -270,6 +270,26 @@ async function postTranslate(body: Record<string, unknown>): Promise<{ ok?: bool
 	}
 }
 
+/**
+ * Translate one block of plain text (no session record, no card).
+ * Used by the thinking-trace layer, which decorates reasoning rows instead of
+ * appending a durable translation node.
+ * @param text - prose to translate.
+ * @param lang - target language wording; the host falls back to its config.
+ * @returns the translated text, or null when the host refused or failed.
+ */
+export async function translatePlainText(text: string, lang?: string): Promise<string | null> {
+	const trimmed = text.trim()
+	if (trimmed === '') return null
+	const res = await postTranslate({
+		text: trimmed,
+		...(lang === undefined || lang.trim() === '' ? {} : { lang: lang.trim() }),
+	})
+	if (!res || res.ok !== true) return null
+	const out = typeof res.text === 'string' ? res.text.trim() : ''
+	return out === '' ? null : out
+}
+
 /** Ask the host whether this reply already owns a durable translation. */
 async function getMessageState(sessionId: string, messageId: string): Promise<{ state?: string } | null> {
 	try {
