@@ -38,12 +38,60 @@ test('priority controls are compact ghost buttons, not native browser buttons', 
 
 test('the identity row never wraps badges onto a second line', () => {
   const heuristics = [
+    /\.agy-account-header \{[^}]*flex-wrap: nowrap !important/,
     /\.agy-account-identity \{[^}]*flex-wrap: nowrap !important/,
     /\.agy-account-state \{[^}]*white-space: nowrap !important/,
-    /\.agy-account-email \{[^}]*white-space: nowrap !important/,
     /\.agy-account-name \{[^}]*white-space: nowrap !important/,
   ]
   for (const pattern of heuristics) assert.match(source, pattern)
+})
+
+test('account identity and its actions share one header row', () => {
+  // The 564px settings column cannot stack a text-labelled action bar under the
+  // email without pushing the row to two lines, so every per-account action is
+  // a 28px icon button and the header never wraps.
+  const actions = source.slice(source.indexOf("className: 'agy-card-actions'"), source.indexOf('// Quota details'))
+  assert.ok(actions.length > 0, 'card actions render')
+  for (const label of ['account.disableTitle', 'account.enableTitle', 'account.syncTitle', 'account.warmupTitle', 'proxy.button', 'account.removeTitle']) {
+    assert.ok(actions.includes(`t('${label}')`), `${label} is used as an accessible name`)
+  }
+  // Every row action is an icon button, not a text button.
+  const iconButtons = actions.match(/agy-account-icon-action/g) ?? []
+  assert.ok(iconButtons.length >= 5, `expected >=5 icon actions, saw ${iconButtons.length}`)
+  assert.equal(/\.agy-card-actions \{[^}]*flex-wrap: nowrap/.test(source), true, 'the action cluster never wraps')
+  assert.match(source, /\.agy-account-icon-action \{[^}]*width: 28px !important/)
+})
+
+test('the toolbar keeps service state and its actions on one line', () => {
+  const start = source.indexOf("className: 'agy-toolbar'")
+  assert.ok(start > 0, 'the toolbar renders')
+  const toolbar = source.slice(start, source.indexOf('renderToastBanner', start))
+  assert.match(toolbar, /className: 'agy-console-status'/)
+  assert.match(toolbar, /className: 'agy-toolbar-actions'/)
+  assert.match(toolbar, /agy-toolbar-btn agy-toolbar-btn-primary/)
+  const css = source.slice(source.indexOf('.agy-toolbar {'), source.indexOf('.agy-toolbar-actions {'))
+  assert.match(css, /flex-wrap: nowrap/)
+  assert.match(css, /justify-content: space-between/)
+  // The state label may ellipsize; the buttons must never shrink.
+  const actionsCss = source.slice(source.indexOf('.agy-toolbar-actions {'), source.indexOf('.agy-toolbar-actions {') + 200)
+  assert.match(actionsCss, /flex: 0 0 auto/)
+})
+
+test('dropdowns wear the DSH control skin instead of the native menulist', () => {
+  const start = source.indexOf('.agy-select {')
+  assert.ok(start > 0, 'the select skin exists')
+  const block = source.slice(start, start + 2600)
+  assert.match(block, /appearance: none !important/)
+  assert.match(block, /-webkit-appearance: none !important/)
+  assert.match(block, /height: 30px !important/)
+  assert.match(block, /border-radius: 8px !important/)
+  assert.match(block, /background-image: url\("data:image\/svg\+xml/, 'the chevron is drawn by the skin')
+  assert.match(block, /background-position: right 7px center !important/)
+  assert.match(block, /border-color: var\(--agy-border-input-focus\) !important/)
+  // The dark sheet needs its own chevron colour.
+  assert.match(source, /body\[data-ds-dark-theme\] \.agy-select[\s\S]{0,600}stroke='%23cbd5e1'/)
+  // No leftover rule may re-impose the old 6px radius.
+  assert.equal(/\.agy-select \{ border-radius: 6px !important; \}/.test(source), false)
 })
 
 test('account cards keep comfortable, readable density', () => {

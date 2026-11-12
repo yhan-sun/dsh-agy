@@ -811,7 +811,8 @@ const GLOBAL_CSS = `
 	--agy-border-card-active: #3b82f6;
 	--agy-border-box: rgba(0, 0, 0, 0.06);
 	--agy-border-subbox: rgba(0, 0, 0, 0.06);
-	--agy-border-input: #cbd5e1;
+	--agy-border-input: rgba(0, 0, 0, 0.16);
+	--agy-border-input-hover: rgba(0, 0, 0, 0.28);
 	--agy-border-input-focus: #2563eb;
 	--agy-border-btn: rgba(0, 0, 0, 0.08);
 	--agy-border-btn-primary: #2563eb;
@@ -930,7 +931,8 @@ body.dark,
 	--agy-border-card-active: rgba(59, 130, 246, 0.45);
 	--agy-border-box: rgba(255, 255, 255, 0.06);
 	--agy-border-subbox: rgba(255, 255, 255, 0.06);
-	--agy-border-input: rgba(255, 255, 255, 0.12);
+	--agy-border-input: rgba(255, 255, 255, 0.14);
+	--agy-border-input-hover: rgba(255, 255, 255, 0.3);
 	--agy-border-input-focus: #3b82f6;
 	--agy-border-btn: rgba(255, 255, 255, 0.1);
 	--agy-border-btn-primary: #3b82f6;
@@ -1055,14 +1057,73 @@ body.dark,
 	display: inline-flex;
 	align-items: center;
 	gap: 7px;
-	padding: 4px 12px;
-	border-radius: 999px;
-	background: var(--agy-bg-card);
-	border: 1px solid var(--agy-border-card);
+	min-width: 0;
 	color: var(--agy-text-secondary);
 	font-size: 12px;
 	font-weight: 500;
-	box-shadow: var(--agy-shadow-card);
+	line-height: 1.4;
+	white-space: nowrap;
+}
+.agy-console-status > span:last-child {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+/* Section toolbar: service state on the left, its actions on the right, always
+   one line. DSH settings rows use the same label-left / control-right rhythm,
+   so the console reads as part of the sheet instead of a separate app. */
+.agy-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	flex-wrap: nowrap;
+	min-width: 0;
+	margin: 0 0 14px;
+}
+.agy-toolbar-actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex: 0 0 auto;
+}
+.agy-toolbar-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	height: 28px;
+	padding: 0 10px;
+	border: 1px solid var(--agy-border-btn);
+	border-radius: 8px;
+	background: var(--agy-bg-btn);
+	color: var(--agy-text-btn);
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.agy-toolbar-btn:hover:not(:disabled) {
+	background: var(--agy-bg-btn-hover);
+	border-color: var(--agy-border-card-hover);
+}
+.agy-toolbar-btn:disabled {
+	opacity: 0.55;
+	cursor: default;
+}
+.agy-toolbar-btn-primary {
+	border-color: var(--agy-border-btn-primary);
+	background: var(--agy-bg-btn-primary);
+	color: var(--agy-text-btn-primary);
+	font-weight: 600;
+}
+.agy-toolbar-btn-primary:hover:not(:disabled) {
+	filter: brightness(1.08);
+	background: var(--agy-bg-btn-primary);
+	border-color: var(--agy-border-btn-primary);
 }
 .agy-console-status-dot {
 	width: 7px;
@@ -1251,28 +1312,29 @@ html.agy-modal-open body {
 	display: flex !important;
 	align-items: center !important;
 	justify-content: space-between !important;
-	gap: 8px 12px !important;
-	flex-wrap: wrap !important;
+	gap: 10px !important;
+	flex-wrap: nowrap !important;
 	margin: 0 !important;
 	min-width: 0;
 }
 .agy-account-identity {
 	display: flex !important;
 	align-items: center !important;
-	gap: 6px !important;
+	gap: 5px !important;
 	flex-wrap: nowrap !important;
 	min-width: 0;
-	flex: 1 1 340px;
+	flex: 1 1 auto;
+	overflow: hidden;
 }
 .agy-account-name {
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 6px !important;
+	gap: 4px !important;
 	min-width: 0;
 	flex: 0 1 auto;
 	color: var(--agy-text-primary) !important;
-	font-size: 13.5px !important;
-	font-weight: 700 !important;
+	font-size: 13px !important;
+	font-weight: 600 !important;
 	line-height: 1.35 !important;
 	white-space: nowrap !important;
 }
@@ -1322,23 +1384,24 @@ html.agy-modal-open body {
 	white-space: nowrap !important;
 	flex-shrink: 0 !important;
 }
+/* Icon-only proxy marker: a full "代理" pill ate the width the email needs on
+   a one-line card header. The proxy URL lives in the tooltip. */
 .agy-account-proxy {
+	width: 20px;
+	height: 20px;
 	color: var(--agy-badge-proxy-text) !important;
 	background: var(--agy-badge-proxy-bg);
 	border: 1px solid var(--agy-badge-proxy-border);
 	border-radius: 999px;
-	padding: 1px 7px;
-	font-size: 10.5px !important;
-	line-height: 1.6 !important;
+	padding: 0;
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 4px !important;
-	white-space: nowrap !important;
+	justify-content: center !important;
 	flex-shrink: 0 !important;
 }
 .agy-account-state {
 	border-radius: 999px !important;
-	padding: 1px 7px !important;
+	padding: 1px 6px !important;
 	font-size: 11px !important;
 	font-weight: 600 !important;
 	line-height: 1.6 !important;
@@ -1379,27 +1442,35 @@ html.agy-modal-open body {
 .agy-card-actions {
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 6px !important;
-	flex-wrap: wrap !important;
+	gap: 5px !important;
+	flex-wrap: nowrap !important;
 	justify-content: flex-end !important;
-	margin-left: auto !important;
-	flex: 0 1 auto !important;
+	margin-left: 0 !important;
+	flex: 0 0 auto !important;
 }
 .agy-account-action {
+	height: 28px !important;
 	min-height: 28px !important;
-	padding: 3px 8px !important;
+	padding: 0 9px !important;
 	border: 1px solid var(--agy-border-btn) !important;
-	border-radius: 6px !important;
+	border-radius: 8px !important;
 	background: var(--agy-bg-btn) !important;
 	color: var(--agy-text-btn) !important;
 	font-size: 11.5px !important;
-	line-height: 1.3 !important;
+	line-height: 1 !important;
 	white-space: nowrap;
 	cursor: pointer;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+/* Icon-only row actions (enable/sync/warmup/proxy/remove): the compact
+   DSH-style square button that keeps a whole account row on one line. */
+.agy-account-icon-action {
+	width: 28px !important;
+	min-width: 28px !important;
+	padding: 0 !important;
 }
 .agy-account-action:hover:not(:disabled) {
 	background: var(--agy-bg-btn-hover) !important;
@@ -1758,10 +1829,50 @@ html.agy-modal-open body {
 	font-weight: 600 !important;
 }
 .agy-setting-models { border-bottom: 1px solid var(--agy-border-divider); }
-.agy-select { border-radius: 6px !important; }
+/* Dropdowns: native <select> wearing the DSH settings control skin — 30px tall,
+   8px radius, layer-1 fill, hairline border and a theme-aware chevron. A native
+   menulist kept the OS chrome (square, grey, system arrow) which read as a
+   browser control inside the tile-based panel. */
+.agy-select {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	-moz-appearance: none !important;
+	height: 30px !important;
+	min-width: 0;
+	max-width: 100%;
+	padding: 0 26px 0 10px !important;
+	border: 1px solid var(--agy-border-input) !important;
+	border-radius: 8px !important;
+	background-color: var(--agy-bg-input) !important;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+	background-repeat: no-repeat !important;
+	background-position: right 7px center !important;
+	background-size: 12px 12px !important;
+	color: var(--agy-text-primary) !important;
+	font-family: inherit !important;
+	font-size: 12px !important;
+	font-weight: 500 !important;
+	line-height: 1.4 !important;
+	text-overflow: ellipsis;
+	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.agy-select:hover:not(:disabled) {
+	border-color: var(--agy-border-input-hover) !important;
+}
+.agy-select:focus,
+.agy-select:focus-visible {
+	border-color: var(--agy-border-input-focus) !important;
+	outline: 2px solid color-mix(in srgb, var(--agy-border-input-focus) 28%, transparent) !important;
+	outline-offset: 1px !important;
+}
+body[data-ds-dark-theme] .agy-select,
+body.dark .agy-select,
+[data-theme="dark"] .agy-select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+}
 .agy-console .agy-btn-primary { box-shadow: none !important; white-space: nowrap; flex: 0 0 auto; }
-.agy-header-actions { flex-wrap: wrap; justify-content: flex-end; gap: 8px !important; }
-.agy-header-actions > button { min-height: 34px; white-space: nowrap; flex: 0 0 auto; }
+.agy-toolbar-actions > button { flex: 0 0 auto; }
 .agy-card-actions > button { min-width: 0; }
 @media (prefers-reduced-motion: reduce) {
 	.agy-card-hover, .agy-btn, .agy-progress-fill { transition: none !important; }
@@ -1861,16 +1972,19 @@ body[data-ds-dark-theme] select.agy-select { color-scheme: dark; }
 	.agy-quota-line > div:nth-child(2) { grid-area: bar; margin: 0 !important; }
 	.agy-quota-line > div:nth-child(3) { grid-area: cluster; min-width: 0 !important; }
 
-	/* Header actions: the primary action keeps a full row, the two
-	   secondary ones share the next. */
-	.agy-header-actions {
+	/* Toolbar: on a phone the state takes the first row and the actions
+	   share the second, each one an equal tap target. */
+	.agy-toolbar {
+		flex-wrap: wrap !important;
+		row-gap: 8px !important;
+	}
+	.agy-toolbar-actions {
 		display: grid !important;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1fr 1fr 1fr;
 		gap: 6px;
 		width: 100%;
 	}
-	.agy-header-actions > button:first-child { grid-column: 1 / -1; }
-	.agy-header-actions > button { width: 100%; justify-content: center; }
+	.agy-toolbar-actions > button { width: 100%; justify-content: center; }
 
 	.agy-setting-row { align-items: flex-start !important; }
 	.agy-setting-copy { padding-right: 0; }
@@ -2122,18 +2236,6 @@ const S: Record<string, Record<string, unknown>> = {
 		fontFamily: 'var(--agy-font-family)',
 		color: 'var(--agy-text-primary)',
 	},
-	headerCard: {
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		padding: '4px 0 14px',
-		background: 'transparent',
-		border: '0',
-		borderRadius: '0',
-		marginBottom: '8px',
-		color: 'var(--agy-text-primary)',
-		boxShadow: 'none',
-	},
 	badgePrimary: {
 		display: 'inline-flex',
 		alignItems: 'center',
@@ -2223,7 +2325,8 @@ const S: Record<string, Record<string, unknown>> = {
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: '5px 10px',
-		borderRadius: '6px',
+		height: '30px',
+		borderRadius: '8px',
 		border: '1px solid var(--agy-border-btn)',
 		background: 'var(--agy-bg-btn)',
 		color: 'var(--agy-text-btn)',
@@ -2237,7 +2340,8 @@ const S: Record<string, Record<string, unknown>> = {
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: '5px 12px',
-		borderRadius: '6px',
+		height: '30px',
+		borderRadius: '8px',
 		border: '1px solid var(--agy-border-btn-primary)',
 		background: 'var(--agy-bg-btn-primary)',
 		color: 'var(--agy-text-btn-primary)',
@@ -2252,7 +2356,7 @@ const S: Record<string, Record<string, unknown>> = {
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: '3px 7px',
-		borderRadius: '6px',
+		borderRadius: '8px',
 		border: '1px solid var(--agy-danger-border)',
 		background: 'var(--agy-danger-bg)',
 		color: 'var(--agy-danger-text)',
@@ -2267,7 +2371,8 @@ const S: Record<string, Record<string, unknown>> = {
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: '3px 8px',
-		borderRadius: '6px',
+		height: '28px',
+		borderRadius: '8px',
 		border: '1px solid var(--agy-border-btn)',
 		background: 'var(--agy-bg-btn)',
 		color: 'var(--agy-text-btn)',
@@ -2282,7 +2387,8 @@ const S: Record<string, Record<string, unknown>> = {
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: '3px 10px',
-		borderRadius: '6px',
+		height: '28px',
+		borderRadius: '8px',
 		border: '1px solid var(--agy-border-btn-primary)',
 		background: 'var(--agy-bg-btn-primary)',
 		color: 'var(--agy-text-btn-primary)',
@@ -2347,21 +2453,21 @@ const S: Record<string, Record<string, unknown>> = {
 		flex: '0 0 auto',
 	},
 	// Native <select> dressed in the console's own tokens. `appearance: none`
-	// plus two gradient chevrons keeps the arrow theme-aware (a background image
-	// cannot read currentColor); color-scheme is set in GLOBAL_CSS so the popup
-	// list follows the theme as well.
+	// plus a background-image chevron keeps the arrow theme-aware (a background
+	// image cannot read currentColor); color-scheme is set in GLOBAL_CSS so the
+	// popup list follows the theme as well.
 	select: {
-		appearance: 'auto',
-		WebkitAppearance: 'menulist',
-		height: '32px',
-		padding: '0 8px',
-		borderRadius: '6px',
+		appearance: 'none',
+		WebkitAppearance: 'none',
+		height: '30px',
+		padding: '0 26px 0 10px',
+		borderRadius: '8px',
 		border: '1px solid var(--agy-border-input)',
 		backgroundColor: 'var(--agy-bg-input)',
 		color: 'var(--agy-text-primary)',
 		fontFamily: 'inherit',
 		fontSize: '12px',
-		fontWeight: 400,
+		fontWeight: 500,
 		cursor: 'pointer',
 		minWidth: '120px',
 		maxWidth: '260px',
@@ -2990,7 +3096,7 @@ export function apply(ctx: ClientContext): void {
 							style: {
 								gap: '3px',
 								fontSize: '10.5px',
-								padding: '1px 7px',
+								padding: '1px 6px',
 							},
 						}, uiIcon('alert', 10, '#ef4444'), t('status.authRequired')) : null,
 						hasCooldown ? h('span', {
@@ -2998,7 +3104,7 @@ export function apply(ctx: ClientContext): void {
 							style: {
 								gap: '3px',
 								fontSize: '10.5px',
-								padding: '1px 7px',
+								padding: '1px 6px',
 							},
 						}, uiIcon('alert', 10, '#f59e0b'), '冷却中') : null,
 						!acc.enabled ? h('span', {
@@ -3009,68 +3115,69 @@ export function apply(ctx: ClientContext): void {
 								border: '1px solid var(--agy-border-subbox)',
 								gap: '3px',
 								fontSize: '10.5px',
-								padding: '1px 7px',
+								padding: '1px 6px',
 							},
 							title: t('status.disabled'),
 						}, uiIcon('power', 10, '#64748b'), t('status.disabled')) : null,
 						acc.proxyUrl ? h('span', {
 							className: 'agy-account-proxy',
-							title: acc.proxyUrl,
-						}, uiIcon('globe', 10, 'var(--agy-badge-proxy-text)'), t('status.proxy')) : null,
+							title: `${t('status.proxy')} · ${acc.proxyUrl}`,
+							'aria-label': t('status.proxy'),
+						}, uiIcon('globe', 11, 'var(--agy-badge-proxy-text)')) : null,
 					),
 					h('div', {
 						className: 'agy-card-actions',
 					},
 						h('button', {
 							type: 'button',
-							className: `agy-btn agy-account-action${acc.enabled ? '' : ' agy-account-action-primary'}`,
-							style: acc.enabled ? { ...S.btnSm, gap: '3px' } : { ...S.btnSmPrimary, gap: '3px' },
+							className: `agy-btn agy-account-action agy-account-icon-action${acc.enabled ? '' : ' agy-account-action-primary'}`,
 							title: acc.enabled ? t('account.disableTitle') : t('account.enableTitle'),
+							'aria-label': acc.enabled ? t('account.disableTitle') : t('account.enableTitle'),
 							disabled: accountActionBusy(acc, 'enable'),
 							onClick: () => void toggleAccountEnabled(acc),
 						}, loadingAction === `enable:${acc.id}`
-							? [renderSpinner(), acc.enabled ? t('account.disable') : t('account.enable')]
-							: [uiIcon('power', 10, 'currentColor'), ` ${acc.enabled ? t('account.disable') : t('account.enable')}`]),
+							? renderSpinner()
+							: uiIcon('power', 13, 'currentColor')),
 						acc.enabled && !isInUse && !isAuthRequired ? h('button', {
 							type: 'button',
-							className: 'agy-btn agy-account-action agy-account-action-primary',
-							style: { ...S.btnSmPrimary, gap: '4px', padding: '3px 10px' },
+							className: 'agy-btn agy-account-action agy-account-icon-action agy-account-action-primary',
 							title: t('account.setActive'),
+							'aria-label': t('account.setActive'),
 							disabled: accountActionBusy(acc, 'active'),
 							onClick: () => void setActiveAccount(acc.id),
-						}, loadingAction === `active:${acc.id}` ? [renderSpinner(), t('account.settingActive')] : [uiIcon('zap', 11), ` ${t('account.setActive')}`]) : null,
+						}, loadingAction === `active:${acc.id}` ? renderSpinner() : uiIcon('zap', 13)) : null,
 						h('button', {
 							type: 'button',
-							className: 'agy-btn agy-account-action',
-							style: { ...S.btnSm, gap: '3px' },
+							className: 'agy-btn agy-account-action agy-account-icon-action',
 							title: t('account.syncTitle'),
+							'aria-label': t('account.syncTitle'),
 							disabled: accountActionBusy(acc, 'refresh'),
 							onClick: () => void refreshQuota(acc.id),
-						}, loadingAction === `refresh:${acc.id}` ? [renderSpinner(), t('account.syncing')] : [uiIcon('refresh', 10), ` ${t('account.sync')}`]),
+						}, loadingAction === `refresh:${acc.id}` ? renderSpinner() : uiIcon('refresh', 13)),
 						acc.enabled && !acc.authRequired ? h('button', {
 							type: 'button',
-							className: 'agy-btn agy-account-action',
-							style: { ...S.btnSm, gap: '3px' },
+							className: 'agy-btn agy-account-action agy-account-icon-action',
 							title: t('account.warmupTitle'),
+							'aria-label': t('account.warmupTitle'),
 							disabled: accountActionBusy(acc, 'warmup'),
 							onClick: () => void warmupAccount(acc.id),
-						}, loadingAction === `warmup:${acc.id}` ? [renderSpinner(), t('account.warmingUp')] : [uiIcon('flame', 10, 'var(--agy-text-secondary)'), ` ${t('account.warmup')}`]) : null,
+						}, loadingAction === `warmup:${acc.id}` ? renderSpinner() : uiIcon('flame', 13, 'var(--agy-text-secondary)')) : null,
 						h('button', {
 							type: 'button',
-							className: `agy-btn agy-account-action${isEditingProxy ? ' agy-account-action-primary' : ''}`,
-							style: isEditingProxy ? { ...S.btnSmPrimary, gap: '3px' } : { ...S.btnSm, gap: '3px' },
+							className: `agy-btn agy-account-action agy-account-icon-action${isEditingProxy ? ' agy-account-action-primary' : ''}`,
+							title: t('proxy.button'),
+							'aria-label': t('proxy.button'),
 							disabled: accountActionBusy(acc, 'proxy'),
 							onClick: () => setEditingProxyId(isEditingProxy ? null : acc.id),
-						}, [uiIcon('globe', 10), ` ${t('proxy.button')}`]),
+						}, uiIcon('globe', 13)),
 						accounts.length > 1 ? h('button', {
 							type: 'button',
-							className: 'agy-btn agy-account-action agy-account-action-danger',
-							style: S.btnDanger,
+							className: 'agy-btn agy-account-action agy-account-icon-action agy-account-action-danger',
 							title: t('account.removeTitle'),
 							'aria-label': t('account.removeTitle'),
 							disabled: accountActionBusy(acc, 'remove'),
 							onClick: () => void removeAccount(acc.id, displayAlias),
-						}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon('trash', 11, 'currentColor')) : null,
+						}, loadingAction === `remove:${acc.id}` ? renderSpinner() : uiIcon('trash', 13, 'currentColor')) : null,
 					),
 				),
 				// Quota details
@@ -3283,7 +3390,7 @@ export function apply(ctx: ClientContext): void {
 		}
 
 		return h('div', { className: 'agy-console', style: S.container },
-			h('div', { style: S.headerCard },
+			h('div', { className: 'agy-toolbar' },
 				h('div', { className: 'agy-console-status', role: 'status' },
 					h('span', {
 						className: 'agy-console-status-dot',
@@ -3292,26 +3399,23 @@ export function apply(ctx: ClientContext): void {
 					}),
 					h('span', null, status?.enabled === false ? t('status.disabled') : isAuthed ? (status.experimentalDirect ? '服务就绪 · 直连加速' : '服务就绪 · AGY CLI') : t('status.unverified')),
 				),
-				h('div', { className: 'agy-header-actions', style: { display: 'flex', gap: '6px', alignItems: 'center' } },
+				h('div', { className: 'agy-toolbar-actions' },
 					!addingAccount ? h('button', {
 						type: 'button',
-						className: 'agy-btn agy-btn-primary',
-						style: { ...S.btnPrimary, gap: '4px' },
+						className: 'agy-toolbar-btn agy-toolbar-btn-primary',
 						onClick: () => setAddingAccount(true),
 					}, [uiIcon('plus', 12, 'currentColor'), ` ${t('header.addAccount')}`]) : null,
 					h('button', {
 						type: 'button',
-						className: 'agy-btn',
+						className: 'agy-toolbar-btn',
 						title: t('header.warmup'),
-						style: { ...S.btn, gap: '4px' },
 						disabled: isBusy,
 						onClick: () => void warmupAccount(),
 					}, loadingAction === 'warmup:all' ? [renderSpinner(), t('header.warmingUp')] : [uiIcon('flame', 12, 'var(--agy-text-secondary)'), ` ${t('header.warmup')}`]),
 					h('button', {
 						type: 'button',
-						className: 'agy-btn',
+						className: 'agy-toolbar-btn',
 						title: t('header.refreshQuota'),
-						style: { ...S.btn, gap: '4px' },
 						disabled: isBusy,
 						onClick: () => void refreshQuota(),
 					}, loadingAction === 'refresh:all' ? [renderSpinner(), t('header.refreshing')] : [uiIcon('refresh', 12, 'var(--agy-text-btn)'), ` ${t('header.refreshQuota')}`]),
