@@ -92,6 +92,7 @@ This fork requires a user-provided Google OAuth client for the in-app login and 
 | Key | Environment | Default | Description |
 | --- | --- | --- | --- |
 | `autoTranslate` | `DSH_AGY_AUTO_TRANSLATE` | `false` | Translate every completed turn |
+| `translateThinking` | `DSH_AGY_TRANSLATE_THINKING` | `true` | Show a Chinese translation above each reasoning block (English original kept below) |
 | `translateModel` | `DSH_AGY_TRANSLATE_MODEL` | `gemini-3.8-flash` | Translate model, with catalog fallback |
 | `translateEffort` | `DSH_AGY_TRANSLATE_EFFORT` | `high` | Reasoning effort for the translate model |
 | `translateTargetLanguage` | `DSH_AGY_TRANSLATE_LANG` | `中文（简体）` | Target language wording in the prompt |
