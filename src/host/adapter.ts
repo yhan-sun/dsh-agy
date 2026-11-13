@@ -1369,7 +1369,22 @@ export class AgyAdapter extends LlmAdapter {
       const telemetry: StreamChunk[] = []
       let finish: StreamChunk | null = null
       const attemptState = { warmUsed: false }
+      // Per-run timing. agy pays auth + model discovery before it even sends
+      // the prompt, and DSH's own "first token" metric cannot say which half
+      // that is; this line splits spawn → first chunk → first text → finish so
+      // a slow turn can be attributed instead of guessed at.
+      const t0 = Date.now()
+      let tFirstSignal: number | null = null
+      let tFirstReasoning: number | null = null
+      let tFirstText: number | null = null
       for await (const chunk of this.streamAttempt(options, effortReplay, attemptState)) {
+        if (tFirstSignal === null) tFirstSignal = Date.now()
+        if (tFirstReasoning === null && (chunk.type === 'reasoning-delta' || (chunk.type === 'block-start' && (chunk as { block?: { type?: string } }).block?.type === 'reasoning'))) {
+          tFirstReasoning = Date.now()
+        }
+        if (tFirstText === null && (chunk.type === 'text-delta' || (chunk.type === 'block-start' && (chunk as { block?: { type?: string } }).block?.type === 'text'))) {
+          tFirstText = Date.now()
+        }
         if (chunk.type === 'finish') {
           // Hold the finish back one step: a refusal must not reach the caller
           // when the replay is about to succeed.
@@ -1405,6 +1420,18 @@ export class AgyAdapter extends LlmAdapter {
         continue
       }
       for (const chunk of telemetry) yield chunk
+      {
+        const done = Date.now()
+        const rel = (t: number | null) => (t === null ? '-' : String(t - t0))
+        this.deps.log?.(
+          'run timing (ms): first-signal=' + rel(tFirstSignal)
+          + ' first-reasoning=' + rel(tFirstReasoning)
+          + ' first-text=' + rel(tFirstText)
+          + ' total=' + String(done - t0)
+          + ' warm=' + String(attemptState.warmUsed)
+          + ' finish=' + finish.reason.kind,
+        )
+      }
       // Turn finished. agy re-pays silent auth + model discovery (~3-7s) on the
       // next turn, so start that process now and let it finish those handshakes
       // while the reader types. Tool-call cuts are NOT pre-warmed: the live

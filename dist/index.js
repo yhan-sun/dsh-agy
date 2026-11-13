@@ -7505,7 +7505,14 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 			const telemetry = [];
 			let finish = null;
 			const attemptState = { warmUsed: false };
+			const t0 = Date.now();
+			let tFirstSignal = null;
+			let tFirstReasoning = null;
+			let tFirstText = null;
 			for await (const chunk of this.streamAttempt(options, effortReplay, attemptState)) {
+				if (tFirstSignal === null) tFirstSignal = Date.now();
+				if (tFirstReasoning === null && (chunk.type === "reasoning-delta" || chunk.type === "block-start" && chunk.block?.type === "reasoning")) tFirstReasoning = Date.now();
+				if (tFirstText === null && (chunk.type === "text-delta" || chunk.type === "block-start" && chunk.block?.type === "text")) tFirstText = Date.now();
 				if (chunk.type === "finish") {
 					finish = chunk;
 					continue;
@@ -7536,6 +7543,11 @@ var AgyAdapter = class AgyAdapter extends LlmAdapter {
 				continue;
 			}
 			for (const chunk of telemetry) yield chunk;
+			{
+				const done = Date.now();
+				const rel = (t) => t === null ? "-" : String(t - t0);
+				this.deps.log?.("run timing (ms): first-signal=" + rel(tFirstSignal) + " first-reasoning=" + rel(tFirstReasoning) + " first-text=" + rel(tFirstText) + " total=" + String(done - t0) + " warm=" + String(attemptState.warmUsed) + " finish=" + finish.reason.kind);
+			}
 			if (finish.reason.kind === "stop") this.schedulePrewarm(options.sessionId === void 0 ? "" : String(options.sessionId));
 			yield finish;
 			return;
