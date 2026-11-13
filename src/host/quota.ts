@@ -750,9 +750,9 @@ export class QuotaService {
 
   /**
    * Get a valid access token, refreshing via refresh_token when expired.
-   * Uses OAuth client credentials supplied by the DSH host environment.
-   * Refresh remains disabled until both AGY_CLIENT_ID and
-   * AGY_CLIENT_SECRET are configured.
+   * Uses the client pair from `resolveClientCredentials()`: the environment
+   * override when both `AGY_CLIENT_ID` and `AGY_CLIENT_SECRET` are set,
+   * otherwise the built-in desktop client identity.
    *
    * Concurrent calls for the SAME account share one in-flight attempt: the
    * poll timer, three manual HTTP entry points and per-account allSettled

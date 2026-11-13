@@ -34,10 +34,41 @@ Use a deliberately scoped workspace and test the exact commands and agy
 version you intend to operate. `skip` remains an explicit unattended-execution
 choice, not a fallback applied by this plugin.
 
+## Where credentials live
+
+Signing in means writing the token in `agy`'s own on-disk format, so that the
+official binary can use it. The plugin does write that file — for the account
+being signed in, and nothing else:
+
+- **POSIX.** Each pool account gets its own HOME under
+  `~/.dsh/agy-accounts/<id>` (mode `0700`), and its token file
+  `.gemini/antigravity-cli/antigravity-oauth-token` is written with mode `0600`.
+  Pool records (`pool.json`, plus a `pool.json.last-good` snapshot) sit in the
+  same directory and also carry `0600`.
+- **The primary slot** represents whatever account is logged into the real
+  system HOME. Signing in there updates that account in place; the plugin never
+  stages, commits or deletes the real home directory.
+- **Windows.** `agy.exe` resolves its Google credential from one process-global
+  Credential Manager target, `gemini:antigravity`, and ignores `HOME` there — so
+  directory isolation does not isolate credentials. Multi-account work therefore
+  hands that single slot back and forth: slot ownership is serialised, the
+  credential's identity is verified before it is adopted, and the previous
+  owner's credential is restored. A durable primary record makes a later handoff
+  restore the login that actually started it rather than "whatever the slot
+  happened to hold". `dispatchTimeoutMinutes`, `dispatchRetries` and
+  `parallelSameAccount` govern how long a run waits for the slot.
+- **Direct transport.** Separate store (`~/.dsh/agy-link/direct/`), separate
+  client identity, separate login. It never imports an AGY-mode account and is
+  never used as an automatic fallback.
+
 ## What it never touches
 
-- The OAuth token file (see [AUTH.md](AUTH.md)).
 - DSH-side secrets, API keys, or other providers' configuration.
+- An existing `agy` login is never imported implicitly; sign-in is an explicit
+  action, and its tokens are written only into the account directory that owns
+  the flow.
+- Log and diagnostic output: `/agy doctor` redacts before writing (see below),
+  and proxy credentials are never echoed back into errors or `/agy pool`.
 
 ## Report hygiene
 

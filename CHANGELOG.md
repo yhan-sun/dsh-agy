@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased (this fork)
+
+Everything below is fork-local work on top of upstream `0.6.15`; it is not a released version and does not change the package version.
+
+### English
+
+- **Feat(transport): the experimental direct transport now ships inside this one plugin.** Sources are vendored under `direct/` (from the local `dsh-antigravity-auth` fork and `@cortexkit/antigravity-auth-core` 2.2.0, MIT, with attribution in `direct/README.md`). It is off by default, keeps its own credentials, registers a separate `Antigravity (direct, experimental)` provider, never falls back to or from AGY mode, and takes its own HTTP CONNECT proxy. Search, image and video are individually opt-in. The OAuth client identity is read from `AGY_CLIENT_ID`/`AGY_CLIENT_SECRET` or a `0600` `~/.dsh/agy-link/direct/oauth-client.json`; repeated OAuth callbacks are handled consistently, and cached token accounting was fixed when direct mode went live.
+- **Feat(pool): one account pool across both transports**, with a redesigned console: single-line toolbar, icon-only account actions with hover bubbles, DSH-style dropdowns, and an explicit scheduling-mode row. Manual selection stays the default.
+- **Feat(client): a Chinese layer above each English thinking block** (`translateThinking`, on by default). It never translates while a turn is still streaming, and the cached summary is kept to its first line.
+- **Perf(host): opt-in pre-warm of the next `agy` process after a turn** (`warmStart`). It never overlaps a live process and stays off on Windows unless explicitly enabled.
+- **Feat(host): a per-run timing split is logged for every turn** (process start, generating, tool steps) to make slow turns diagnosable.
+- **Style(ui): settings surface aligned with DSH's design language** — emoji replaced by inline SVG icons, navigation icon duplication fixed, stale injected CSS refreshed.
+- **Docs:** README rewritten in English with a new Chinese README, the direct-transport keys added to the configuration reference, `screenshots.json` declared for plugin storefronts, and the strict-pnpm `allowBuilds` install path documented. Account email addresses were redacted from the account-pool screenshot.
+
+### 中文
+
+- **新增(传输)：实验性直连传输并入本插件。** 源码 vendored 在 `direct/`（来自本地 `dsh-antigravity-auth` 副本与 `@cortexkit/antigravity-auth-core` 2.2.0，MIT，署名见 `direct/README.md`）。默认关闭；凭据独立，注册独立的 `Antigravity (direct, experimental)` provider，与 AGY 模式互不回退，代理也独立（HTTP CONNECT）。搜索、图像、视频分别开关。OAuth 客户端从 `AGY_CLIENT_ID`/`AGY_CLIENT_SECRET` 或 `0600` 权限的 `~/.dsh/agy-link/direct/oauth-client.json` 读取；重复回调处理一致，直连上线时另修复了缓存 token 计量。
+- **新增(账号池)：两种传输共用一个账号池**，控制台重做：单行工具栏、仅图标操作配悬浮说明、DSH 风格下拉框、显式调度模式行；默认仍为手动指定。
+- **新增(客户端)：英文思考块上方的中文层**（`translateThinking`，默认开启）。回合仍在流式输出时不翻译，缓存摘要只保留首行。
+- **性能(host)：可选的回合后预热下一个 `agy` 进程**（`warmStart`）。绝不与在跑的进程重叠，Windows 上除非显式开启否则不预热。
+- **新增(host)：每轮记录耗时拆分**（进程启动、生成、工具步），便于定位慢回合。
+- **样式(ui)：设置界面按 DSH 设计语言对齐**——emoji 换成内联 SVG 图标，修复导航图标重复，刷新过期的注入 CSS。
+- **文档：** 重写英文 README 并新增中文 README，配置参考补上直连键位，声明 `screenshots.json` 供插件市场使用，补充严格 pnpm `allowBuilds` 的安装说明；账号池截图中的邮箱地址已脱敏。
+
 ## 0.6.15 (2026-11-10)
 
 ### English

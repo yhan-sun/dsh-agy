@@ -2,7 +2,7 @@
 
 Resolution order (highest first): `DSH_AGY_*` environment variable → runtime overrides written by `/agy` (`.dsh/agy-link/runtime-overrides.json`) → plugin entry config in the DSH profile → defaults below.
 
-This fork requires a user-provided Google OAuth client for the in-app login and token refresh. Set `AGY_CLIENT_ID` and `AGY_CLIENT_SECRET` in the environment that launches the DSH host. They are separate from `DSH_AGY_*` plugin settings and are never included in this repository.
+AGY-mode login works out of the box: the package carries the public desktop OAuth client identity inherited from the attributed core source. To use a client you registered yourself, set `AGY_CLIENT_ID` and `AGY_CLIENT_SECRET` **together** in the environment that launches the DSH host — supplying only one is an error. These two are separate from the `DSH_AGY_*` plugin settings, and the experimental direct transport requires its own client identity (see [Direct transport](#direct-transport-experimental) below).
 
 | Legend | Meaning |
 | --- | --- |
@@ -17,6 +17,20 @@ This fork requires a user-provided Google OAuth client for the in-app login and 
 | `extraArgs` | `DSH_AGY_EXTRA_ARGS` | `[]` | Extra argv appended to every `agy` spawn (space separated in the env var) |
 | `permissionMode` | `DSH_AGY_MODE` | `accept-edits` | `skip` / `plan` / `accept-edits`. `DSH_AGY_SKIP_PERMISSIONS` maps `true`→`skip`, `false`→`plan` |
 | `workspaceRoot` | `DSH_AGY_WORKSPACE_ROOT` | `''` (session cwd) | Workspace root passed to agy |
+
+## Direct transport (experimental)
+
+Disabled by default. The direct transport is part of this plugin, not a second package: it keeps its own credentials, never falls back to or from AGY mode, and relies on non-public endpoints, so availability and account acceptance are not guaranteed.
+
+| Key | Environment | Default | Description |
+| --- | --- | --- | --- |
+| `experimentalDirect` | `DSH_AGY_DIRECT` | `false` | Opt in to the direct transport; adds the `Antigravity (direct, experimental)` provider |
+| `directSearch` | — | `false` | Individually enable web search over the direct transport |
+| `directImage` | — | `false` | Individually enable image generation over the direct transport |
+| `directVideo` | — | `false` | Individually enable video analysis over the direct transport |
+| `directProxyUrl` | — | `''` | Separate HTTP CONNECT proxy for direct requests; empty means a direct connection. Independent of `proxyUrl` |
+
+The direct OAuth client identity is not a plugin setting and is never stored in the profile: provide `AGY_CLIENT_ID` and `AGY_CLIENT_SECRET` in the environment that launches the Host, or keep `~/.dsh/agy-link/direct/oauth-client.json` with mode `0600` and the fields `clientId` and `clientSecret`. Source provenance and licenses are in [../direct/README.md](../direct/README.md).
 
 ## Models and effort
 
@@ -41,6 +55,7 @@ This fork requires a user-provided Google OAuth client for the in-app login and 
 | `parallelSameAccount` | `—` | `true` | Concurrent sessions on the credential already in the slot start without exclusivity; `false` restores full slot exclusivity |
 | `maxConcurrent` | `—` | `0` (unlimited) | Cross-session cap on concurrent agy streams |
 | `rateLimitPerMinute` | `DSH_AGY_RATE_LIMIT_PER_MINUTE` | `0` (off) | Admission cap on requests per minute |
+| `warmStart` | `DSH_AGY_WARM_START` | `false` | Opt-in: pre-launch the next agy process after a turn, never overlapping a live process (off by default on Windows) |
 
 ## Context and metering
 
@@ -91,7 +106,6 @@ This fork requires a user-provided Google OAuth client for the in-app login and 
 
 | Key | Environment | Default | Description |
 | --- | --- | --- | --- |
-| `warmStart` | `DSH_AGY_WARM_START` | `false` | Opt-in: pre-launch the next agy process after a turn (waits for the previous process to exit first) |
 | `autoTranslate` | `DSH_AGY_AUTO_TRANSLATE` | `false` | Translate every completed turn |
 | `translateThinking` | `DSH_AGY_TRANSLATE_THINKING` | `true` | Show a Chinese translation above each reasoning block (English original kept below) |
 | `translateModel` | `DSH_AGY_TRANSLATE_MODEL` | `gemini-3.8-flash` | Translate model, with catalog fallback |
