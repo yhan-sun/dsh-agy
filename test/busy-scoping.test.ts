@@ -31,9 +31,17 @@ function section(from: string, to: string): string {
 	return src.slice(start, end)
 }
 
-/** The per-account action-button block inside the rendered account cards. */
+/**
+ * The per-account action-button block inside the rendered account cards.
+ *
+ * Anchored on the enable/disable button's accessible label rather than on
+ * `title:`: the icon-only redesign (0.6.15-era client) moved the hover text to
+ * `data-agy-tip` plus `aria-label` and kept the same per-action `disabled`
+ * semantics, so the anchor follows the label and this test keeps guarding the
+ * contract it was written for.
+ */
 function accountActionBlock(): string {
-	const start = src.indexOf("title: acc.enabled ? t('account.disableTitle')")
+	const start = src.indexOf("'data-agy-tip': acc.enabled ? t('account.disableTitle')")
 	assert.ok(start > 0, 'account action buttons must exist')
 	return src.slice(start, start + 3200)
 }

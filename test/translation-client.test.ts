@@ -90,6 +90,12 @@ function loadPlugin(fetchImpl?: (url: string, init?: unknown) => Promise<unknown
         document: fakeDocument,
         innerWidth: 1200,
         innerHeight: 800,
+        // The icon-only redesign installs the tooltip module, which registers
+        // dismiss listeners on `window` (scroll / resize). A sandbox window with
+        // no listener API is not a browser, so stub the pair as no-ops instead
+        // of contorting the production code around a fake DOM.
+        addEventListener: () => {},
+        removeEventListener: () => {},
         ...(fetchImpl === undefined ? {} : { fetch: fetchImpl }),
       },
       document: fakeDocument,
@@ -350,8 +356,13 @@ test('the hint is ONE body-level node, placed below the anchor, clamped, then hi
   })
 
   show(box(600, 100, 24, 124))
-  assert.equal(dom.bodyChildren.length, 1, 'hovering creates the shared node once')
-  const node = dom.bodyChildren[0]! as { style: Record<string, string>; textContent?: string; attrs: Record<string, string> }
+  // The body now also carries the icon-only redesign's shared `.agy-tooltip`
+  // node, so count the HINT nodes by class instead of assuming the body is
+  // otherwise empty. The contract is unchanged: one body-level hint node,
+  // created on the first hover and reused afterwards.
+  const hintNodes = () => dom.bodyChildren.filter((n) => (n as { attrs?: Record<string, string> }).attrs?.class === 'agy-tsl-tip')
+  assert.equal(hintNodes().length, 1, 'hovering creates the shared node once')
+  const node = hintNodes()[0]! as { style: Record<string, string>; textContent?: string; attrs: Record<string, string> }
   assert.equal(node.attrs.role, 'tooltip')
   // The bubble styling (background/padding/13px/radius) lives on `.agy-tsl-tip`.
   // Regression: the node was created without that class, so the CSS never applied
@@ -366,7 +377,7 @@ test('the hint is ONE body-level node, placed below the anchor, clamped, then hi
 
   // A second hover reuses the same node instead of stacking hints.
   show(box(300, 200))
-  assert.equal(dom.bodyChildren.length, 1, 'singleton')
+  assert.equal(hintNodes().length, 1, 'singleton')
   assert.equal(node.style.top, '230px')
 
   // Left edge: clamped to the 8px margin instead of overflowing the viewport.
